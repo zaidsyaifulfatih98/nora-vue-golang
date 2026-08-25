@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Aloja';
+  src: url('/fonts/Aloja-Light.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-poppins: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-dm-serif: 'DM Serif Display', serif;
+  --font-dm-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-aloja: 'Aloja', cursive;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

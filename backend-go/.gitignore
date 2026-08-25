@@ -1,0 +1,12 @@
+# Build output
+/bin
+/tmp
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea
+.vscode
