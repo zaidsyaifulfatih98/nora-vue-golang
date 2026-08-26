@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"google.golang.org/api/sheets/v4"
 
 	"nora-photobooth-backend/internal/config"
@@ -9,14 +11,19 @@ import (
 )
 
 func main() {
+	fmt.Println("boot: process started")
+
 	logging.Init()
+	logging.Log.Info().Msg("boot: logger ready, loading config")
 
 	cfg := config.Load()
+	logging.Log.Info().Str("port", cfg.Port).Bool("has_database_url", cfg.DatabaseURL != "").Msg("boot: config loaded, connecting to database")
 
 	db, err := config.ConnectDatabase(cfg)
 	if err != nil {
 		logging.Log.Fatal().Err(err).Msg("failed to connect to database")
 	}
+	logging.Log.Info().Msg("boot: database connected and migrated")
 
 	var sheetsSvc *sheets.Service
 	if cfg.GoogleServiceAccountEmail != "" && cfg.GooglePrivateKey != "" {

@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"nora-photobooth-backend/internal/logging"
 	"nora-photobooth-backend/internal/models"
 )
 
@@ -15,6 +16,16 @@ func ConnectDatabase(cfg *Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	logging.Log.Info().Msg("boot: gorm.Open succeeded, pinging database")
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	if err := sqlDB.Ping(); err != nil {
+		return nil, err
+	}
+	logging.Log.Info().Msg("boot: ping succeeded, starting AutoMigrate")
 
 	if err := db.AutoMigrate(
 		&models.User{},
