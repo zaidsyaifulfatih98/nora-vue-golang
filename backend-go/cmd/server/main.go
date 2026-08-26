@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		logging.Log.Fatal().Err(err).Msg("failed to connect to database")
 	}
-	logging.Log.Info().Msg("boot: database connected and migrated")
+	logging.Log.Info().Msg("boot: database connected")
 
 	var sheetsSvc *sheets.Service
 	if cfg.GoogleServiceAccountEmail != "" && cfg.GooglePrivateKey != "" {

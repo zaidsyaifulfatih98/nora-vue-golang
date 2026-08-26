@@ -25,9 +25,18 @@ func ConnectDatabase(cfg *Config) (*gorm.DB, error) {
 	if err := sqlDB.Ping(); err != nil {
 		return nil, err
 	}
-	logging.Log.Info().Msg("boot: ping succeeded, starting AutoMigrate")
+	logging.Log.Info().Msg("boot: ping succeeded")
 
-	if err := db.AutoMigrate(
+	return db, nil
+}
+
+// Migrate runs schema migrations. Run it once via `go run ./cmd/migrate`
+// against the target database instead of on every server boot: DDL against
+// Neon's pooled (PgBouncer transaction-mode) endpoint can hang indefinitely,
+// and running it on every serverless cold start risks lock contention
+// between concurrent invocations.
+func Migrate(db *gorm.DB) error {
+	return db.AutoMigrate(
 		&models.User{},
 		&models.Package{},
 		&models.Feature{},
@@ -36,9 +45,5 @@ func ConnectDatabase(cfg *Config) (*gorm.DB, error) {
 		&models.GalleryPhoto{},
 		&models.Review{},
 		&models.FinanceEntry{},
-	); err != nil {
-		return nil, err
-	}
-
-	return db, nil
+	)
 }
