@@ -127,7 +127,7 @@ async function handleTogglePublished(review: ReviewItem) {
           </label>
           <div class="flex items-center gap-3">
             <button class="text-gray-400 hover:text-blue-600" aria-label="Edit" @click="openEditForm(review)"><Icon name="fe:pencil" /></button>
-            <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(review.id)"><Icon name="fe:trash-2" /></button>
+            <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(review.id)"><Icon name="lucide:trash-2" /></button>
           </div>
         </div>
       </div>

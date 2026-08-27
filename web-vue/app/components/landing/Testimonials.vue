@@ -40,7 +40,7 @@ const reviews = computed(() => fetched.value ?? FALLBACK_REVIEWS)
     <div class="mx-auto max-w-7xl px-6 lg:px-10">
       <div class="mx-auto max-w-2xl text-center">
         <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">Testimoni</span>
-        <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">Cerita dari Pasangan yang Kami Temani</h2>
+        <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">Cerita dari event yang kami temani</h2>
       </div>
 
       <TestimonialsMarquee :reviews="reviews" />

@@ -3,11 +3,18 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="bg-[#12161F] pt-16 pb-8 text-[#D7D4CC]">
+  <footer class="bg-[#920f0f] pt-16 pb-8 text-[#D7D4CC]">
     <div class="mx-auto max-w-7xl px-6 lg:px-10">
       <div class="grid gap-10 sm:grid-cols-3 lg:grid-cols-3">
         <div>
-          <img src="/nora_logo.png" alt="Nora Photobooth" class="h-9 w-auto" />
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full shadow-md">
+              <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
+            </span>
+            <span class="font-aloja text-2xl tracking-wide text-[#FAF9F6]">
+              Nora <span class="text-[#FAF9F6]">Photobooth</span>
+            </span>
+          </div>
           <p class="mt-4 font-poppins text-sm leading-relaxed">
             Menemani hari bahagiamu dengan sesi foto yang elegan, seru, dan penuh kenangan.
           </p>

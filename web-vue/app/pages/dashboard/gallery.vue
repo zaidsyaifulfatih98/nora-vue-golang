@@ -70,7 +70,7 @@ async function handleToggleActive(photo: GalleryPhotoItem) {
           class="absolute right-2 bottom-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-xs text-gray-500 shadow-md transition hover:bg-red-600 hover:text-white"
           @click="handleDelete(photo.id)"
         >
-          <Icon name="fe:trash-2" />
+          <Icon name="lucide:trash-2" />
         </button>
         <div class="p-3">
           <p class="truncate text-xs text-gray-500">{{ photo.caption || 'Tanpa keterangan' }}</p>

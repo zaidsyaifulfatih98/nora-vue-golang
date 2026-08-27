@@ -20,6 +20,12 @@ function formatRupiah(value: string) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value))
 }
 
+const DEFAULT_MESSAGE = 'Halo Nora Photobooth, saya ingin bertanya-tanya seputar paket photobooth.'
+const config = useRuntimeConfig()
+const waHref = computed(
+  () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`,
+)
+
 const fetched = await useServerFetch<PackageItem[]>('/packages', 'landing-packages')
 const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES)
 </script>
@@ -65,7 +71,12 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES)
       </div>
 
       <div class="mt-12 flex justify-center">
-        <a href="#booking" class="inline-flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]">
+        <a
+          :href="waHref"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]"
+        >
           Pilih Paket Sekarang
         </a>
       </div>

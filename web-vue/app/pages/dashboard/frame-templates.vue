@@ -171,7 +171,7 @@ async function handleToggleFit(template: FrameTemplateItem) {
             </label>
             <div class="flex items-center gap-3">
               <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="openEditForm(template)"><Icon name="fe:pencil" /></button>
-              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(template.id)"><Icon name="fe:trash-2" /></button>
+              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(template.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>
         </div>

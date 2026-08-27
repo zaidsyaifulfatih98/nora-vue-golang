@@ -218,7 +218,7 @@ async function handleToggleActive(pkg: PackageItem) {
               <Icon name="fe:pencil" />
             </button>
             <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(pkg.id)">
-              <Icon name="fe:trash-2" />
+              <Icon name="lucide:trash-2" />
             </button>
           </div>
         </div>

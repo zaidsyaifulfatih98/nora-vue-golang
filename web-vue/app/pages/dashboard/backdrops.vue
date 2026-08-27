@@ -116,7 +116,7 @@ async function handleToggleActive(backdrop: BackdropItem) {
             </label>
             <div class="flex items-center gap-3">
               <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="openEditForm(backdrop)"><Icon name="fe:pencil" /></button>
-              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(backdrop.id)"><Icon name="fe:trash-2" /></button>
+              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(backdrop.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>
         </div>

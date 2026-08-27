@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 
@@ -100,7 +101,7 @@ func (h *Handler) Update(c *gin.Context) {
 		updates["description"] = *req.Description
 	}
 	if req.Features != nil {
-		updates["features"] = *req.Features
+		updates["features"] = pq.StringArray(*req.Features)
 	}
 	if req.IsPopular != nil {
 		updates["is_popular"] = *req.IsPopular
