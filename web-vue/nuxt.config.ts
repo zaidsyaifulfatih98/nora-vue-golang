@@ -44,6 +44,9 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Sewa photobooth untuk pernikahan, ulang tahun, dan acara spesial lainnya.' },
       ],
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/noraPhotobooth.png' },
+      ],
     },
   },
 })
