@@ -54,8 +54,8 @@ onMounted(async () => {
       </div>
 
       <div class="rounded-2xl border-gray-100 bg-white p-5 shadow-md">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F1E4D6]">
-          <Icon name="fe:dollar" class="text-lg text-[#8F6F3E]" />
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9EAF0]">
+          <Icon name="fe:dollar" class="text-lg text-[#1E2537]" />
         </div>
         <p class="mt-2 text-sm text-gray-500">Saldo</p>
         <p class="text-2xl font-bold text-gray-900">{{ loading ? '...' : formatRupiah(summary?.balance ?? 0) }}</p>
@@ -64,8 +64,8 @@ onMounted(async () => {
 
     <div class="mt-6 grid gap-6 sm:grid-cols-3">
       <NuxtLink to="/dashboard/packages" class="flex items-center gap-4 rounded-2xl border-gray-100 bg-white p-5 shadow-md transition hover:-translate-y-0.5">
-        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100">
-          <Icon name="fe:package" class="text-lg text-blue-600" />
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5E1E1]">
+          <Icon name="fe:package" class="text-lg text-[#920f0f]" />
         </div>
         <div>
           <p class="text-sm text-gray-500">Paket Aktif</p>

@@ -42,6 +42,13 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         >
           {{ link.label }}
         </a>
+        <NuxtLink
+          to="/login"
+          class="flex items-center gap-2 rounded-full bg-[#1E2537] px-5 py-2 text-sm font-semibold text-[#FAF9F6] transition hover:bg-[#920f0f]"
+        >
+          <Icon name="lucide:log-in" />
+          Login
+        </NuxtLink>
       </div>
 
       <button aria-label="Buka menu" class="text-2xl text-[#1E2537] lg:hidden" @click="open = !open">
@@ -66,6 +73,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       >
         Booking Sekarang
       </a>
+      <NuxtLink
+        to="/login"
+        class="flex items-center justify-center gap-2 rounded-full border border-[#1E2537] px-6 py-2.5 text-sm font-semibold text-[#1E2537] bg-[#920f0f]"
+        @click="open = false"
+      >
+        <Icon name="lucide:log-in" />
+        Login
+      </NuxtLink>
     </div>
   </header>
 </template>

@@ -35,15 +35,13 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+  <div class="min-h-screen bg-[#920f0f] flex items-center justify-center px-4">
     <div class="w-full max-w-md rounded-2xl bg-white shadow-xl p-8">
       <div class="flex flex-col items-center mb-6">
-        <div
-          class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#C9A86A] to-[#E7C9A9] text-white font-bold"
-        >
-          N
-        </div>
-        <h1 class="text-xl font-semibold text-gray-900">Nora Photobooth</h1>
+        <span class="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full shadow-md">
+          <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
+        </span>
+        <h1 class="mt-2 font-aloja text-2xl tracking-wide text-[#1E2537]">Nora Photobooth</h1>
         <p class="text-sm text-gray-500">Admin Dashboard</p>
       </div>
 
@@ -56,7 +54,7 @@ const onSubmit = handleSubmit(async (values) => {
             v-model="email"
             type="email"
             placeholder="name@company.com"
-            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
           <p class="text-xs font-bold text-red-500">{{ emailError }}</p>
         </div>
@@ -69,7 +67,7 @@ const onSubmit = handleSubmit(async (values) => {
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               placeholder="Enter your password"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
             />
             <p class="text-xs font-bold text-red-500">{{ passwordError }}</p>
 
@@ -85,7 +83,7 @@ const onSubmit = handleSubmit(async (values) => {
 
         <div class="mb-6 flex items-center justify-between">
           <label class="flex items-center gap-2 text-sm text-gray-600">
-            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <input type="checkbox" class="rounded border-gray-300 text-[#920f0f] focus:ring-[#920f0f]" />
             Remember me
           </label>
         </div>
@@ -97,7 +95,7 @@ const onSubmit = handleSubmit(async (values) => {
         <button
           type="submit"
           :disabled="submitting"
-          class="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition disabled:opacity-60"
+          class="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#920f0f] py-2.5 text-sm font-semibold text-white hover:bg-[#7a0c0c] transition disabled:opacity-60"
         >
           {{ submitting ? 'Logging in...' : 'Login →' }}
         </button>

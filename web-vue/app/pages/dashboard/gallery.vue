@@ -50,8 +50,8 @@ async function handleToggleActive(photo: GalleryPhotoItem) {
     <div class="rounded-2xl bg-white p-6 shadow-md">
       <h2 class="text-base font-semibold text-gray-800">Unggah Foto Baru</h2>
       <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input v-model="caption" placeholder="Keterangan foto (opsional)" class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
+        <input v-model="caption" placeholder="Keterangan foto (opsional)" class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c]">
           <Icon name="fe:upload" />
           {{ uploading ? 'Mengunggah...' : 'Pilih & Unggah Foto' }}
           <input ref="fileInput" type="file" accept="image/*" :disabled="uploading" class="hidden" @change="handleFileChange" />

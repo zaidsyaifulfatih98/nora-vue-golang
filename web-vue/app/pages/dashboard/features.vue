@@ -103,8 +103,8 @@ async function handleToggleActive(feature: FeatureItem) {
       </div>
 
       <form class="mt-4 flex flex-col gap-3" @submit.prevent="handleSubmit">
-        <input v-model="title" placeholder="Judul (contoh: Kamera Sony A6400)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <textarea v-model="description" placeholder="Deskripsi fitur" rows="2" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+        <input v-model="title" placeholder="Judul (contoh: Kamera Sony A6400)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <textarea v-model="description" placeholder="Deskripsi fitur" rows="2" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
 
         <div class="flex w-fit items-center gap-2">
           <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
@@ -112,14 +112,14 @@ async function handleToggleActive(feature: FeatureItem) {
             {{ file ? file.name : editingId ? 'Ganti Gambar (opsional)' : 'Pilih Gambar' }}
             <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
           </label>
-          <button v-if="file" type="button" class="text-sm font-medium text-blue-600 hover:text-blue-700" @click="pendingFile = file">
+          <button v-if="file" type="button" class="text-sm font-medium text-[#920f0f] hover:text-[#7a0c0c]" @click="pendingFile = file">
             Atur Zoom
           </button>
           <button
             v-if="!file && editingId && editingImageUrl"
             type="button"
             :disabled="loadingExistingImage"
-            class="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400"
+            class="text-sm font-medium text-[#920f0f] hover:text-[#7a0c0c] disabled:text-gray-400"
             @click="handleAdjustExistingImage"
           >
             {{ loadingExistingImage ? 'Memuat gambar...' : 'Atur Zoom Gambar Saat Ini' }}
@@ -130,7 +130,7 @@ async function handleToggleActive(feature: FeatureItem) {
           type="submit"
           :disabled="!canSubmit"
           class="w-fit rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
-          :class="canSubmit ? 'bg-blue-600 hover:bg-blue-700' : 'cursor-not-allowed bg-gray-300'"
+          :class="canSubmit ? 'bg-[#920f0f] hover:bg-[#7a0c0c]' : 'cursor-not-allowed bg-gray-300'"
         >
           {{ submitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Fitur' }}
         </button>
@@ -151,7 +151,7 @@ async function handleToggleActive(feature: FeatureItem) {
               <input type="checkbox" :checked="feature.isActive" @change="handleToggleActive(feature)" /> Aktif
             </label>
             <div class="flex items-center gap-3">
-              <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="openEditForm(feature)"><Icon name="fe:pencil" /></button>
+              <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(feature)"><Icon name="fe:pencil" /></button>
               <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(feature.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>

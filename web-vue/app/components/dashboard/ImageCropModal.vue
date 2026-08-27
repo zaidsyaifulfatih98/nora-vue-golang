@@ -149,7 +149,7 @@ function handleConfirm() {
         <button
           type="button"
           :disabled="!image"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+          class="rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7a0c0c] disabled:cursor-not-allowed disabled:bg-gray-300"
           @click="handleConfirm"
         >
           Terapkan

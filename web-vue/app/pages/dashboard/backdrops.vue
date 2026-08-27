@@ -79,7 +79,7 @@ async function handleToggleActive(backdrop: BackdropItem) {
       </div>
 
       <form class="mt-4 flex flex-col gap-3" @submit.prevent="handleSubmit">
-        <input v-model="name" placeholder="Nama Backdrop (contoh: Black)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+        <input v-model="name" placeholder="Nama Backdrop (contoh: Black)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
 
         <div class="flex w-fit items-center gap-2">
           <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
@@ -93,7 +93,7 @@ async function handleToggleActive(backdrop: BackdropItem) {
           type="submit"
           :disabled="!canSubmit"
           class="w-fit rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
-          :class="canSubmit ? 'bg-blue-600 hover:bg-blue-700' : 'cursor-not-allowed bg-gray-300'"
+          :class="canSubmit ? 'bg-[#920f0f] hover:bg-[#7a0c0c]' : 'cursor-not-allowed bg-gray-300'"
         >
           {{ submitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Backdrop' }}
         </button>
@@ -115,7 +115,7 @@ async function handleToggleActive(backdrop: BackdropItem) {
               <input type="checkbox" :checked="backdrop.isActive" @change="handleToggleActive(backdrop)" /> Aktif
             </label>
             <div class="flex items-center gap-3">
-              <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="openEditForm(backdrop)"><Icon name="fe:pencil" /></button>
+              <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(backdrop)"><Icon name="fe:pencil" /></button>
               <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(backdrop.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>

@@ -98,7 +98,7 @@ async function handleToggleActive(pkg: PackageItem) {
     <div class="flex items-center justify-between">
       <p class="text-sm text-gray-500">Kelola harga, deskripsi, dan fitur paket yang tampil di landing page.</p>
       <button
-        class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        class="flex items-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c]"
         @click="openCreateForm"
       >
         <Icon name="fe:plus" />
@@ -120,7 +120,7 @@ async function handleToggleActive(pkg: PackageItem) {
           <input
             v-model="form.name"
             required
-            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
 
@@ -131,7 +131,7 @@ async function handleToggleActive(pkg: PackageItem) {
             required
             type="number"
             min="0"
-            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
 
@@ -141,7 +141,7 @@ async function handleToggleActive(pkg: PackageItem) {
             v-model="form.duration"
             required
             placeholder="mis. 5 jam sesi"
-            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
 
@@ -162,7 +162,7 @@ async function handleToggleActive(pkg: PackageItem) {
             v-model="form.description"
             required
             rows="2"
-            class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
 
@@ -173,14 +173,14 @@ async function handleToggleActive(pkg: PackageItem) {
             required
             rows="5"
             placeholder="Backdrop custom sesuai tema&#10;Cetak foto unlimited&#10;2 orang crew photobooth"
-            class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
 
         <button
           type="submit"
           :disabled="submitting"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60 sm:col-span-2"
+          class="rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c] disabled:opacity-60 sm:col-span-2"
         >
           {{ submitting ? 'Menyimpan...' : 'Simpan Paket' }}
         </button>
@@ -214,7 +214,7 @@ async function handleToggleActive(pkg: PackageItem) {
             Aktif
           </label>
           <div class="flex items-center gap-3">
-            <button class="text-gray-400 hover:text-blue-600" aria-label="Edit" @click="openEditForm(pkg)">
+            <button class="text-gray-400 hover:text-[#920f0f]" aria-label="Edit" @click="openEditForm(pkg)">
               <Icon name="fe:pencil" />
             </button>
             <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(pkg.id)">

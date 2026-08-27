@@ -101,8 +101,8 @@ async function handleToggleFit(template: FrameTemplateItem) {
       </div>
 
       <form class="mt-4 flex flex-col gap-3" @submit.prevent="handleSubmit">
-        <input v-model="name" placeholder="Nama Template (contoh: Flora)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <textarea v-model="description" placeholder="Deskripsi singkat template" rows="2" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+        <input v-model="name" placeholder="Nama Template (contoh: Flora)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <textarea v-model="description" placeholder="Deskripsi singkat template" rows="2" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
 
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-gray-700">Fit Ukuran Gambar</label>
@@ -114,7 +114,7 @@ async function handleToggleFit(template: FrameTemplateItem) {
               v-for="option in FIT_OPTIONS"
               :key="option.value"
               class="flex flex-1 cursor-pointer flex-col gap-0.5 rounded-lg border px-3 py-2 text-sm transition"
-              :class="fit === option.value ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
+              :class="fit === option.value ? 'border-[#920f0f] bg-[#f7f3eb] text-[#7a0c0c]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
             >
               <span class="flex items-center gap-2 font-medium">
                 <input type="radio" name="fit" :value="option.value" :checked="fit === option.value" @change="fit = option.value" />
@@ -137,7 +137,7 @@ async function handleToggleFit(template: FrameTemplateItem) {
           type="submit"
           :disabled="!canSubmit"
           class="w-fit rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
-          :class="canSubmit ? 'bg-blue-600 hover:bg-blue-700' : 'cursor-not-allowed bg-gray-300'"
+          :class="canSubmit ? 'bg-[#920f0f] hover:bg-[#7a0c0c]' : 'cursor-not-allowed bg-gray-300'"
         >
           {{ submitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Template' }}
         </button>
@@ -170,7 +170,7 @@ async function handleToggleFit(template: FrameTemplateItem) {
               <input type="checkbox" :checked="template.isActive" @change="handleToggleActive(template)" /> Aktif
             </label>
             <div class="flex items-center gap-3">
-              <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="openEditForm(template)"><Icon name="fe:pencil" /></button>
+              <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(template)"><Icon name="fe:pencil" /></button>
               <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(template.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>

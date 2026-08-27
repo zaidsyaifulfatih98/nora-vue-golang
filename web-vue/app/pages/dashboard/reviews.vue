@@ -67,7 +67,7 @@ async function handleTogglePublished(review: ReviewItem) {
     <div class="flex items-center justify-between">
       <p class="text-sm text-gray-500">Kelola testimoni pasangan yang tampil di landing page.</p>
       <button
-        class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        class="flex items-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c]"
         @click="openCreateForm"
       >
         <Icon name="fe:plus" /> Tambah Review
@@ -83,15 +83,15 @@ async function handleTogglePublished(review: ReviewItem) {
       <form class="mt-4 grid gap-4 sm:grid-cols-2" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-gray-700">Nama Pasangan</label>
-          <input v-model="form.name" required placeholder="mis. Sarah & Bima" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          <input v-model="form.name" required placeholder="mis. Sarah & Bima" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
         </div>
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-gray-700">Info Acara</label>
-          <input v-model="form.eventLabel" required placeholder="mis. Resepsi, Mei 2026" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          <input v-model="form.eventLabel" required placeholder="mis. Resepsi, Mei 2026" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
         </div>
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-gray-700">Rating</label>
-          <select v-model.number="form.rating" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+          <select v-model.number="form.rating" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]">
             <option v-for="r in [5, 4, 3, 2, 1]" :key="r" :value="r">{{ r }} bintang</option>
           </select>
         </div>
@@ -100,9 +100,9 @@ async function handleTogglePublished(review: ReviewItem) {
         </label>
         <div class="flex flex-col gap-1.5 sm:col-span-2">
           <label class="text-sm font-medium text-gray-700">Testimoni</label>
-          <textarea v-model="form.quote" required rows="3" class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          <textarea v-model="form.quote" required rows="3" class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
         </div>
-        <button type="submit" :disabled="submitting" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60 sm:col-span-2">
+        <button type="submit" :disabled="submitting" class="rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c] disabled:opacity-60 sm:col-span-2">
           {{ submitting ? 'Menyimpan...' : 'Simpan Review' }}
         </button>
       </form>
@@ -126,7 +126,7 @@ async function handleTogglePublished(review: ReviewItem) {
             <input type="checkbox" :checked="review.isPublished" @change="handleTogglePublished(review)" /> Tampilkan
           </label>
           <div class="flex items-center gap-3">
-            <button class="text-gray-400 hover:text-blue-600" aria-label="Edit" @click="openEditForm(review)"><Icon name="fe:pencil" /></button>
+            <button class="text-gray-400 hover:text-[#920f0f]" aria-label="Edit" @click="openEditForm(review)"><Icon name="fe:pencil" /></button>
             <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(review.id)"><Icon name="lucide:trash-2" /></button>
           </div>
         </div>

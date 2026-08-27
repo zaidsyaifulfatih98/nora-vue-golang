@@ -147,8 +147,8 @@ function handleExportCsv() {
         <p class="text-xl font-bold text-gray-900">{{ formatRupiah(summary?.expense ?? 0) }}</p>
       </div>
       <div class="rounded-2xl bg-white p-5 shadow-md">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F1E4D6]">
-          <Icon name="fe:dollar" class="text-lg text-[#8F6F3E]" />
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9EAF0]">
+          <Icon name="fe:dollar" class="text-lg text-[#1E2537]" />
         </div>
         <p class="mt-2 text-sm text-gray-500">Saldo</p>
         <p class="text-xl font-bold text-gray-900">{{ formatRupiah(summary?.balance ?? 0) }}</p>
@@ -158,18 +158,18 @@ function handleExportCsv() {
     <div class="rounded-2xl bg-white p-6 shadow-md">
       <h2 class="text-base font-semibold text-gray-800">{{ editingId ? 'Edit Transaksi' : 'Catat Transaksi Baru' }}</h2>
       <form class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" @submit.prevent="handleSubmit">
-        <select v-model="form.type" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <select v-model="form.type" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]">
           <option value="INCOME">Pemasukan</option>
           <option value="EXPENSE">Pengeluaran</option>
         </select>
 
-        <input v-model="form.category" required placeholder="Kategori (mis. Booking Paket Gold)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:col-span-2" />
-        <input v-model="form.amount" required type="number" min="0" placeholder="Nominal (Rp)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <input v-model="form.date" required type="date" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <input v-model="form.description" placeholder="Catatan (opsional)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:col-span-2 lg:col-span-4" />
+        <input v-model="form.category" required placeholder="Kategori (mis. Booking Paket Gold)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2" />
+        <input v-model="form.amount" required type="number" min="0" placeholder="Nominal (Rp)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <input v-model="form.date" required type="date" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <input v-model="form.description" placeholder="Catatan (opsional)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2 lg:col-span-4" />
 
         <div class="flex items-center gap-2">
-          <button type="submit" :disabled="submitting" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60">
+          <button type="submit" :disabled="submitting" class="flex items-center justify-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c] disabled:opacity-60">
             <Icon :name="editingId ? 'fe:pencil' : 'fe:plus'" />
             {{ submitting ? 'Menyimpan...' : editingId ? 'Update' : 'Simpan' }}
           </button>
@@ -186,7 +186,7 @@ function handleExportCsv() {
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div class="relative w-full sm:w-64">
             <Icon name="fe:search" class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-            <input v-model="search" type="text" placeholder="Cari kategori, catatan, atau pencatat..." class="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            <input v-model="search" type="text" placeholder="Cari kategori, catatan, atau pencatat..." class="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
           </div>
           <button type="button" :disabled="filteredEntries.length === 0" class="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50" @click="handleExportCsv">
             <Icon name="fe:download" /> Export CSV
@@ -234,7 +234,7 @@ function handleExportCsv() {
               <td class="px-6 py-3 text-gray-500">{{ entry.createdBy?.firstName }} {{ entry.createdBy?.lastName }}</td>
               <td class="px-6 py-3 text-right">
                 <div class="flex items-center justify-end gap-3">
-                  <button aria-label="Edit" class="text-gray-400 hover:text-blue-600" @click="handleEdit(entry)"><Icon name="fe:pencil" /></button>
+                  <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="handleEdit(entry)"><Icon name="fe:pencil" /></button>
                   <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(entry.id)"><Icon name="lucide:trash-2" /></button>
                 </div>
               </td>

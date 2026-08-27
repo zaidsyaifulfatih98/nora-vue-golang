@@ -5,14 +5,14 @@ const route = useRoute()
 const router = useRouter()
 
 const menuMain = [
-  { label: 'Ringkasan', href: '/dashboard', icon: 'fe:home' },
-  { label: 'Keuangan', href: '/dashboard/finance', icon: 'fe:credit-card' },
-  { label: 'Paket & Harga', href: '/dashboard/packages', icon: 'fe:package' },
-  { label: 'Fitur Unggulan', href: '/dashboard/features', icon: 'fe:award' },
-  { label: 'Template Frame', href: '/dashboard/frame-templates', icon: 'fe:layout' },
-  { label: 'Backdrop', href: '/dashboard/backdrops', icon: 'fe:grid' },
-  { label: 'Galeri', href: '/dashboard/gallery', icon: 'fe:image' },
-  { label: 'Review', href: '/dashboard/reviews', icon: 'fe:star' },
+  { label: 'Ringkasan', href: '/dashboard', icon: 'lucide:layout-dashboard' },
+  { label: 'Keuangan', href: '/dashboard/finance', icon: 'lucide:wallet' },
+  { label: 'Paket & Harga', href: '/dashboard/packages', icon: 'lucide:package' },
+  { label: 'Fitur Unggulan', href: '/dashboard/features', icon: 'lucide:award' },
+  { label: 'Template Frame', href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
+  { label: 'Backdrop', href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
+  { label: 'Galeri', href: '/dashboard/gallery', icon: 'lucide:image' },
+  { label: 'Review', href: '/dashboard/reviews', icon: 'lucide:star' },
 ]
 
 function isActive(href: string) {
@@ -32,12 +32,10 @@ async function handleLogout() {
 <template>
   <aside class="flex h-screen flex-col border-r border-gray-100 bg-white">
     <div class="flex items-center gap-3 px-6 py-5">
-      <div
-        class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#C9A86A] to-[#E7C9A9] text-white font-bold"
-      >
-        N
-      </div>
-      <span class="text-lg font-semibold text-gray-800">Nora Photobooth</span>
+      <span class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full shadow-md">
+        <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
+      </span>
+      <span class="font-aloja text-xl tracking-wide text-[#1E2537]">Nora Photobooth</span>
     </div>
 
     <nav class="flex-1 px-4">
@@ -48,7 +46,7 @@ async function handleLogout() {
           <NuxtLink
             :to="item.href"
             class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition"
-            :class="isActive(item.href) ? 'bg-[#F1E4D6] text-[#8F6F3E]' : 'text-gray-600 hover:bg-gray-100'"
+            :class="isActive(item.href) ? 'bg-[#f7f3eb] text-[#920f0f]' : 'text-gray-600 hover:bg-gray-100'"
           >
             <Icon :name="item.icon" class="text-lg" />
             {{ item.label }}
@@ -60,7 +58,7 @@ async function handleLogout() {
     <div class="border-t border-gray-100 px-4 py-4">
       <div class="flex items-center gap-3">
         <div
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-[#F1E4D6] text-sm font-bold text-[#8F6F3E]"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-[#f7f3eb] text-sm font-bold text-[#920f0f]"
         >
           {{ authStore.user.firstName?.[0] }}{{ authStore.user.lastName?.[0] }}
         </div>
@@ -71,7 +69,7 @@ async function handleLogout() {
           <p class="text-xs text-gray-500">{{ authStore.user.role }}</p>
         </div>
         <button aria-label="Logout" class="text-gray-400 hover:text-red-500" @click="handleLogout">
-          <Icon name="fe:log-out" />
+          <Icon name="lucide:log-out" />
         </button>
       </div>
     </div>
