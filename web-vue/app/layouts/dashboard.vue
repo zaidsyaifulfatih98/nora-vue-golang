@@ -1,11 +1,9 @@
 <template>
-  <div class="grid grid-cols-12">
-    <div class="col-span-3">
-      <SideBar />
-    </div>
-    <div class="col-span-9">
+  <div class="flex min-h-screen bg-gray-50">
+    <SideBar />
+    <div class="flex min-w-0 flex-1 flex-col">
       <DashboardHeader />
-      <div class="p-10">
+      <div class="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-10">
         <slot />
       </div>
     </div>
