@@ -10,7 +10,17 @@ import (
 )
 
 func ConnectDatabase(cfg *Config) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{
+	// PreferSimpleProtocol disables pgx's server-side prepared statement
+	// caching. DATABASE_URL points at Neon's pooled (PgBouncer
+	// transaction-mode) endpoint, which multiplexes client sessions across
+	// physical connections — a cached plan from one session can be reused
+	// against a connection that has since seen a schema change, surfacing as
+	// "cached plan must not change result type" (SQLSTATE 0A000) the next
+	// time a table's columns change.
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  cfg.DatabaseURL,
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
@@ -41,6 +51,8 @@ func Migrate(db *gorm.DB) error {
 		&models.Package{},
 		&models.Feature{},
 		&models.FrameTemplate{},
+		&models.PhotoboothFrame{},
+		&models.VoiceMessage{},
 		&models.Backdrop{},
 		&models.GalleryPhoto{},
 		&models.Review{},

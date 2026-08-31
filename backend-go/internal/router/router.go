@@ -19,8 +19,11 @@ import (
 	appmw "nora-photobooth-backend/internal/middleware"
 	"nora-photobooth-backend/internal/models"
 	"nora-photobooth-backend/internal/packages"
+	"nora-photobooth-backend/internal/photoboothframes"
+	"nora-photobooth-backend/internal/photoboothresults"
 	"nora-photobooth-backend/internal/reviews"
 	"nora-photobooth-backend/internal/upload"
+	"nora-photobooth-backend/internal/voicemessages"
 )
 
 func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engine, error) {
@@ -104,6 +107,34 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 		frameGroup.POST("", jwtVerify, adminOnly, frameHandler.Create)
 		frameGroup.PATCH("/:id", jwtVerify, adminOnly, frameHandler.Update)
 		frameGroup.DELETE("/:id", jwtVerify, adminOnly, frameHandler.Delete())
+	}
+
+	// Photobooth frames (transparent-window PNGs used by the digital
+	// photobooth "try it" flow — distinct from the landing page's frame templates)
+	photoboothFrameHandler := photoboothframes.NewHandler(db, uploader)
+	photoboothFrameGroup := api.Group("/photobooth-frames")
+	{
+		photoboothFrameGroup.GET("", photoboothFrameHandler.List())
+		photoboothFrameGroup.POST("", jwtVerify, adminOnly, photoboothFrameHandler.Create)
+		photoboothFrameGroup.PATCH("/:id", jwtVerify, adminOnly, photoboothFrameHandler.Update)
+		photoboothFrameGroup.DELETE("/:id", jwtVerify, adminOnly, photoboothFrameHandler.Delete())
+	}
+
+	// Photobooth results — saves a guest's finished digital photobooth image
+	// and returns a public download link (turned into a QR code on the
+	// frontend). Public: guests use this, not admins.
+	photoboothResultHandler := photoboothresults.NewHandler(uploader)
+	api.POST("/photobooth-results", photoboothResultHandler.Create)
+
+	// Voice messages — guests record a greeting from the digital photobooth
+	// result screen (public); admins listen to the collection in the
+	// dashboard (auth required).
+	voiceMessageHandler := voicemessages.NewHandler(db, uploader)
+	voiceMessageGroup := api.Group("/voice-messages")
+	{
+		voiceMessageGroup.POST("", voiceMessageHandler.Create)
+		voiceMessageGroup.GET("", jwtVerify, adminOnly, voiceMessageHandler.List)
+		voiceMessageGroup.DELETE("/:id", jwtVerify, adminOnly, voiceMessageHandler.Delete)
 	}
 
 	// Backdrops
