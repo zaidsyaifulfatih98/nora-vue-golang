@@ -1,4 +1,6 @@
 export interface PhotoboothResultItem {
+  id: string
+  createdAt: string
   viewUrl: string
   downloadUrl: string
 }
@@ -14,5 +16,9 @@ export function usePhotoboothResultsApi() {
       .then((r) => r.data.data as PhotoboothResultItem)
   }
 
-  return { savePhotoboothResult }
+  const getPhotoboothResults = () => axios.get('/photobooth-results').then((r) => r.data.data as PhotoboothResultItem[])
+
+  const deletePhotoboothResult = (id: string) => axios.delete(`/photobooth-results/${id}`)
+
+  return { savePhotoboothResult, getPhotoboothResults, deletePhotoboothResult }
 }

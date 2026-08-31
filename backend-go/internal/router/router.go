@@ -123,8 +123,13 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 	// Photobooth results — saves a guest's finished digital photobooth image
 	// and returns a public download link (turned into a QR code on the
 	// frontend). Public: guests use this, not admins.
-	photoboothResultHandler := photoboothresults.NewHandler(uploader)
-	api.POST("/photobooth-results", photoboothResultHandler.Create)
+	photoboothResultHandler := photoboothresults.NewHandler(db, uploader)
+	photoboothResultGroup := api.Group("/photobooth-results")
+	{
+		photoboothResultGroup.POST("", photoboothResultHandler.Create)
+		photoboothResultGroup.GET("", jwtVerify, adminOnly, photoboothResultHandler.List)
+		photoboothResultGroup.DELETE("/:id", jwtVerify, adminOnly, photoboothResultHandler.Delete)
+	}
 
 	// Voice messages — guests record a greeting from the digital photobooth
 	// result screen (public); admins listen to the collection in the

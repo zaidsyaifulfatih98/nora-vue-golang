@@ -11,6 +11,7 @@ const menuMain = [
   { label: 'Fitur Unggulan', href: '/dashboard/features', icon: 'lucide:award' },
   { label: 'Template Frame', href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
   { label: 'Frame Digital Photobooth', href: '/dashboard/photobooth-frames', icon: 'lucide:scan-face' },
+  { label: 'Hasil Digital Photobooth', href: '/dashboard/photobooth-results', icon: 'lucide:images' },
   { label: 'Pesan Suara', href: '/dashboard/voice-messages', icon: 'lucide:mic' },
   { label: 'Backdrop', href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
   { label: 'Galeri', href: '/dashboard/gallery', icon: 'lucide:image' },

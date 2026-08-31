@@ -52,6 +52,7 @@ func Migrate(db *gorm.DB) error {
 		&models.Feature{},
 		&models.FrameTemplate{},
 		&models.PhotoboothFrame{},
+		&models.PhotoboothResult{},
 		&models.VoiceMessage{},
 		&models.Backdrop{},
 		&models.GalleryPhoto{},

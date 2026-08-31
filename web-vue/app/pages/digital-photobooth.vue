@@ -166,30 +166,6 @@ useHead({
       </div>
     </section>
 
-    <section class="bg-[#FAF9F6] py-16">
-      <div class="mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 text-center lg:px-10">
-        <h2 class="font-dm-serif text-2xl font-bold text-[#000000] sm:text-3xl">Ingin Menambahkan Digital Photobooth ke Acaramu?</h2>
-        <p class="font-poppins text-[#57607A]">Konsultasikan kebutuhan acaramu bersama tim kami sekarang.</p>
-        <div class="mt-2 flex flex-wrap items-center justify-center gap-4">
-          <button
-            class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#FAF9F6] shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
-            @click="showTryModal = true"
-          >
-            <Icon name="heroicons:camera" />
-            Coba Digital Photobooth
-          </button>
-          <a
-            :href="waHref"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-full border border-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#920f0f] transition hover:-translate-y-0.5 hover:bg-[#920f0f]/5"
-          >
-            Booking Sekarang
-          </a>
-        </div>
-      </div>
-    </section>
-
     <Footer />
     <WhatsappCta />
 

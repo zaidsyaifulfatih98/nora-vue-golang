@@ -67,16 +67,9 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       >
         {{ link.label }}
       </NuxtLink>
-      <a
-        href="#booking"
-        class="mt-2 rounded-full bg-[#1E2537] px-6 py-2.5 text-center text-sm font-semibold text-[#FAF9F6]"
-        @click="open = false"
-      >
-        Booking Sekarang
-      </a>
       <NuxtLink
         to="/login"
-        class="flex items-center justify-center gap-2 rounded-full border border-[#1E2537] px-6 py-2.5 text-sm font-semibold text-[#1E2537] bg-[#920f0f]"
+        class="mt-2 flex items-center justify-center gap-2 rounded-full bg-[#1E2537] px-6 py-2.5 text-sm font-semibold text-[#FAF9F6] transition hover:bg-[#920f0f]"
         @click="open = false"
       >
         <Icon name="lucide:log-in" />
