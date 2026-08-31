@@ -10,6 +10,8 @@ const menuMain = [
   { label: 'Paket & Harga', href: '/dashboard/packages', icon: 'lucide:package' },
   { label: 'Fitur Unggulan', href: '/dashboard/features', icon: 'lucide:award' },
   { label: 'Template Frame', href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
+  { label: 'Frame Digital Photobooth', href: '/dashboard/photobooth-frames', icon: 'lucide:scan-face' },
+  { label: 'Pesan Suara', href: '/dashboard/voice-messages', icon: 'lucide:mic' },
   { label: 'Backdrop', href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
   { label: 'Galeri', href: '/dashboard/gallery', icon: 'lucide:image' },
   { label: 'Review', href: '/dashboard/reviews', icon: 'lucide:star' },

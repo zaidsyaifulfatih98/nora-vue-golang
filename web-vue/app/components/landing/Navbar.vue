@@ -1,10 +1,11 @@
 <script setup lang="ts">
 const NAV_LINKS = [
-  { label: 'Beranda', href: '#hero' },
-  { label: 'Keunggulan', href: '#keunggulan' },
-  { label: 'Paket', href: '#paket' },
-  { label: 'Galeri', href: '#galeri' },
-  { label: 'Testimoni', href: '#testimoni' },
+  { label: 'Beranda', href: '/#hero' },
+  { label: 'Keunggulan', href: '/#keunggulan' },
+  { label: 'Paket', href: '/#paket' },
+  { label: 'Galeri', href: '/#galeri' },
+  { label: 'Testimoni', href: '/#testimoni' },
+  { label: 'Digital Photobooth', href: '/digital-photobooth' },
 ]
 
 const open = ref(false)
@@ -34,14 +35,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       </a>
 
       <div class="hidden items-center gap-8 lg:flex">
-        <a
+        <NuxtLink
           v-for="link in NAV_LINKS"
           :key="link.href"
-          :href="link.href"
+          :to="link.href"
           class="text-sm font-medium text-[#000000] transition hover:text-[#920f0f]"
         >
           {{ link.label }}
-        </a>
+        </NuxtLink>
         <NuxtLink
           to="/login"
           class="flex items-center gap-2 rounded-full bg-[#1E2537] px-5 py-2 text-sm font-semibold text-[#FAF9F6] transition hover:bg-[#920f0f]"
@@ -57,15 +58,15 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
     </nav>
 
     <div v-if="open" class="flex flex-col gap-1 border-t border-[#E4E2DC] bg-[#FAF9F6] px-6 py-4 lg:hidden">
-      <a
+      <NuxtLink
         v-for="link in NAV_LINKS"
         :key="link.href"
-        :href="link.href"
+        :to="link.href"
         class="rounded-lg px-3 py-2.5 text-sm font-medium text-[#39445B] hover:bg-[#F0EFEA]"
         @click="open = false"
       >
         {{ link.label }}
-      </a>
+      </NuxtLink>
       <a
         href="#booking"
         class="mt-2 rounded-full bg-[#1E2537] px-6 py-2.5 text-center text-sm font-semibold text-[#FAF9F6]"
