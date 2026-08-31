@@ -13,7 +13,7 @@ const DEFAULT_PHOTO_COUNT = 3
 const MAX_CANVAS_SIDE = 1600
 const CAPTURE_DELAY_SECONDS = 3
 
-type Step = 'frame' | 'camera' | 'result'
+type Step = 'frame' | 'camera' | 'result' | 'voice'
 
 const step = ref<Step>('frame')
 const selectedFrame = ref<PhotoboothFrameItem | null>(null)
@@ -33,7 +33,7 @@ const saveError = ref('')
 const savedResult = ref<PhotoboothResultItem | null>(null)
 const qrCodeDataUrl = ref('')
 
-type VoiceStep = 'idle' | 'form' | 'recording' | 'recorded' | 'sending' | 'sent'
+type VoiceStep = 'idle' | 'form' | 'recording' | 'recorded' | 'sending' | 'sent' | 'skipped'
 const voiceStep = ref<VoiceStep>('idle')
 const voiceGuestName = ref('')
 const voiceError = ref('')
@@ -220,14 +220,14 @@ async function buildResult() {
   }
 }
 
-function downloadResult() {
-  if (!resultImage.value) return
-  const link = document.createElement('a')
-  link.href = resultImage.value
-  link.download = `nora-digital-photobooth-${Date.now()}.png`
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
+function redoPhotos() {
+  resultImage.value = ''
+  photos.value = []
+  savedResult.value = null
+  qrCodeDataUrl.value = ''
+  saveError.value = ''
+  step.value = 'camera'
+  startCamera()
 }
 
 async function saveResult() {
@@ -246,9 +246,18 @@ async function saveResult() {
   }
 }
 
+function goToVoiceStep() {
+  step.value = 'voice'
+}
+
 function openVoiceForm() {
   voiceError.value = ''
   voiceStep.value = 'form'
+}
+
+function skipVoiceMessage() {
+  stopVoiceStream()
+  voiceStep.value = 'skipped'
 }
 
 function stopVoiceStream() {
@@ -348,8 +357,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 py-8">
-    <div class="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-[#FAF9F6] shadow-2xl">
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 sm:px-4 sm:py-8">
+    <div
+      class="relative flex h-full w-full flex-col overflow-hidden bg-[#FAF9F6] sm:h-auto sm:max-h-[90vh] sm:w-full sm:max-w-lg sm:rounded-3xl sm:shadow-2xl"
+    >
       <button
         aria-label="Tutup"
         class="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#1E2537] shadow-sm transition hover:bg-white"
@@ -358,17 +369,17 @@ onBeforeUnmount(() => {
         <Icon name="heroicons:x-mark" class="text-lg" />
       </button>
 
-      <div class="overflow-y-auto px-6 pt-6 pb-8">
+      <div class="flex-1 overflow-y-auto px-6 pt-6 pb-8">
         <div class="mb-6 flex items-center justify-center gap-2">
           <span
-            v-for="(label, i) in ['Pilih Frame', 'Ambil Foto', 'Hasil']"
+            v-for="(label, i) in ['Pilih Frame', 'Ambil Foto', 'Hasil', 'Pesan Suara']"
             :key="label"
             class="flex items-center gap-2 font-dm-sans text-xs font-semibold"
-            :class="(['frame', 'camera', 'result'][i] === step) ? 'text-[#920f0f]' : 'text-[#B8B2A6]'"
+            :class="(['frame', 'camera', 'result', 'voice'][i] === step) ? 'text-[#920f0f]' : 'text-[#B8B2A6]'"
           >
             <span
               class="flex h-6 w-6 items-center justify-center rounded-full"
-              :class="(['frame', 'camera', 'result'][i] === step) ? 'bg-[#920f0f] text-white' : 'bg-[#E4E2DC] text-[#7A7568]'"
+              :class="(['frame', 'camera', 'result', 'voice'][i] === step) ? 'bg-[#920f0f] text-white' : 'bg-[#E4E2DC] text-[#7A7568]'"
             >
               {{ i + 1 }}
             </span>
@@ -470,15 +481,15 @@ onBeforeUnmount(() => {
           <div class="mt-6 flex flex-col items-center gap-3">
             <div class="flex flex-wrap items-center justify-center gap-3">
               <button
-                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
-                @click="downloadResult"
+                class="flex items-center gap-2 rounded-full border border-[#920f0f] px-8 py-3 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
+                @click="redoPhotos"
               >
-                <Icon name="heroicons:arrow-down-tray" />
-                Download Hasil
+                <Icon name="heroicons:arrow-path" />
+                Ulangi
               </button>
               <button
                 :disabled="saving || Boolean(savedResult)"
-                class="flex items-center gap-2 rounded-full border border-[#920f0f] px-8 py-3 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5 disabled:cursor-not-allowed disabled:opacity-60"
+                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                 @click="saveResult"
               >
                 <Icon name="heroicons:cloud-arrow-up" />
@@ -488,80 +499,118 @@ onBeforeUnmount(() => {
 
             <p v-if="saveError" class="font-poppins text-xs text-red-600">{{ saveError }}</p>
 
-            <div v-if="qrCodeDataUrl" class="mt-2 flex flex-col items-center gap-2 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
+            <div v-if="qrCodeDataUrl && savedResult" class="mt-2 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
               <img :src="qrCodeDataUrl" alt="QR code download hasil" class="h-40 w-40" />
               <p class="max-w-[220px] text-center font-poppins text-xs text-[#57607A]">
-                Sudah tersimpan. Scan QR ini dengan HP untuk mendownload hasilnya.
+                Sudah tersimpan. Scan QR ini atau klik button dibawah ini
               </p>
+              <a
+                :href="savedResult.downloadUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+              >
+                <Icon name="heroicons:arrow-down-tray" />
+                Download
+              </a>
             </div>
 
-            <div class="mt-4 w-full max-w-xs rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
+            <button
+              class="mt-2 flex items-center gap-2 rounded-full bg-[#1E2537] px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
+              @click="goToVoiceStep"
+            >
+              Lanjut
+              <Icon name="heroicons:arrow-right" />
+            </button>
+          </div>
+        </div>
+
+        <div v-else-if="step === 'voice'">
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">Kirim Pesan Suara</h3>
+          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">
+            Tinggalkan ucapan untuk pasangan, atau lewati jika tidak ingin.
+          </p>
+
+          <div class="mx-auto mt-6 w-full max-w-xs rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
+            <div v-if="voiceStep === 'idle'" class="flex flex-col items-center gap-3">
               <button
-                v-if="voiceStep === 'idle'"
                 class="flex w-full items-center justify-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
                 @click="openVoiceForm"
               >
                 <Icon name="heroicons:microphone" />
                 Kirim Pesan Suara
               </button>
-
-              <div v-else-if="voiceStep === 'form'" class="flex flex-col gap-3">
-                <p class="text-center font-poppins text-sm font-semibold text-[#1E2537]">Rekam Pesan Suara</p>
-                <input
-                  v-model="voiceGuestName"
-                  placeholder="Nama kamu (opsional)"
-                  class="rounded-lg border border-[#E4E2DC] px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none"
-                />
-                <button
-                  class="flex items-center justify-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
-                  @click="startVoiceRecording"
-                >
-                  <Icon name="heroicons:microphone" />
-                  Mulai Rekam
-                </button>
-              </div>
-
-              <div v-else-if="voiceStep === 'recording'" class="flex flex-col items-center gap-3">
-                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-[#920f0f]/10 ring-2 ring-[#920f0f]">
-                  <Icon name="heroicons:microphone" class="animate-pulse text-2xl text-[#920f0f]" />
-                </div>
-                <p class="font-dm-sans text-sm text-[#57607A]">{{ voiceSeconds }}s</p>
-                <button
-                  class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
-                  @click="stopVoiceRecording"
-                >
-                  Berhenti
-                </button>
-              </div>
-
-              <div v-else-if="voiceStep === 'recorded'" class="flex flex-col items-center gap-3">
-                <audio :src="voiceAudioUrl" controls class="w-full" />
-                <div class="flex gap-3">
-                  <button
-                    class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
-                    @click="sendVoiceMessage"
-                  >
-                    Kirim
-                  </button>
-                  <button
-                    class="rounded-full border border-[#920f0f] px-6 py-2.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
-                    @click="retakeVoiceRecording"
-                  >
-                    Rekam Ulang
-                  </button>
-                </div>
-              </div>
-
-              <p v-else-if="voiceStep === 'sending'" class="text-center font-poppins text-sm text-[#57607A]">Mengirim...</p>
-
-              <div v-else-if="voiceStep === 'sent'" class="flex flex-col items-center gap-2">
-                <Icon name="heroicons:check-circle" class="text-3xl text-[#920f0f]" />
-                <p class="text-center font-poppins text-sm text-[#57607A]">Pesan suara terkirim, terima kasih!</p>
-              </div>
-
-              <p v-if="voiceError" class="mt-2 text-center font-poppins text-xs text-red-600">{{ voiceError }}</p>
+              <button class="font-poppins text-xs font-semibold text-[#57607A] underline underline-offset-4" @click="skipVoiceMessage">
+                Lewati 
+              </button>
             </div>
 
+            <div v-else-if="voiceStep === 'form'" class="flex flex-col gap-3">
+              <p class="text-center font-poppins text-sm font-semibold text-[#1E2537]">Rekam Pesan Suara</p>
+              <input
+                v-model="voiceGuestName"
+                placeholder="Nama kamu (opsional)"
+                class="rounded-lg border border-[#E4E2DC] px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none"
+              />
+              <button
+                class="flex items-center justify-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+                @click="startVoiceRecording"
+              >
+                <Icon name="heroicons:microphone" />
+                Mulai Rekam
+              </button>
+              <button class="font-poppins text-xs font-semibold text-[#57607A] underline underline-offset-4" @click="skipVoiceMessage">
+                Lewati (Opsional)
+              </button>
+            </div>
+
+            <div v-else-if="voiceStep === 'recording'" class="flex flex-col items-center gap-3">
+              <div class="flex h-14 w-14 items-center justify-center rounded-full bg-[#920f0f]/10 ring-2 ring-[#920f0f]">
+                <Icon name="heroicons:microphone" class="animate-pulse text-2xl text-[#920f0f]" />
+              </div>
+              <p class="font-dm-sans text-sm text-[#57607A]">{{ voiceSeconds }}s</p>
+              <button
+                class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+                @click="stopVoiceRecording"
+              >
+                Berhenti
+              </button>
+            </div>
+
+            <div v-else-if="voiceStep === 'recorded'" class="flex flex-col items-center gap-3">
+              <audio :src="voiceAudioUrl" controls class="w-full" />
+              <div class="flex gap-3">
+                <button
+                  class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+                  @click="sendVoiceMessage"
+                >
+                  Kirim
+                </button>
+                <button
+                  class="rounded-full border border-[#920f0f] px-6 py-2.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
+                  @click="retakeVoiceRecording"
+                >
+                  Rekam Ulang
+                </button>
+              </div>
+            </div>
+
+            <p v-else-if="voiceStep === 'sending'" class="text-center font-poppins text-sm text-[#57607A]">Mengirim...</p>
+
+            <div v-else-if="voiceStep === 'sent'" class="flex flex-col items-center gap-2">
+              <Icon name="heroicons:check-circle" class="text-3xl text-[#920f0f]" />
+              <p class="text-center font-poppins text-sm text-[#57607A]">Pesan suara terkirim, terima kasih!</p>
+            </div>
+
+            <div v-else-if="voiceStep === 'skipped'" class="flex flex-col items-center gap-2">
+              <Icon name="heroicons:heart" class="text-2xl text-[#920f0f]" />
+              <p class="text-center font-poppins text-sm text-[#57607A]">Terima kasih sudah mencoba Digital Photobooth kami!</p>
+            </div>
+
+            <p v-if="voiceError" class="mt-2 text-center font-poppins text-xs text-red-600">{{ voiceError }}</p>
+          </div>
+
+          <div class="mt-6 flex justify-center">
             <button class="font-poppins text-sm font-semibold text-[#57607A] underline underline-offset-4" @click="tryAgain">
               Coba Frame Lain
             </button>

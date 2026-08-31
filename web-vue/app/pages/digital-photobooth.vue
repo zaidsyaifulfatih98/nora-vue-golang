@@ -15,16 +15,17 @@ const showTryModal = ref(false)
 interface Step {
   number: string
   title: string
-  variant: 'qr' | 'frame' | 'camera' | 'voice' | 'saved' | 'share'
+  variant: 'frame' | 'camera' | 'result' | 'voice'
 }
 
+// Mirrors the actual 4-step flow inside the "Coba Digital Photobooth" modal
+// (TryModal.vue: frame -> camera -> result -> voice), so the marketing
+// preview matches what guests really see instead of an older, different flow.
 const steps: Step[] = [
-  { number: '01', title: 'Scan QR pada kartu yang tersedia', variant: 'qr' },
-  { number: '02', title: 'Masukkan nama dan pilih frame favorit', variant: 'frame' },
-  { number: '03', title: 'Ambil foto terbaik kalian', variant: 'camera' },
-  { number: '04', title: 'Rekam voice message dan upload foto', variant: 'voice' },
-  { number: '05', title: 'Semua foto dan ucapan akan tersimpan', variant: 'saved' },
-  { number: '06', title: 'Bagikan atau Download kisah', variant: 'share' },
+  { number: '01', title: 'Pilih frame favoritmu', variant: 'frame' },
+  { number: '02', title: 'Ambil foto sesuai frame yang dipilih', variant: 'camera' },
+  { number: '03', title: 'Simpan hasil dan dapatkan QR untuk download', variant: 'result' },
+  { number: '04', title: 'Kirim pesan suara untuk pasangan (opsional)', variant: 'voice' },
 ]
 
 useHead({
@@ -32,7 +33,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Kenali cara kerja Digital Photobooth Nora: scan QR, ambil foto, rekam ucapan, hingga bagikan kisah acaramu.',
+      content: 'Kenali cara kerja Digital Photobooth Nora: pilih frame, ambil foto, simpan hasilnya, hingga kirim pesan suara untuk pasangan.',
     },
   ],
 })
@@ -52,8 +53,8 @@ useHead({
           Digital Photobooth
         </h1>
         <p class="mt-4 font-poppins text-base leading-relaxed text-[#57607A] sm:text-lg">
-          Cukup scan QR code di kartu meja, tamu bisa langsung mengambil foto, merekam ucapan suara, dan menyimpan
-          kenangan acaramu — semuanya lewat ponsel mereka sendiri.
+          Tamu cukup memilih frame, mengambil beberapa foto, menyimpan hasilnya, dan bisa mengirim pesan suara untuk
+          pasangan — semuanya langsung dari ponsel mereka sendiri.
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
           <button
@@ -79,10 +80,10 @@ useHead({
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
         <div class="mx-auto max-w-2xl text-center">
           <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">Cara Kerja</span>
-          <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">6 Langkah Mudah Digital Photobooth</h2>
+          <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">4 Langkah Mudah Digital Photobooth</h2>
         </div>
 
-        <div class="relative mt-20 grid grid-cols-2 gap-x-4 gap-y-16 sm:grid-cols-3 lg:flex lg:items-start lg:justify-between lg:gap-6">
+        <div class="relative mt-20 grid grid-cols-2 gap-x-4 gap-y-16 lg:grid-cols-4 lg:items-start lg:gap-4">
           <div class="pointer-events-none absolute top-[22px] right-6 left-6 hidden border-t-2 border-dashed border-[#D8CFC2] lg:block" />
 
           <div v-for="step in steps" :key="step.number" class="relative z-10 flex flex-col items-center text-center">
@@ -96,81 +97,63 @@ useHead({
               <span class="absolute top-0 left-1/2 z-20 h-4 w-16 -translate-x-1/2 rounded-b-lg bg-black" />
 
               <div class="relative flex h-full w-full flex-col overflow-hidden bg-gradient-to-b from-[#7a1420] to-[#4c0d15] px-2.5 pt-6 pb-2.5">
-                <template v-if="step.variant === 'qr'">
-                  <p class="font-dm-sans text-[8px] font-semibold tracking-[0.15em] text-[#f3d9c6] uppercase">Wedding Memories Of</p>
-                  <p class="mt-1 font-aloja text-lg text-white">Fatimah &amp; Fatah</p>
-                  <div class="mt-3 flex flex-1 items-center justify-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-white">
-                      <Icon name="heroicons:qr-code" class="text-3xl text-black" />
+                <template v-if="step.variant === 'frame'">
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Pilih Frame Favoritmu</p>
+                  <div class="mt-3 grid flex-1 grid-cols-2 content-start gap-2">
+                    <div class="flex aspect-[3/5] flex-col gap-1 rounded-md bg-white p-1 shadow ring-1 ring-black/5">
+                      <div class="flex-1 rounded-sm bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300" />
+                      <div class="h-2 rounded-sm bg-[#f3c9d3]" />
+                    </div>
+                    <div class="flex aspect-[3/5] flex-col gap-1 rounded-md bg-white p-1 shadow ring-1 ring-black/5">
+                      <div class="flex-1 rounded-sm bg-gradient-to-br from-sky-200 via-teal-100 to-emerald-200" />
+                      <div class="h-2 rounded-sm bg-[#c9a27a]" />
                     </div>
                   </div>
-                  <span class="mb-1 rounded-full bg-white/90 py-1.5 text-center font-poppins text-[8px] font-semibold text-[#7a1420]">
-                    Ketuk Untuk Membuka
-                  </span>
-                </template>
-
-                <template v-else-if="step.variant === 'frame'">
-                  <p class="font-dm-sans text-[8px] font-semibold tracking-[0.15em] text-[#f3d9c6] uppercase">Wedding Memories Of</p>
-                  <p class="mt-1 font-aloja text-lg text-white">Fatimah &amp; Fatah</p>
-                  <div class="mt-3 flex flex-1 flex-col items-center justify-center gap-1.5">
-                    <div class="h-14 w-24 rounded-md border border-white/30 bg-black/60" />
-                    <div class="h-14 w-24 rounded-md border border-white/30 bg-black/60" />
-                  </div>
-                  <span class="mb-1 rounded-full bg-white/90 py-1.5 text-center font-poppins text-[8px] font-semibold text-[#7a1420]">
-                    Pilih Frame
-                  </span>
                 </template>
 
                 <template v-else-if="step.variant === 'camera'">
-                  <Icon name="heroicons:arrow-left" class="absolute top-6 left-2.5 z-10 text-xs text-white" />
-                  <div class="absolute inset-0 flex items-center justify-center bg-[#2b2b2b]">
-                    <Icon name="heroicons:user-circle" class="text-6xl text-white/70" />
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Ambil Foto Terbaikmu</p>
+                  <div class="relative mt-2 flex-1 overflow-hidden rounded-lg bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300">
+                    <svg viewBox="0 0 64 64" class="absolute inset-0 h-full w-full">
+                      <circle cx="32" cy="24" r="12" fill="#8a5a44" fill-opacity="0.75" />
+                      <path d="M6,66 C6,44 18,36 32,36 C46,36 58,44 58,66 Z" fill="#8a5a44" fill-opacity="0.75" />
+                    </svg>
                   </div>
-                  <span class="relative z-10 mt-auto mb-1 rounded-full bg-white/90 py-1.5 text-center font-poppins text-[8px] font-semibold text-[#7a1420]">
-                    Lanjut
+                  <span class="mt-2 mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
+                    Ambil Foto
+                  </span>
+                </template>
+
+                <template v-else-if="step.variant === 'result'">
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Hasil Digital Photobooth-mu</p>
+                  <div class="relative mx-auto mt-2 aspect-[3/5] w-[70%] flex-1 overflow-hidden rounded-md bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300 shadow">
+                    <svg viewBox="0 0 64 64" class="absolute inset-0 h-full w-full">
+                      <circle cx="32" cy="22" r="11" fill="#8a5a44" fill-opacity="0.75" />
+                      <path d="M8,62 C8,42 19,34 32,34 C45,34 56,42 56,62 Z" fill="#8a5a44" fill-opacity="0.75" />
+                    </svg>
+                    <div class="absolute right-1 bottom-1 flex h-8 w-8 items-center justify-center rounded bg-white shadow">
+                      <Icon name="heroicons:qr-code" class="text-lg text-black" />
+                    </div>
+                    <div class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white/90 shadow">
+                      <Icon name="heroicons:arrow-down-tray" class="text-[9px] text-[#7a1420]" />
+                    </div>
+                  </div>
+                  <span class="mt-2 mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
+                    Simpan
                   </span>
                 </template>
 
                 <template v-else-if="step.variant === 'voice'">
-                  <p class="font-dm-sans text-[8px] font-semibold tracking-[0.15em] text-[#f3d9c6] uppercase">Untuk Mempelai</p>
-                  <p class="mt-1 font-poppins text-[7px] leading-tight text-white/80">
-                    Sampaikan harapan terbaikmu untuk mereka
-                  </p>
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Kirim Pesan Suara</p>
+                  <p class="mt-1 text-center font-poppins text-[7px] font-semibold tracking-wide text-[#f3d9c6] uppercase">(Opsional)</p>
                   <div class="flex flex-1 flex-col items-center justify-center gap-2">
                     <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 ring-2 ring-white/40">
                       <Icon name="heroicons:microphone" class="text-lg text-white" />
                     </div>
-                    <span class="font-dm-sans text-[9px] text-white/80">00:07</span>
                   </div>
                   <span class="mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
-                    Rekam Ucapan &amp; Harapan
+                    Kirim Pesan Suara
                   </span>
-                </template>
-
-                <template v-else-if="step.variant === 'saved'">
-                  <p class="font-dm-sans text-[8px] font-semibold tracking-[0.15em] text-[#f3d9c6] uppercase">Wedding Memories Of</p>
-                  <p class="mt-1 font-aloja text-base text-white">Fatimah &amp; Fatah</p>
-                  <div class="mt-2 flex flex-1 items-center justify-center">
-                    <div class="flex flex-col gap-1 rounded-md bg-white p-1.5 shadow">
-                      <div class="h-8 w-16 rounded-sm bg-[#c9a27a]" />
-                      <div class="h-8 w-16 rounded-sm bg-[#a8b8a0]" />
-                    </div>
-                  </div>
-                  <span class="mb-1 rounded-full bg-white/90 py-1.5 text-center font-poppins text-[7px] font-semibold text-[#7a1420]">
-                    Bagikan Momen &amp; Harapan
-                  </span>
-                </template>
-
-                <template v-else>
-                  <p class="font-dm-sans text-[8px] font-semibold tracking-[0.15em] text-[#f3d9c6] uppercase">Semua Kisah</p>
-                  <div class="mt-2 grid flex-1 grid-cols-3 content-start gap-1">
-                    <div v-for="n in 6" :key="n" class="aspect-square rounded-sm bg-white/20" />
-                  </div>
-                  <div class="mb-1 flex items-center justify-center gap-3 text-white">
-                    <Icon name="heroicons:heart" class="text-sm" />
-                    <Icon name="heroicons:share" class="text-sm" />
-                    <Icon name="heroicons:arrow-down-tray" class="text-sm" />
-                  </div>
                 </template>
               </div>
             </div>
