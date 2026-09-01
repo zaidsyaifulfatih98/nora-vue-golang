@@ -3,9 +3,8 @@ const { t } = useI18n()
 
 const NAV_LINKS = computed(() => [
   { label: t('nav.home'), href: '/#hero' },
-  { label: t('nav.packages'), href: '/#paket' },
-  { label: t('nav.gallery'), href: '/#galeri' },
   { label: t('nav.digitalPhotobooth'), href: '/digital-photobooth' },
+  { label: t('nav.softwarePhotobooth'), href: '/software-photobooth' },
 ])
 
 const open = ref(false)

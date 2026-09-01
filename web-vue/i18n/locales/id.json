@@ -16,6 +16,7 @@
     "gallery": "Galeri",
     "testimonials": "Testimoni",
     "digitalPhotobooth": "Digital Photobooth",
+    "softwarePhotobooth": "Software Photobooth",
     "login": "Login",
     "openMenu": "Buka menu",
     "closeMenu": "Tutup menu"
@@ -116,6 +117,14 @@
       "optional": "(Opsional)",
       "sendVoiceButton": "Kirim Pesan Suara"
     }
+  },
+  "softwarePhotobooth": {
+    "metaTitle": "Software Photobooth — Nora Photobooth",
+    "metaDescription": "Software Photobooth Nora sedang dalam pengerjaan. Nantikan kabar selanjutnya dari kami.",
+    "badge": "Segera Hadir",
+    "title": "Software Photobooth",
+    "description": "Halaman ini sedang dalam pengerjaan. Kami sedang menyiapkan sesuatu yang seru — nantikan kabarnya segera!",
+    "backCta": "Kembali ke Beranda"
   },
   "tryModal": {
     "closeAria": "Tutup",

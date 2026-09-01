@@ -16,6 +16,7 @@
     "gallery": "Gallery",
     "testimonials": "Testimonials",
     "digitalPhotobooth": "Digital Photobooth",
+    "softwarePhotobooth": "Software Photobooth",
     "login": "Login",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
@@ -116,6 +117,14 @@
       "optional": "(Optional)",
       "sendVoiceButton": "Send Voice Message"
     }
+  },
+  "softwarePhotobooth": {
+    "metaTitle": "Software Photobooth — Nora Photobooth",
+    "metaDescription": "Nora's Photobooth Software is currently being built. Stay tuned for updates from us.",
+    "badge": "Coming Soon",
+    "title": "Software Photobooth",
+    "description": "This page is currently under construction. We're working on something exciting — stay tuned for updates soon!",
+    "backCta": "Back to Home"
   },
   "tryModal": {
     "closeAria": "Close",
