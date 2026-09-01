@@ -5,7 +5,19 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  modules: ['@pinia/nuxt', '@nuxt/icon'],
+  modules: ['@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n'],
+
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'id',
+    locales: [
+      { code: 'id', name: 'Indonesia', language: 'id-ID', flag: '🇮🇩', file: 'id.json' },
+      { code: 'en', name: 'English', language: 'en-US', flag: '🇬🇧', file: 'en.json' },
+    ],
+    langDir: 'locales',
+    lazy: true,
+    detectBrowserLanguage: false,
+  },
 
   components: [{ path: '~/components', pathPrefix: false }],
 

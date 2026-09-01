@@ -4,6 +4,7 @@ import type { PackageItem } from '~/composables/api/packages'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getPackages, createPackage, updatePackage, deletePackage } = usePackagesApi()
+const { t } = useI18n()
 
 const packages = ref<PackageItem[]>([])
 const loading = ref(true)
@@ -17,6 +18,10 @@ const emptyForm = {
   duration: '',
   description: '',
   features: '',
+  nameEn: '',
+  durationEn: '',
+  descriptionEn: '',
+  featuresEn: '',
   isPopular: false,
   isActive: true,
 }
@@ -50,6 +55,10 @@ function openEditForm(pkg: PackageItem) {
     duration: pkg.duration,
     description: pkg.description,
     features: pkg.features.join('\n'),
+    nameEn: pkg.nameEn ?? '',
+    durationEn: pkg.durationEn ?? '',
+    descriptionEn: pkg.descriptionEn ?? '',
+    featuresEn: (pkg.featuresEn ?? []).join('\n'),
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
   })
@@ -65,6 +74,10 @@ async function handleSubmit() {
       duration: form.duration,
       description: form.description,
       features: form.features.split('\n').map((f) => f.trim()).filter(Boolean),
+      nameEn: form.nameEn || undefined,
+      durationEn: form.durationEn || undefined,
+      descriptionEn: form.descriptionEn || undefined,
+      featuresEn: form.featuresEn ? form.featuresEn.split('\n').map((f) => f.trim()).filter(Boolean) : undefined,
       isPopular: form.isPopular,
       isActive: form.isActive,
     }
@@ -96,19 +109,19 @@ async function handleToggleActive(pkg: PackageItem) {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <p class="text-sm text-gray-500">Kelola harga, deskripsi, dan fitur paket yang tampil di landing page.</p>
+      <p class="text-sm text-gray-500">{{ t('dashboard.packages.subtitle') }}</p>
       <button
         class="flex items-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c]"
         @click="openCreateForm"
       >
         <Icon name="fe:plus" />
-        Tambah Paket
+        {{ t('dashboard.packages.addPackage') }}
       </button>
     </div>
 
     <div v-if="showForm" class="rounded-2xl bg-white p-6 shadow-md">
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold text-gray-800">{{ editingId ? 'Edit Paket' : 'Tambah Paket Baru' }}</h2>
+        <h2 class="text-base font-semibold text-gray-800">{{ editingId ? t('dashboard.packages.editPackage') : t('dashboard.packages.newPackage') }}</h2>
         <button class="text-gray-400 hover:text-gray-600" @click="showForm = false">
           <Icon name="fe:close" />
         </button>
@@ -116,7 +129,7 @@ async function handleToggleActive(pkg: PackageItem) {
 
       <form class="mt-4 grid gap-4 sm:grid-cols-2" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-gray-700">Nama Paket</label>
+          <label class="text-sm font-medium text-gray-700">{{ t('dashboard.packages.nameLabel') }}</label>
           <input
             v-model="form.name"
             required
@@ -125,7 +138,7 @@ async function handleToggleActive(pkg: PackageItem) {
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-gray-700">Harga (Rp)</label>
+          <label class="text-sm font-medium text-gray-700">{{ t('dashboard.packages.priceLabel') }}</label>
           <input
             v-model="form.price"
             required
@@ -136,11 +149,11 @@ async function handleToggleActive(pkg: PackageItem) {
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-gray-700">Durasi</label>
+          <label class="text-sm font-medium text-gray-700">{{ t('dashboard.packages.durationLabel') }}</label>
           <input
             v-model="form.duration"
             required
-            placeholder="mis. 5 jam sesi"
+            :placeholder="t('dashboard.packages.durationPlaceholder')"
             class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
@@ -148,16 +161,16 @@ async function handleToggleActive(pkg: PackageItem) {
         <div class="flex items-center gap-6 pt-6">
           <label class="flex items-center gap-2 text-sm text-gray-600">
             <input v-model="form.isPopular" type="checkbox" />
-            Tandai Populer
+            {{ t('dashboard.packages.markPopular') }}
           </label>
           <label class="flex items-center gap-2 text-sm text-gray-600">
             <input v-model="form.isActive" type="checkbox" />
-            Aktif / Tampilkan
+            {{ t('dashboard.packages.activeShow') }}
           </label>
         </div>
 
         <div class="flex flex-col gap-1.5 sm:col-span-2">
-          <label class="text-sm font-medium text-gray-700">Deskripsi</label>
+          <label class="text-sm font-medium text-gray-700">{{ t('dashboard.packages.descriptionLabel') }}</label>
           <textarea
             v-model="form.description"
             required
@@ -167,14 +180,36 @@ async function handleToggleActive(pkg: PackageItem) {
         </div>
 
         <div class="flex flex-col gap-1.5 sm:col-span-2">
-          <label class="text-sm font-medium text-gray-700">Fitur (satu baris = satu fitur)</label>
+          <label class="text-sm font-medium text-gray-700">{{ t('dashboard.packages.featuresLabel') }}</label>
           <textarea
             v-model="form.features"
             required
             rows="5"
-            placeholder="Backdrop custom sesuai tema&#10;Cetak foto unlimited&#10;2 orang crew photobooth"
+            :placeholder="t('dashboard.packages.featuresPlaceholder')"
             class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
+        </div>
+
+        <div class="rounded-lg border border-dashed border-gray-200 p-3 sm:col-span-2">
+          <p class="text-xs font-semibold text-gray-500">{{ t('dashboard.translationLabel') }}</p>
+          <p class="mt-0.5 text-xs text-gray-400">{{ t('dashboard.translationHint') }}</p>
+          <div class="mt-2 grid gap-3 sm:grid-cols-2">
+            <input v-model="form.nameEn" :placeholder="t('dashboard.packages.nameEnPlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+            <input v-model="form.durationEn" :placeholder="t('dashboard.packages.durationEnPlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label class="text-xs font-medium text-gray-600">{{ t('dashboard.packages.descriptionEnLabel') }}</label>
+              <textarea v-model="form.descriptionEn" rows="2" class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+            </div>
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label class="text-xs font-medium text-gray-600">{{ t('dashboard.packages.featuresEnLabel') }}</label>
+              <textarea
+                v-model="form.featuresEn"
+                rows="5"
+                :placeholder="t('dashboard.packages.featuresEnPlaceholder')"
+                class="resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
+              />
+            </div>
+          </div>
         </div>
 
         <button
@@ -182,13 +217,13 @@ async function handleToggleActive(pkg: PackageItem) {
           :disabled="submitting"
           class="rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c] disabled:opacity-60 sm:col-span-2"
         >
-          {{ submitting ? 'Menyimpan...' : 'Simpan Paket' }}
+          {{ submitting ? t('dashboard.packages.saving') : t('dashboard.packages.savePackage') }}
         </button>
       </form>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
-      <p v-if="loading" class="text-sm text-gray-400">Memuat paket...</p>
+      <p v-if="loading" class="text-sm text-gray-400">{{ t('dashboard.packages.loadingPackages') }}</p>
 
       <div v-for="pkg in packages" v-else :key="pkg.id" class="flex flex-col rounded-2xl bg-white p-6 shadow-md">
         <div class="flex items-start justify-between">
@@ -197,7 +232,7 @@ async function handleToggleActive(pkg: PackageItem) {
             <p class="text-xs text-gray-400">{{ pkg.duration }}</p>
           </div>
           <span v-if="pkg.isPopular" class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
-            Populer
+            {{ t('dashboard.packages.popular') }}
           </span>
         </div>
 
@@ -211,13 +246,13 @@ async function handleToggleActive(pkg: PackageItem) {
         <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
           <label class="flex items-center gap-2 text-xs text-gray-500">
             <input type="checkbox" :checked="pkg.isActive" @change="handleToggleActive(pkg)" />
-            Aktif
+            {{ t('dashboard.packages.active') }}
           </label>
           <div class="flex items-center gap-3">
-            <button class="text-gray-400 hover:text-[#920f0f]" aria-label="Edit" @click="openEditForm(pkg)">
+            <button class="text-gray-400 hover:text-[#920f0f]" :aria-label="t('dashboard.packages.editAria')" @click="openEditForm(pkg)">
               <Icon name="fe:pencil" />
             </button>
-            <button class="text-gray-400 hover:text-red-500" aria-label="Hapus" @click="handleDelete(pkg.id)">
+            <button class="text-gray-400 hover:text-red-500" :aria-label="t('dashboard.packages.deleteAria')" @click="handleDelete(pkg.id)">
               <Icon name="lucide:trash-2" />
             </button>
           </div>

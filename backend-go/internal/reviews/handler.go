@@ -23,12 +23,14 @@ func (h *Handler) List() gin.HandlerFunc   { return crud.ListHandler(h.repo) }
 func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
 
 type createRequest struct {
-	Name        string `json:"name" binding:"required"`
-	EventLabel  string `json:"eventLabel" binding:"required"`
-	Quote       string `json:"quote" binding:"required"`
-	Rating      *int   `json:"rating" binding:"omitempty,min=1,max=5"`
-	IsPublished *bool  `json:"isPublished"`
-	Order       int    `json:"order"`
+	Name         string  `json:"name" binding:"required"`
+	EventLabel   string  `json:"eventLabel" binding:"required"`
+	Quote        string  `json:"quote" binding:"required"`
+	EventLabelEn *string `json:"eventLabelEn"`
+	QuoteEn      *string `json:"quoteEn"`
+	Rating       *int    `json:"rating" binding:"omitempty,min=1,max=5"`
+	IsPublished  *bool   `json:"isPublished"`
+	Order        int     `json:"order"`
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -49,12 +51,14 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	item := models.Review{
-		Name:        req.Name,
-		EventLabel:  req.EventLabel,
-		Quote:       req.Quote,
-		Rating:      rating,
-		IsPublished: published,
-		Order:       req.Order,
+		Name:         req.Name,
+		EventLabel:   req.EventLabel,
+		Quote:        req.Quote,
+		EventLabelEn: req.EventLabelEn,
+		QuoteEn:      req.QuoteEn,
+		Rating:       rating,
+		IsPublished:  published,
+		Order:        req.Order,
 	}
 
 	if err := h.repo.Create(&item); err != nil {
@@ -67,12 +71,14 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 type updateRequest struct {
-	Name        *string `json:"name"`
-	EventLabel  *string `json:"eventLabel"`
-	Quote       *string `json:"quote"`
-	Rating      *int    `json:"rating" binding:"omitempty,min=1,max=5"`
-	IsPublished *bool   `json:"isPublished"`
-	Order       *int    `json:"order"`
+	Name         *string `json:"name"`
+	EventLabel   *string `json:"eventLabel"`
+	Quote        *string `json:"quote"`
+	EventLabelEn *string `json:"eventLabelEn"`
+	QuoteEn      *string `json:"quoteEn"`
+	Rating       *int    `json:"rating" binding:"omitempty,min=1,max=5"`
+	IsPublished  *bool   `json:"isPublished"`
+	Order        *int    `json:"order"`
 }
 
 func (h *Handler) Update(c *gin.Context) {
@@ -92,6 +98,12 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 	if req.Quote != nil {
 		updates["quote"] = *req.Quote
+	}
+	if req.EventLabelEn != nil {
+		updates["event_label_en"] = *req.EventLabelEn
+	}
+	if req.QuoteEn != nil {
+		updates["quote_en"] = *req.QuoteEn
 	}
 	if req.Rating != nil {
 		updates["rating"] = *req.Rating

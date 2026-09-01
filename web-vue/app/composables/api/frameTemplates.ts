@@ -4,6 +4,8 @@ export interface FrameTemplateItem {
   id: string
   name: string
   description: string
+  nameEn: string | null
+  descriptionEn: string | null
   imageUrl: string
   fit: FrameTemplateFit
   order: number
@@ -16,12 +18,21 @@ export function useFrameTemplatesApi() {
   const getFrameTemplates = (all = false) =>
     axios.get(`/frame-templates${all ? '?all=true' : ''}`).then((r) => r.data.data as FrameTemplateItem[])
 
-  const uploadFrameTemplate = (file: File, name: string, description: string, fit: FrameTemplateFit) => {
+  const uploadFrameTemplate = (
+    file: File,
+    name: string,
+    description: string,
+    fit: FrameTemplateFit,
+    nameEn?: string,
+    descriptionEn?: string,
+  ) => {
     const formData = new FormData()
     formData.append('image', file)
     formData.append('name', name)
     formData.append('description', description)
     formData.append('fit', fit)
+    if (nameEn) formData.append('nameEn', nameEn)
+    if (descriptionEn) formData.append('descriptionEn', descriptionEn)
     return axios
       .post('/frame-templates', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then((r) => r.data.data as FrameTemplateItem)
@@ -29,7 +40,7 @@ export function useFrameTemplatesApi() {
 
   const updateFrameTemplate = (
     id: string,
-    payload: Partial<Pick<FrameTemplateItem, 'name' | 'description' | 'fit' | 'order' | 'isActive'>>,
+    payload: Partial<Pick<FrameTemplateItem, 'name' | 'description' | 'nameEn' | 'descriptionEn' | 'fit' | 'order' | 'isActive'>>,
     file?: File,
   ) => {
     if (!file) {
@@ -38,7 +49,7 @@ export function useFrameTemplatesApi() {
 
     const formData = new FormData()
     Object.entries(payload).forEach(([key, value]) => {
-      if (value !== undefined) formData.append(key, String(value))
+      if (value !== undefined && value !== null) formData.append(key, String(value))
     })
     formData.append('image', file)
 

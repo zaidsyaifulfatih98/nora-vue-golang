@@ -4,20 +4,21 @@ const { logout } = useAuthApi()
 const route = useRoute()
 const router = useRouter()
 const sidebarOpen = useDashboardSidebar()
+const { t } = useI18n()
 
-const menuMain = [
-  { label: 'Ringkasan', href: '/dashboard', icon: 'lucide:layout-dashboard' },
-  { label: 'Keuangan', href: '/dashboard/finance', icon: 'lucide:wallet' },
-  { label: 'Paket & Harga', href: '/dashboard/packages', icon: 'lucide:package' },
-  { label: 'Fitur Unggulan', href: '/dashboard/features', icon: 'lucide:award' },
-  { label: 'Template Frame', href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
-  { label: 'Frame Digital Photobooth', href: '/dashboard/photobooth-frames', icon: 'lucide:scan-face' },
-  { label: 'Hasil Digital Photobooth', href: '/dashboard/photobooth-results', icon: 'lucide:images' },
-  { label: 'Pesan Suara', href: '/dashboard/voice-messages', icon: 'lucide:mic' },
-  { label: 'Backdrop', href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
-  { label: 'Galeri', href: '/dashboard/gallery', icon: 'lucide:image' },
-  { label: 'Review', href: '/dashboard/reviews', icon: 'lucide:star' },
-]
+const menuMain = computed(() => [
+  { label: t('dashboard.titles.index'), href: '/dashboard', icon: 'lucide:layout-dashboard' },
+  { label: t('dashboard.titles.finance'), href: '/dashboard/finance', icon: 'lucide:wallet' },
+  { label: t('dashboard.titles.packages'), href: '/dashboard/packages', icon: 'lucide:package' },
+  { label: t('dashboard.titles.features'), href: '/dashboard/features', icon: 'lucide:award' },
+  { label: t('dashboard.titles.frameTemplates'), href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
+  { label: t('dashboard.titles.photoboothFrames'), href: '/dashboard/photobooth-frames', icon: 'lucide:scan-face' },
+  { label: t('dashboard.titles.photoboothResults'), href: '/dashboard/photobooth-results', icon: 'lucide:images' },
+  { label: t('dashboard.titles.voiceMessages'), href: '/dashboard/voice-messages', icon: 'lucide:mic' },
+  { label: t('dashboard.titles.backdrops'), href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
+  { label: t('dashboard.titles.gallery'), href: '/dashboard/gallery', icon: 'lucide:image' },
+  { label: t('dashboard.titles.reviews'), href: '/dashboard/reviews', icon: 'lucide:star' },
+])
 
 function isActive(href: string) {
   return href === '/dashboard' ? route.path === '/dashboard' : route.path.startsWith(href)
@@ -52,13 +53,13 @@ async function handleLogout() {
         </span>
         <span class="font-aloja text-xl tracking-wide text-[#1E2537]">Nora Photobooth</span>
       </div>
-      <button aria-label="Tutup menu" class="text-gray-400 hover:text-gray-600 lg:hidden" @click="sidebarOpen = false">
+      <button :aria-label="t('dashboard.sidebar.closeMenuAria')" class="text-gray-400 hover:text-gray-600 lg:hidden" @click="sidebarOpen = false">
         <Icon name="heroicons:x-mark" class="text-xl" />
       </button>
     </div>
 
     <nav class="flex-1 overflow-y-auto px-4">
-      <p class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Menu</p>
+      <p class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">{{ t('dashboard.sidebar.menuLabel') }}</p>
 
       <ul class="space-y-1">
         <li v-for="item in menuMain" :key="item.href">
@@ -88,7 +89,7 @@ async function handleLogout() {
           </p>
           <p class="text-xs text-gray-500">{{ authStore.user.role }}</p>
         </div>
-        <button aria-label="Logout" class="shrink-0 text-gray-400 hover:text-red-500" @click="handleLogout">
+        <button :aria-label="t('dashboard.sidebar.logoutAria')" class="shrink-0 text-gray-400 hover:text-red-500" @click="handleLogout">
           <Icon name="lucide:log-out" />
         </button>
       </div>

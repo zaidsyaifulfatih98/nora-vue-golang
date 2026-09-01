@@ -6,6 +6,7 @@ import { loginSchema } from '~/schemas/login.schema'
 const authStore = useAuthStore()
 const { login } = useAuthApi()
 const router = useRouter()
+const { t } = useI18n()
 
 const showPassword = ref(false)
 const loginError = ref('')
@@ -27,7 +28,7 @@ const onSubmit = handleSubmit(async (values) => {
     authStore.setAuth(user)
     router.push('/dashboard')
   } catch (error: any) {
-    loginError.value = error?.response?.data?.message ?? 'Gagal login, silakan coba lagi'
+    loginError.value = error?.response?.data?.message ?? t('login.errorDefault')
   } finally {
     submitting.value = false
   }
@@ -37,36 +38,39 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div class="min-h-screen bg-[#920f0f] flex items-center justify-center px-4">
     <div class="w-full max-w-md rounded-2xl bg-white shadow-xl p-8">
+      <div class="mb-4 flex justify-end">
+        <LanguageSwitcher />
+      </div>
       <div class="flex flex-col items-center mb-6">
         <span class="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full shadow-md">
           <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
         </span>
         <h1 class="mt-2 font-aloja text-2xl tracking-wide text-[#1E2537]">Nora Photobooth</h1>
-        <p class="text-sm text-gray-500">Admin Dashboard</p>
+        <p class="text-sm text-gray-500">{{ t('login.subtitle') }}</p>
       </div>
 
-      <h2 class="mb-6 text-center text-lg font-semibold text-gray-800">Login to your account</h2>
+      <h2 class="mb-6 text-center text-lg font-semibold text-gray-800">{{ t('login.heading') }}</h2>
 
       <form @submit="onSubmit">
         <div class="mb-4">
-          <label class="mb-1 block text-sm font-medium text-gray-700">Email Address</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('login.emailLabel') }}</label>
           <input
             v-model="email"
             type="email"
-            placeholder="name@company.com"
+            :placeholder="t('login.emailPlaceholder')"
             class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
           <p class="text-xs font-bold text-red-500">{{ emailError }}</p>
         </div>
 
         <div class="mb-4">
-          <label class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('login.passwordLabel') }}</label>
 
           <div class="relative">
             <input
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Enter your password"
+              :placeholder="t('login.passwordPlaceholder')"
               class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
             />
             <p class="text-xs font-bold text-red-500">{{ passwordError }}</p>
@@ -84,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div class="mb-6 flex items-center justify-between">
           <label class="flex items-center gap-2 text-sm text-gray-600">
             <input type="checkbox" class="rounded border-gray-300 text-[#920f0f] focus:ring-[#920f0f]" />
-            Remember me
+            {{ t('login.rememberMe') }}
           </label>
         </div>
 
@@ -97,15 +101,15 @@ const onSubmit = handleSubmit(async (values) => {
           :disabled="submitting"
           class="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#920f0f] py-2.5 text-sm font-semibold text-white hover:bg-[#7a0c0c] transition disabled:opacity-60"
         >
-          {{ submitting ? 'Logging in...' : 'Login →' }}
+          {{ submitting ? t('login.submitting') : t('login.submit') }}
         </button>
       </form>
 
       <div class="flex items-center justify-between text-xs text-gray-400">
-        <span>Nora Photobooth Admin</span>
+        <span>{{ t('login.footerBrand') }}</span>
         <div class="flex gap-4">
-          <a href="#" class="hover:text-gray-600">Support</a>
-          <a href="#" class="hover:text-gray-600">Privacy</a>
+          <a href="#" class="hover:text-gray-600">{{ t('login.support') }}</a>
+          <a href="#" class="hover:text-gray-600">{{ t('login.privacy') }}</a>
         </div>
       </div>
     </div>

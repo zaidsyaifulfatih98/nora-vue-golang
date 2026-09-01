@@ -33,6 +33,8 @@ func isValidFit(fit string) bool {
 func (h *Handler) Create(c *gin.Context) {
 	name := c.PostForm("name")
 	description := c.PostForm("description")
+	nameEn := c.PostForm("nameEn")
+	descriptionEn := c.PostForm("descriptionEn")
 	fit := c.PostForm("fit")
 	if fit == "" {
 		fit = string(models.FrameFitCover)
@@ -69,11 +71,13 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	item := models.FrameTemplate{
-		Name:        name,
-		Description: description,
-		ImageURL:    imageURL,
-		Fit:         models.FrameTemplateFit(fit),
-		IsActive:    true,
+		Name:          name,
+		Description:   description,
+		NameEn:        middleware.NilIfEmpty(nameEn),
+		DescriptionEn: middleware.NilIfEmpty(descriptionEn),
+		ImageURL:      imageURL,
+		Fit:           models.FrameTemplateFit(fit),
+		IsActive:      true,
 	}
 
 	if err := h.repo.Create(&item); err != nil {
@@ -86,11 +90,13 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 type jsonUpdateRequest struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Fit         *string `json:"fit"`
-	IsActive    *bool   `json:"isActive"`
-	Order       *int    `json:"order"`
+	Name          *string `json:"name"`
+	Description   *string `json:"description"`
+	NameEn        *string `json:"nameEn"`
+	DescriptionEn *string `json:"descriptionEn"`
+	Fit           *string `json:"fit"`
+	IsActive      *bool   `json:"isActive"`
+	Order         *int    `json:"order"`
 }
 
 func (h *Handler) Update(c *gin.Context) {
@@ -102,6 +108,12 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 		if v := c.PostForm("description"); v != "" {
 			updates["description"] = v
+		}
+		if v := c.PostForm("nameEn"); v != "" {
+			updates["name_en"] = v
+		}
+		if v := c.PostForm("descriptionEn"); v != "" {
+			updates["description_en"] = v
 		}
 		if v := c.PostForm("fit"); v != "" {
 			if !isValidFit(v) {
@@ -148,6 +160,12 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 		if req.Description != nil {
 			updates["description"] = *req.Description
+		}
+		if req.NameEn != nil {
+			updates["name_en"] = *req.NameEn
+		}
+		if req.DescriptionEn != nil {
+			updates["description_en"] = *req.DescriptionEn
 		}
 		if req.Fit != nil {
 			if !isValidFit(*req.Fit) {

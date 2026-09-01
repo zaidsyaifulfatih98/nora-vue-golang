@@ -12,6 +12,16 @@ import (
 const maxImageSize = 5 << 20  // 5MB
 const maxAudioSize = 15 << 20 // 15MB
 
+// NilIfEmpty turns a multipart form field into a nil pointer when blank, so
+// an untouched optional translation field doesn't overwrite an existing
+// value with an empty string.
+func NilIfEmpty(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
 // IsMultipart reports whether the request body is multipart/form-data, i.e.
 // carries a new image, as opposed to a plain JSON PATCH (no image change).
 func IsMultipart(c *gin.Context) bool {

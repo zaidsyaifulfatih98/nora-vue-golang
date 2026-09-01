@@ -5,6 +5,10 @@ export interface PackageItem {
   duration: string
   description: string
   features: string[]
+  nameEn: string | null
+  durationEn: string | null
+  descriptionEn: string | null
+  featuresEn: string[] | null
   isPopular: boolean
   isActive: boolean
   order: number
@@ -16,6 +20,10 @@ export interface PackagePayload {
   duration: string
   description: string
   features: string[]
+  nameEn?: string
+  durationEn?: string
+  descriptionEn?: string
+  featuresEn?: string[]
   isPopular?: boolean
   isActive?: boolean
   order?: number

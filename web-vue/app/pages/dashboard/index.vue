@@ -7,6 +7,7 @@ const { getFinanceSummary } = useFinanceApi()
 const { getPackages } = usePackagesApi()
 const { getGalleryPhotos } = useGalleryApi()
 const { getReviews } = useReviewsApi()
+const { t } = useI18n()
 
 function formatRupiah(value: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)
@@ -41,7 +42,7 @@ onMounted(async () => {
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
           <Icon name="fe:dollar" class="text-lg text-green-600" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Total Pemasukan</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.index.totalIncome') }}</p>
         <p class="text-2xl font-bold text-gray-900">{{ loading ? '...' : formatRupiah(summary?.income ?? 0) }}</p>
       </div>
 
@@ -49,7 +50,7 @@ onMounted(async () => {
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100">
           <Icon name="fe:trending-down" class="text-lg text-red-500" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Total Pengeluaran</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.index.totalExpense') }}</p>
         <p class="text-2xl font-bold text-gray-900">{{ loading ? '...' : formatRupiah(summary?.expense ?? 0) }}</p>
       </div>
 
@@ -57,7 +58,7 @@ onMounted(async () => {
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9EAF0]">
           <Icon name="fe:dollar" class="text-lg text-[#1E2537]" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Saldo</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.index.balance') }}</p>
         <p class="text-2xl font-bold text-gray-900">{{ loading ? '...' : formatRupiah(summary?.balance ?? 0) }}</p>
       </div>
     </div>
@@ -68,7 +69,7 @@ onMounted(async () => {
           <Icon name="fe:package" class="text-lg text-[#920f0f]" />
         </div>
         <div>
-          <p class="text-sm text-gray-500">Paket Aktif</p>
+          <p class="text-sm text-gray-500">{{ t('dashboard.index.activePackages') }}</p>
           <p class="text-xl font-bold text-gray-900">{{ loading ? '...' : counts.packages }}</p>
         </div>
       </NuxtLink>
@@ -78,7 +79,7 @@ onMounted(async () => {
           <Icon name="fe:image" class="text-lg text-purple-600" />
         </div>
         <div>
-          <p class="text-sm text-gray-500">Foto Galeri</p>
+          <p class="text-sm text-gray-500">{{ t('dashboard.index.galleryPhotos') }}</p>
           <p class="text-xl font-bold text-gray-900">{{ loading ? '...' : counts.photos }}</p>
         </div>
       </NuxtLink>
@@ -88,7 +89,7 @@ onMounted(async () => {
           <Icon name="fe:star" class="text-lg text-amber-600" />
         </div>
         <div>
-          <p class="text-sm text-gray-500">Review</p>
+          <p class="text-sm text-gray-500">{{ t('dashboard.index.reviews') }}</p>
           <p class="text-xl font-bold text-gray-900">{{ loading ? '...' : counts.reviews }}</p>
         </div>
       </NuxtLink>

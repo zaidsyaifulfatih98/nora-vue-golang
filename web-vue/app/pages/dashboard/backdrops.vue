@@ -4,6 +4,7 @@ import type { BackdropItem } from '~/composables/api/backdrops'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getBackdrops, uploadBackdrop, updateBackdrop, deleteBackdrop } = useBackdropsApi()
+const { t } = useI18n()
 
 const backdrops = ref<BackdropItem[]>([])
 const loading = ref(true)
@@ -74,17 +75,17 @@ async function handleToggleActive(backdrop: BackdropItem) {
   <div class="space-y-6">
     <div class="rounded-2xl bg-white p-6 shadow-md">
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold text-gray-800">{{ editingId ? 'Edit Backdrop' : 'Tambah Backdrop' }}</h2>
+        <h2 class="text-base font-semibold text-gray-800">{{ editingId ? t('dashboard.backdrops.editBackdrop') : t('dashboard.backdrops.newBackdrop') }}</h2>
         <button v-if="editingId" class="text-gray-400 hover:text-gray-600" @click="resetForm"><Icon name="fe:close" /></button>
       </div>
 
       <form class="mt-4 flex flex-col gap-3" @submit.prevent="handleSubmit">
-        <input v-model="name" placeholder="Nama Backdrop (contoh: Black)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <input v-model="name" :placeholder="t('dashboard.backdrops.namePlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
 
         <div class="flex w-fit items-center gap-2">
           <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
             <Icon name="fe:upload" />
-            {{ file ? file.name : editingId ? 'Ganti Gambar (opsional)' : 'Pilih Gambar' }}
+            {{ file ? file.name : editingId ? t('dashboard.backdrops.changeImageOptional') : t('dashboard.backdrops.chooseImage') }}
             <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
           </label>
         </div>
@@ -95,14 +96,14 @@ async function handleToggleActive(backdrop: BackdropItem) {
           class="w-fit rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
           :class="canSubmit ? 'bg-[#920f0f] hover:bg-[#7a0c0c]' : 'cursor-not-allowed bg-gray-300'"
         >
-          {{ submitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Backdrop' }}
+          {{ submitting ? t('dashboard.backdrops.saving') : editingId ? t('dashboard.backdrops.saveChanges') : t('dashboard.backdrops.addBackdrop') }}
         </button>
       </form>
     </div>
 
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      <p v-if="loading" class="text-sm text-gray-400">Memuat backdrop...</p>
-      <p v-else-if="backdrops.length === 0" class="text-sm text-gray-400">Belum ada backdrop.</p>
+      <p v-if="loading" class="text-sm text-gray-400">{{ t('dashboard.backdrops.loadingBackdrops') }}</p>
+      <p v-else-if="backdrops.length === 0" class="text-sm text-gray-400">{{ t('dashboard.backdrops.empty') }}</p>
 
       <div v-for="backdrop in backdrops" :key="backdrop.id" class="group relative overflow-hidden rounded-2xl bg-white shadow-md">
         <div class="aspect-[4/3] w-full overflow-hidden bg-gray-100">
@@ -112,11 +113,11 @@ async function handleToggleActive(backdrop: BackdropItem) {
           <p class="truncate text-sm font-semibold text-gray-800">{{ backdrop.name }}</p>
           <div class="mt-2 flex items-center justify-between">
             <label class="flex items-center gap-1.5 text-xs text-gray-500">
-              <input type="checkbox" :checked="backdrop.isActive" @change="handleToggleActive(backdrop)" /> Aktif
+              <input type="checkbox" :checked="backdrop.isActive" @change="handleToggleActive(backdrop)" /> {{ t('dashboard.backdrops.active') }}
             </label>
             <div class="flex items-center gap-3">
-              <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(backdrop)"><Icon name="fe:pencil" /></button>
-              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(backdrop.id)"><Icon name="lucide:trash-2" /></button>
+              <button :aria-label="t('dashboard.backdrops.editAria')" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(backdrop)"><Icon name="fe:pencil" /></button>
+              <button :aria-label="t('dashboard.backdrops.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(backdrop.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>
         </div>

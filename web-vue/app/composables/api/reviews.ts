@@ -3,6 +3,8 @@ export interface ReviewItem {
   name: string
   eventLabel: string
   quote: string
+  eventLabelEn: string | null
+  quoteEn: string | null
   rating: number
   isPublished: boolean
   order: number
@@ -12,6 +14,8 @@ export interface ReviewPayload {
   name: string
   eventLabel: string
   quote: string
+  eventLabelEn?: string
+  quoteEn?: string
   rating?: number
   isPublished?: boolean
   order?: number

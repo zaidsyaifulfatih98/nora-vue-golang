@@ -29,6 +29,8 @@ func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
 func (h *Handler) Create(c *gin.Context) {
 	title := c.PostForm("title")
 	description := c.PostForm("description")
+	titleEn := c.PostForm("titleEn")
+	descriptionEn := c.PostForm("descriptionEn")
 	if title == "" || description == "" {
 		_ = c.Error(apperror.New("Title dan description wajib diisi", 400))
 		c.Abort()
@@ -56,10 +58,12 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	item := models.Feature{
-		Title:       title,
-		Description: description,
-		ImageURL:    imageURL,
-		IsActive:    true,
+		Title:         title,
+		Description:   description,
+		TitleEn:       middleware.NilIfEmpty(titleEn),
+		DescriptionEn: middleware.NilIfEmpty(descriptionEn),
+		ImageURL:      imageURL,
+		IsActive:      true,
 	}
 
 	if err := h.repo.Create(&item); err != nil {
@@ -72,10 +76,12 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 type jsonUpdateRequest struct {
-	Title       *string `json:"title"`
-	Description *string `json:"description"`
-	IsActive    *bool   `json:"isActive"`
-	Order       *int    `json:"order"`
+	Title         *string `json:"title"`
+	Description   *string `json:"description"`
+	TitleEn       *string `json:"titleEn"`
+	DescriptionEn *string `json:"descriptionEn"`
+	IsActive      *bool   `json:"isActive"`
+	Order         *int    `json:"order"`
 }
 
 func (h *Handler) Update(c *gin.Context) {
@@ -87,6 +93,12 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 		if v := c.PostForm("description"); v != "" {
 			updates["description"] = v
+		}
+		if v := c.PostForm("titleEn"); v != "" {
+			updates["title_en"] = v
+		}
+		if v := c.PostForm("descriptionEn"); v != "" {
+			updates["description_en"] = v
 		}
 		if v := c.PostForm("isActive"); v != "" {
 			updates["is_active"] = v == "true"
@@ -125,6 +137,12 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 		if req.Description != nil {
 			updates["description"] = *req.Description
+		}
+		if req.TitleEn != nil {
+			updates["title_en"] = *req.TitleEn
+		}
+		if req.DescriptionEn != nil {
+			updates["description_en"] = *req.DescriptionEn
 		}
 		if req.IsActive != nil {
 			updates["is_active"] = *req.IsActive

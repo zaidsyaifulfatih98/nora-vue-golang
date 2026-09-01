@@ -4,6 +4,7 @@ import type { FrameSlot, PhotoboothFrameItem } from '~/composables/api/photoboot
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getPhotoboothFrames, uploadPhotoboothFrame, updatePhotoboothFrame, deletePhotoboothFrame } = usePhotoboothFramesApi()
+const { t } = useI18n()
 
 function defaultSlots(): FrameSlot[] {
   const margin = 0.045
@@ -100,12 +101,10 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
       <div class="flex items-start justify-between gap-4">
         <div>
           <h2 class="text-base font-semibold text-gray-800">
-            {{ editingId ? 'Edit Frame Digital Photobooth' : 'Tambah Frame Digital Photobooth' }}
+            {{ editingId ? t('dashboard.photoboothFrames.editFrame') : t('dashboard.photoboothFrames.newFrame') }}
           </h2>
           <p class="mt-1 text-xs text-gray-500">
-            Berbeda dari "Template Frame" di landing page. Frame ini dipakai pada fitur "Coba Digital Photobooth" —
-            unggah PNG transparan, lalu atur jumlah, ukuran, dan posisi kotak foto tepat di atas lubang transparan
-            pada gambar di bawah ini. Jumlah kotak menentukan berapa kali tamu akan mengambil foto.
+            {{ t('dashboard.photoboothFrames.helpText') }}
           </p>
         </div>
         <button v-if="editingId" class="shrink-0 text-gray-400 hover:text-gray-600" @click="resetForm"><Icon name="fe:close" /></button>
@@ -114,21 +113,21 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
       <form class="mt-4 flex flex-col gap-3" @submit.prevent="handleSubmit">
         <input
           v-model="name"
-          placeholder="Nama Frame (contoh: Frame Emas Elegan)"
+          :placeholder="t('dashboard.photoboothFrames.namePlaceholder')"
           class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
         />
 
         <div class="flex w-fit items-center gap-2">
           <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
             <Icon name="fe:upload" />
-            {{ file ? file.name : editingId ? 'Ganti PNG (opsional)' : 'Pilih PNG Transparan' }}
+            {{ file ? file.name : editingId ? t('dashboard.photoboothFrames.changePngOptional') : t('dashboard.photoboothFrames.choosePng') }}
             <input ref="fileInput" type="file" accept="image/png" class="hidden" @change="onFileChange" />
           </label>
         </div>
 
         <div v-if="previewUrl" class="mt-1">
           <p class="mb-2 text-xs font-medium text-gray-600">
-            Geser kotak untuk memindahkan, tarik sudut kanan-bawah untuk mengubah ukuran, sampai ketiganya pas di lubang transparan frame:
+            {{ t('dashboard.photoboothFrames.slotHint') }}
           </p>
           <FrameSlotEditor v-model="slots" :image-url="previewUrl" />
         </div>
@@ -139,14 +138,14 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
           class="w-fit rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
           :class="canSubmit ? 'bg-[#920f0f] hover:bg-[#7a0c0c]' : 'cursor-not-allowed bg-gray-300'"
         >
-          {{ submitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Frame' }}
+          {{ submitting ? t('dashboard.photoboothFrames.saving') : editingId ? t('dashboard.photoboothFrames.saveChanges') : t('dashboard.photoboothFrames.addFrame') }}
         </button>
       </form>
     </div>
 
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      <p v-if="loading" class="text-sm text-gray-400">Memuat frame...</p>
-      <p v-else-if="frames.length === 0" class="text-sm text-gray-400">Belum ada frame digital photobooth.</p>
+      <p v-if="loading" class="text-sm text-gray-400">{{ t('dashboard.photoboothFrames.loadingFrames') }}</p>
+      <p v-else-if="frames.length === 0" class="text-sm text-gray-400">{{ t('dashboard.photoboothFrames.empty') }}</p>
 
       <div v-for="frame in frames" :key="frame.id" class="group relative overflow-hidden rounded-2xl bg-white shadow-md">
         <div
@@ -159,11 +158,11 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
           <p class="truncate text-sm font-semibold text-gray-800">{{ frame.name }}</p>
           <div class="mt-2 flex items-center justify-between">
             <label class="flex items-center gap-1.5 text-xs text-gray-500">
-              <input type="checkbox" :checked="frame.isActive" @change="handleToggleActive(frame)" /> Aktif
+              <input type="checkbox" :checked="frame.isActive" @change="handleToggleActive(frame)" /> {{ t('dashboard.photoboothFrames.active') }}
             </label>
             <div class="flex items-center gap-3">
-              <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(frame)"><Icon name="fe:pencil" /></button>
-              <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(frame.id)"><Icon name="lucide:trash-2" /></button>
+              <button :aria-label="t('dashboard.photoboothFrames.editAria')" class="text-gray-400 hover:text-[#920f0f]" @click="openEditForm(frame)"><Icon name="fe:pencil" /></button>
+              <button :aria-label="t('dashboard.photoboothFrames.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(frame.id)"><Icon name="lucide:trash-2" /></button>
             </div>
           </div>
         </div>

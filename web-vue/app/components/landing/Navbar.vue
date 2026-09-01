@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const NAV_LINKS = [
-  { label: 'Beranda', href: '/#hero' },
-  { label: 'Keunggulan', href: '/#keunggulan' },
-  { label: 'Paket', href: '/#paket' },
-  { label: 'Galeri', href: '/#galeri' },
-  { label: 'Testimoni', href: '/#testimoni' },
-  { label: 'Digital Photobooth', href: '/digital-photobooth' },
-]
+const { t } = useI18n()
+
+const NAV_LINKS = computed(() => [
+  { label: t('nav.home'), href: '/#hero' },
+  { label: t('nav.packages'), href: '/#paket' },
+  { label: t('nav.gallery'), href: '/#galeri' },
+  { label: t('nav.digitalPhotobooth'), href: '/digital-photobooth' },
+])
 
 const open = ref(false)
 const scrolled = ref(false)
@@ -43,18 +43,22 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         >
           {{ link.label }}
         </NuxtLink>
+        <LanguageSwitcher />
         <NuxtLink
           to="/login"
           class="flex items-center gap-2 rounded-full bg-[#1E2537] px-5 py-2 text-sm font-semibold text-[#FAF9F6] transition hover:bg-[#920f0f]"
         >
           <Icon name="lucide:log-in" />
-          Login
+          {{ t('nav.login') }}
         </NuxtLink>
       </div>
 
-      <button aria-label="Buka menu" class="text-2xl text-[#1E2537] lg:hidden" @click="open = !open">
-        <Icon :name="open ? 'heroicons:x-mark' : 'heroicons:bars-3'" />
-      </button>
+      <div class="flex items-center gap-3 lg:hidden">
+        <LanguageSwitcher />
+        <button :aria-label="t('nav.openMenu')" class="text-2xl text-[#1E2537]" @click="open = !open">
+          <Icon :name="open ? 'heroicons:x-mark' : 'heroicons:bars-3'" />
+        </button>
+      </div>
     </nav>
 
     <div v-if="open" class="flex flex-col gap-1 border-t border-[#E4E2DC] bg-[#FAF9F6] px-6 py-4 lg:hidden">
@@ -73,7 +77,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         @click="open = false"
       >
         <Icon name="lucide:log-in" />
-        Login
+        {{ t('nav.login') }}
       </NuxtLink>
     </div>
   </header>

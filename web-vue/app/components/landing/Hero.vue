@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { GalleryPhotoItem } from '~/composables/api/gallery'
 
-const DEFAULT_MESSAGE = 'Halo Nora Photobooth, saya ingin bertanya-tanya seputar paket photobooth.'
+const { t } = useI18n()
 const config = useRuntimeConfig()
 
 const photos = await useServerFetch<GalleryPhotoItem[]>('/gallery', 'hero-gallery')
 const heroPhotos = computed(() => (photos.value ? photos.value.slice(0, 5) : null))
 const waHref = computed(
-  () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`,
+  () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(t('landing.whatsappCta.message'))}`,
 )
 </script>
 
@@ -17,20 +17,18 @@ const waHref = computed(
       <div class="relative z-10">
         <span class="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1.5 font-dm-sans text-xs font-semibold tracking-wide text-[#920f0f] shadow-sm ring-1 ring-[#E4E2DC]">
           <Icon name="heroicons:sparkles" class="text-base" />
-          Photobooth Premium
+          {{ t('landing.hero.badge') }}
         </span>
 
         <h1 class="mt-6 font-dm-serif text-4xl leading-tight font-bold text-[#000000] sm:text-5xl lg:text-6xl">
-          Capturing moments you'll cherish forever
+          {{ t('landing.hero.title') }}
         </h1>
 
         <p class="mt-6 max-w-lg font-poppins text-base leading-relaxed text-[#57607A] sm:text-lg">
-          Kami percaya bahwa setiap momen berharga layak untuk dikenang. NORA hadir sebagai layanan event photobooth
-          yang bukan hanya sekadar mencetak foto secara instan, tetapi juga mengabadikan setiap senyuman, tawa, dan
-          kebersamaan dalam hasil foto berkualitas.
+          {{ t('landing.hero.descriptionP1') }}
           <br />
           <br />
-          NORA menemani momen pernikahan, pertunangan, ulang tahun, dan berbagai event spesial lainnya.
+          {{ t('landing.hero.descriptionP2') }}
         </p>
 
         <div class="mt-8 flex flex-wrap items-center gap-4">
@@ -40,7 +38,7 @@ const waHref = computed(
             rel="noopener noreferrer"
             class="rounded-full bg-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#FAF9F6] shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]"
           >
-            Booking Sekarang
+            {{ t('landing.hero.cta') }}
           </a>
         </div>
       </div>

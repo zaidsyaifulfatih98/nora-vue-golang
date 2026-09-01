@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { PhotoboothFrameItem } from '~/composables/api/photoboothFrames'
 
-const DEFAULT_MESSAGE = 'Halo Nora Photobooth, saya ingin bertanya-tanya seputar Digital Photobooth.'
+const { t } = useI18n()
 const config = useRuntimeConfig()
 const waHref = computed(
-  () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`,
+  () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(t('digitalPhotobooth.waMessage'))}`,
 )
 
 const photoboothFramesData = await useServerFetch<PhotoboothFrameItem[]>('/photobooth-frames', 'digital-photobooth-frames')
@@ -21,19 +21,19 @@ interface Step {
 // Mirrors the actual 4-step flow inside the "Coba Digital Photobooth" modal
 // (TryModal.vue: frame -> camera -> result -> voice), so the marketing
 // preview matches what guests really see instead of an older, different flow.
-const steps: Step[] = [
-  { number: '01', title: 'Pilih frame favoritmu', variant: 'frame' },
-  { number: '02', title: 'Ambil foto sesuai frame yang dipilih', variant: 'camera' },
-  { number: '03', title: 'Simpan hasil dan dapatkan QR untuk download', variant: 'result' },
-  { number: '04', title: 'Kirim pesan suara untuk pasangan (opsional)', variant: 'voice' },
-]
+const steps = computed<Step[]>(() => [
+  { number: '01', title: t('digitalPhotobooth.steps.chooseFrame'), variant: 'frame' },
+  { number: '02', title: t('digitalPhotobooth.steps.takePhoto'), variant: 'camera' },
+  { number: '03', title: t('digitalPhotobooth.steps.saveResult'), variant: 'result' },
+  { number: '04', title: t('digitalPhotobooth.steps.sendVoice'), variant: 'voice' },
+])
 
 useHead({
-  title: 'Digital Photobooth — Nora Photobooth',
+  title: computed(() => t('digitalPhotobooth.metaTitle')),
   meta: [
     {
       name: 'description',
-      content: 'Kenali cara kerja Digital Photobooth Nora: pilih frame, ambil foto, simpan hasilnya, hingga kirim pesan suara untuk pasangan.',
+      content: computed(() => t('digitalPhotobooth.metaDescription')),
     },
   ],
 })
@@ -47,14 +47,13 @@ useHead({
       <div class="mx-auto max-w-3xl px-6 text-center lg:px-10">
         <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 font-dm-sans text-xs font-semibold tracking-wide text-[#920f0f] shadow-sm ring-1 ring-[#E4E2DC]">
           <Icon name="heroicons:device-phone-mobile" class="text-base" />
-          Fitur Terbaru
+          {{ t('digitalPhotobooth.badge') }}
         </span>
         <h1 class="mt-6 font-dm-serif text-4xl leading-tight font-bold text-[#000000] sm:text-5xl">
-          Digital Photobooth
+          {{ t('digitalPhotobooth.title') }}
         </h1>
         <p class="mt-4 font-poppins text-base leading-relaxed text-[#57607A] sm:text-lg">
-          Tamu cukup memilih frame, mengambil beberapa foto, menyimpan hasilnya, dan bisa mengirim pesan suara untuk
-          pasangan — semuanya langsung dari ponsel mereka sendiri.
+          {{ t('digitalPhotobooth.description') }}
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
           <button
@@ -62,7 +61,7 @@ useHead({
             @click="showTryModal = true"
           >
             <Icon name="heroicons:camera" />
-            Coba Digital Photobooth
+            {{ t('digitalPhotobooth.ctaTry') }}
           </button>
           <a
             :href="waHref"
@@ -70,7 +69,7 @@ useHead({
             rel="noopener noreferrer"
             class="rounded-full border border-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#920f0f] transition hover:-translate-y-0.5 hover:bg-[#920f0f]/5"
           >
-            Tanya-Tanya via WhatsApp
+            {{ t('digitalPhotobooth.ctaWhatsapp') }}
           </a>
         </div>
       </div>
@@ -79,8 +78,8 @@ useHead({
     <section class="relative bg-white py-20 lg:py-28">
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
         <div class="mx-auto max-w-2xl text-center">
-          <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">Cara Kerja</span>
-          <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">4 Langkah Mudah Digital Photobooth</h2>
+          <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">{{ t('digitalPhotobooth.howItWorksEyebrow') }}</span>
+          <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">{{ t('digitalPhotobooth.howItWorksTitle') }}</h2>
         </div>
 
         <div class="relative mt-20 grid grid-cols-2 gap-x-4 gap-y-16 lg:grid-cols-4 lg:items-start lg:gap-4">
@@ -98,7 +97,7 @@ useHead({
 
               <div class="relative flex h-full w-full flex-col overflow-hidden bg-gradient-to-b from-[#7a1420] to-[#4c0d15] px-2.5 pt-6 pb-2.5">
                 <template v-if="step.variant === 'frame'">
-                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Pilih Frame Favoritmu</p>
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">{{ t('digitalPhotobooth.screens.chooseFrameTitle') }}</p>
                   <div class="mt-3 grid flex-1 grid-cols-2 content-start gap-2">
                     <div class="flex aspect-[3/5] flex-col gap-1 rounded-md bg-white p-1 shadow ring-1 ring-black/5">
                       <div class="flex-1 rounded-sm bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300" />
@@ -112,7 +111,7 @@ useHead({
                 </template>
 
                 <template v-else-if="step.variant === 'camera'">
-                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Ambil Foto Terbaikmu</p>
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">{{ t('digitalPhotobooth.screens.takePhotoTitle') }}</p>
                   <div class="relative mt-2 flex-1 overflow-hidden rounded-lg bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300">
                     <svg viewBox="0 0 64 64" class="absolute inset-0 h-full w-full">
                       <circle cx="32" cy="24" r="12" fill="#8a5a44" fill-opacity="0.75" />
@@ -120,12 +119,12 @@ useHead({
                     </svg>
                   </div>
                   <span class="mt-2 mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
-                    Ambil Foto
+                    {{ t('digitalPhotobooth.screens.takePhotoButton') }}
                   </span>
                 </template>
 
                 <template v-else-if="step.variant === 'result'">
-                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Hasil Digital Photobooth-mu</p>
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">{{ t('digitalPhotobooth.screens.resultTitle') }}</p>
                   <div class="relative mx-auto mt-2 aspect-[3/5] w-[70%] flex-1 overflow-hidden rounded-md bg-gradient-to-br from-amber-200 via-rose-200 to-orange-300 shadow">
                     <svg viewBox="0 0 64 64" class="absolute inset-0 h-full w-full">
                       <circle cx="32" cy="22" r="11" fill="#8a5a44" fill-opacity="0.75" />
@@ -139,20 +138,20 @@ useHead({
                     </div>
                   </div>
                   <span class="mt-2 mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
-                    Simpan
+                    {{ t('digitalPhotobooth.screens.saveButton') }}
                   </span>
                 </template>
 
                 <template v-else-if="step.variant === 'voice'">
-                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">Kirim Pesan Suara</p>
-                  <p class="mt-1 text-center font-poppins text-[7px] font-semibold tracking-wide text-[#f3d9c6] uppercase">(Opsional)</p>
+                  <p class="text-center font-dm-serif text-[10px] font-bold text-white">{{ t('digitalPhotobooth.screens.sendVoiceTitle') }}</p>
+                  <p class="mt-1 text-center font-poppins text-[7px] font-semibold tracking-wide text-[#f3d9c6] uppercase">{{ t('digitalPhotobooth.screens.optional') }}</p>
                   <div class="flex flex-1 flex-col items-center justify-center gap-2">
                     <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 ring-2 ring-white/40">
                       <Icon name="heroicons:microphone" class="text-lg text-white" />
                     </div>
                   </div>
                   <span class="mb-1 rounded-full bg-[#920f0f] py-1.5 text-center font-poppins text-[7px] font-semibold text-white ring-1 ring-white/30">
-                    Kirim Pesan Suara
+                    {{ t('digitalPhotobooth.screens.sendVoiceButton') }}
                   </span>
                 </template>
               </div>

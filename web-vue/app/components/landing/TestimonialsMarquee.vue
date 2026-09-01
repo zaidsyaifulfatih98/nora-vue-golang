@@ -4,10 +4,13 @@ interface ReviewData {
   name: string
   eventLabel: string
   quote: string
+  eventLabelEn?: string | null
+  quoteEn?: string | null
   rating: number
 }
 
 const props = defineProps<{ reviews: ReviewData[] }>()
+const { tf } = useLocalizedField()
 
 const GRADIENTS = ['from-[#F3D9C0] to-[#E7B98F]', 'from-[#F3D9E0] to-[#E3AFC2]', 'from-[#920f0f] to-[#8F6F3E]']
 
@@ -32,7 +35,7 @@ const track = computed(() => [...props.reviews, ...props.reviews])
         class="flex w-[320px] shrink-0 flex-col rounded-2xl bg-white p-8 shadow-sm ring-1 ring-[#E4E2DC]/70 sm:w-[380px]"
       >
         <Icon name="fa6-solid:quote-left" class="text-2xl text-[#920f0f]" />
-        <p class="mt-4 flex-1 font-poppins text-sm leading-relaxed text-[#39445B] italic">&ldquo;{{ review.quote }}&rdquo;</p>
+        <p class="mt-4 flex-1 font-poppins text-sm leading-relaxed text-[#39445B] italic">&ldquo;{{ tf(review.quote, review.quoteEn) }}&rdquo;</p>
 
         <div class="mt-6 flex items-center gap-1 text-[#920f0f]">
           <Icon v-for="r in review.rating" :key="r" name="fa6-solid:star" class="text-sm" />
@@ -44,7 +47,7 @@ const track = computed(() => [...props.reviews, ...props.reviews])
           </div>
           <div>
             <p class="font-poppins text-sm font-bold text-[#1E2537]">{{ review.name }}</p>
-            <p class="font-poppins text-xs text-[#6C7686]">{{ review.eventLabel }}</p>
+            <p class="font-poppins text-xs text-[#6C7686]">{{ tf(review.eventLabel, review.eventLabelEn) }}</p>
           </div>
         </div>
       </div>

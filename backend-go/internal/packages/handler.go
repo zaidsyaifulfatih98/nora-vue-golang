@@ -25,14 +25,18 @@ func (h *Handler) List() gin.HandlerFunc   { return crud.ListHandler(h.repo) }
 func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
 
 type createRequest struct {
-	Name        string   `json:"name" binding:"required,max=50"`
-	Price       float64  `json:"price" binding:"required,min=0"`
-	Duration    string   `json:"duration" binding:"required"`
-	Description string   `json:"description" binding:"required"`
-	Features    []string `json:"features"`
-	IsPopular   bool     `json:"isPopular"`
-	IsActive    *bool    `json:"isActive"`
-	Order       int      `json:"order"`
+	Name          string   `json:"name" binding:"required,max=50"`
+	Price         float64  `json:"price" binding:"required,min=0"`
+	Duration      string   `json:"duration" binding:"required"`
+	Description   string   `json:"description" binding:"required"`
+	Features      []string `json:"features"`
+	NameEn        *string  `json:"nameEn"`
+	DurationEn    *string  `json:"durationEn"`
+	DescriptionEn *string  `json:"descriptionEn"`
+	FeaturesEn    []string `json:"featuresEn"`
+	IsPopular     bool     `json:"isPopular"`
+	IsActive      *bool    `json:"isActive"`
+	Order         int      `json:"order"`
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -49,14 +53,18 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	item := models.Package{
-		Name:        req.Name,
-		Price:       decimal.NewFromFloat(req.Price),
-		Duration:    req.Duration,
-		Description: req.Description,
-		Features:    req.Features,
-		IsPopular:   req.IsPopular,
-		IsActive:    isActive,
-		Order:       req.Order,
+		Name:          req.Name,
+		Price:         decimal.NewFromFloat(req.Price),
+		Duration:      req.Duration,
+		Description:   req.Description,
+		Features:      req.Features,
+		NameEn:        req.NameEn,
+		DurationEn:    req.DurationEn,
+		DescriptionEn: req.DescriptionEn,
+		FeaturesEn:    req.FeaturesEn,
+		IsPopular:     req.IsPopular,
+		IsActive:      isActive,
+		Order:         req.Order,
 	}
 
 	if err := h.repo.Create(&item); err != nil {
@@ -69,14 +77,18 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 type updateRequest struct {
-	Name        *string   `json:"name"`
-	Price       *float64  `json:"price"`
-	Duration    *string   `json:"duration"`
-	Description *string   `json:"description"`
-	Features    *[]string `json:"features"`
-	IsPopular   *bool     `json:"isPopular"`
-	IsActive    *bool     `json:"isActive"`
-	Order       *int      `json:"order"`
+	Name          *string   `json:"name"`
+	Price         *float64  `json:"price"`
+	Duration      *string   `json:"duration"`
+	Description   *string   `json:"description"`
+	Features      *[]string `json:"features"`
+	NameEn        *string   `json:"nameEn"`
+	DurationEn    *string   `json:"durationEn"`
+	DescriptionEn *string   `json:"descriptionEn"`
+	FeaturesEn    *[]string `json:"featuresEn"`
+	IsPopular     *bool     `json:"isPopular"`
+	IsActive      *bool     `json:"isActive"`
+	Order         *int      `json:"order"`
 }
 
 func (h *Handler) Update(c *gin.Context) {
@@ -102,6 +114,18 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 	if req.Features != nil {
 		updates["features"] = pq.StringArray(*req.Features)
+	}
+	if req.NameEn != nil {
+		updates["name_en"] = *req.NameEn
+	}
+	if req.DurationEn != nil {
+		updates["duration_en"] = *req.DurationEn
+	}
+	if req.DescriptionEn != nil {
+		updates["description_en"] = *req.DescriptionEn
+	}
+	if req.FeaturesEn != nil {
+		updates["features_en"] = pq.StringArray(*req.FeaturesEn)
 	}
 	if req.IsPopular != nil {
 		updates["is_popular"] = *req.IsPopular

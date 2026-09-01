@@ -6,6 +6,7 @@ const MAX_SLOTS = 10
 
 const props = defineProps<{ imageUrl: string; modelValue: FrameSlot[] }>()
 const emit = defineEmits<{ 'update:modelValue': [FrameSlot[]] }>()
+const { t } = useI18n()
 
 const containerRef = ref<HTMLDivElement | null>(null)
 const imgAspect = ref<number | null>(null)
@@ -114,7 +115,7 @@ onBeforeUnmount(() => {
       <button
         v-if="canRemoveSlot"
         type="button"
-        aria-label="Hapus kotak"
+        :aria-label="t('dashboard.frameSlotEditor.removeSlotAria')"
         class="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
         @pointerdown.stop
         @click.stop="removeSlot(i)"
@@ -129,7 +130,7 @@ onBeforeUnmount(() => {
   </div>
 
   <div class="mt-2 flex items-center justify-between gap-2">
-    <p class="text-xs text-gray-500">{{ modelValue.length }} kotak foto</p>
+    <p class="text-xs text-gray-500">{{ t('dashboard.frameSlotEditor.photoCount', { count: modelValue.length }) }}</p>
     <button
       type="button"
       :disabled="!canAddSlot"
@@ -137,7 +138,7 @@ onBeforeUnmount(() => {
       @click="addSlot"
     >
       <Icon name="heroicons:plus" />
-      Tambah Kotak
+      {{ t('dashboard.frameSlotEditor.addSlot') }}
     </button>
   </div>
 </template>

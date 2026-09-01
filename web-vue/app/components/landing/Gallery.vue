@@ -12,6 +12,7 @@ const PLACEHOLDER_TILES = [
   { gradient: 'from-[#F0EFEA] to-[#DCB98A]' },
 ]
 
+const { t } = useI18n()
 const photos = await useServerFetch<GalleryPhotoItem[]>('/gallery', 'landing-gallery')
 const hasPhotos = computed(() => Boolean(photos.value && photos.value.length > 0))
 const itemCount = computed(() => (hasPhotos.value ? photos.value!.length : PLACEHOLDER_TILES.length))
@@ -27,9 +28,9 @@ function scrollByPage(dir: 1 | -1) {
   <section id="galeri" class="relative bg-[#f7f3eb] py-24">
     <div class="mx-auto max-w-7xl px-6 lg:px-10">
       <div class="mx-auto max-w-2xl text-center">
-        <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">Galeri Momen</span>
-        <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">Sekilas Keseruan di Setiap Bidikan</h2>
-        <p class="mt-4 font-poppins text-[#57607A]">Cuplikan suasana photobooth dari berbagai resepsi yang pernah kami temani.</p>
+        <span class="font-dm-sans text-xs font-semibold tracking-[0.2em] text-[#920f0f] uppercase">{{ t('landing.gallery.eyebrow') }}</span>
+        <h2 class="mt-3 font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">{{ t('landing.gallery.title') }}</h2>
+        <p class="mt-4 font-poppins text-[#57607A]">{{ t('landing.gallery.description') }}</p>
       </div>
 
       <div class="relative mt-16">
@@ -40,7 +41,7 @@ function scrollByPage(dir: 1 | -1) {
               :key="photo.id"
               class="group relative aspect-[2/3] w-[calc(50%-0.5rem)] flex-none snap-start overflow-hidden rounded-2xl shadow-sm ring-1 ring-[#E4E2DC]/70 sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]"
             >
-              <img :src="photo.url" :alt="photo.caption ?? 'Momen Nora Photobooth'" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+              <img :src="photo.url" :alt="photo.caption ?? t('landing.gallery.altFallback')" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
             </div>
           </template>
           <template v-else>
@@ -60,7 +61,7 @@ function scrollByPage(dir: 1 | -1) {
         <button
           v-if="itemCount > 4"
           type="button"
-          aria-label="Sebelumnya"
+          :aria-label="t('landing.gallery.prev')"
           class="absolute top-1/2 -left-4 hidden -translate-y-1/2 rounded-full bg-white p-3 text-[#920f0f] shadow-md ring-1 ring-[#E4E2DC] transition hover:bg-[#920f0f] hover:text-white sm:flex"
           @click="scrollByPage(-1)"
         >
@@ -69,7 +70,7 @@ function scrollByPage(dir: 1 | -1) {
         <button
           v-if="itemCount > 4"
           type="button"
-          aria-label="Selanjutnya"
+          :aria-label="t('landing.gallery.next')"
           class="absolute top-1/2 -right-4 hidden -translate-y-1/2 rounded-full bg-white p-3 text-[#920f0f] shadow-md ring-1 ring-[#E4E2DC] transition hover:bg-[#920f0f] hover:text-white sm:flex"
           @click="scrollByPage(1)"
         >

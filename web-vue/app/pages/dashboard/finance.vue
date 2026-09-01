@@ -5,6 +5,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getFinanceEntries, getFinanceSummary, createFinanceEntry, updateFinanceEntry, deleteFinanceEntry } =
   useFinanceApi()
+const { t, tm, locale } = useI18n()
 
 function formatRupiah(value: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)
@@ -105,13 +106,15 @@ watch(search, () => {
   page.value = 1
 })
 
+const dateLocale = computed(() => (locale.value === 'en' ? 'en-US' : 'id-ID'))
+
 function handleExportCsv() {
-  const header = ['Tanggal', 'Kategori', 'Tipe', 'Nominal', 'Catatan', 'Dicatat Oleh']
+  const header = tm('dashboard.finance.csvHeaders') as unknown as string[]
   const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`
   const rows = filteredEntries.value.map((entry) => [
-    new Date(entry.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+    new Date(entry.date).toLocaleDateString(dateLocale.value, { day: '2-digit', month: 'short', year: 'numeric' }),
     entry.category,
-    entry.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
+    entry.type === 'INCOME' ? t('dashboard.finance.typeIncome') : t('dashboard.finance.typeExpense'),
     Number(entry.amount).toString(),
     entry.description ?? '',
     `${entry.createdBy?.firstName ?? ''} ${entry.createdBy?.lastName ?? ''}`.trim(),
@@ -123,7 +126,7 @@ function handleExportCsv() {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `riwayat-transaksi-${new Date().toISOString().slice(0, 10)}.csv`
+  link.download = `${t('dashboard.finance.csvFileName')}-${new Date().toISOString().slice(0, 10)}.csv`
   link.click()
   URL.revokeObjectURL(url)
 }
@@ -136,45 +139,45 @@ function handleExportCsv() {
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
           <Icon name="fe:dollar" class="text-lg text-green-600" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Total Pemasukan</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.finance.totalIncome') }}</p>
         <p class="text-xl font-bold text-gray-900">{{ formatRupiah(summary?.income ?? 0) }}</p>
       </div>
       <div class="rounded-2xl bg-white p-5 shadow-md">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100">
           <Icon name="fe:trending-down" class="text-lg text-red-500" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Total Pengeluaran</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.finance.totalExpense') }}</p>
         <p class="text-xl font-bold text-gray-900">{{ formatRupiah(summary?.expense ?? 0) }}</p>
       </div>
       <div class="rounded-2xl bg-white p-5 shadow-md">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9EAF0]">
           <Icon name="fe:dollar" class="text-lg text-[#1E2537]" />
         </div>
-        <p class="mt-2 text-sm text-gray-500">Saldo</p>
+        <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.finance.balance') }}</p>
         <p class="text-xl font-bold text-gray-900">{{ formatRupiah(summary?.balance ?? 0) }}</p>
       </div>
     </div>
 
     <div class="rounded-2xl bg-white p-6 shadow-md">
-      <h2 class="text-base font-semibold text-gray-800">{{ editingId ? 'Edit Transaksi' : 'Catat Transaksi Baru' }}</h2>
+      <h2 class="text-base font-semibold text-gray-800">{{ editingId ? t('dashboard.finance.editTransaction') : t('dashboard.finance.newTransaction') }}</h2>
       <form class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" @submit.prevent="handleSubmit">
         <select v-model="form.type" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]">
-          <option value="INCOME">Pemasukan</option>
-          <option value="EXPENSE">Pengeluaran</option>
+          <option value="INCOME">{{ t('dashboard.finance.typeIncome') }}</option>
+          <option value="EXPENSE">{{ t('dashboard.finance.typeExpense') }}</option>
         </select>
 
-        <input v-model="form.category" required placeholder="Kategori (mis. Booking Paket Gold)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2" />
-        <input v-model="form.amount" required type="number" min="0" placeholder="Nominal (Rp)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+        <input v-model="form.category" required :placeholder="t('dashboard.finance.categoryPlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2" />
+        <input v-model="form.amount" required type="number" min="0" :placeholder="t('dashboard.finance.amountPlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
         <input v-model="form.date" required type="date" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
-        <input v-model="form.description" placeholder="Catatan (opsional)" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2 lg:col-span-4" />
+        <input v-model="form.description" :placeholder="t('dashboard.finance.descriptionPlaceholder')" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f] sm:col-span-2 lg:col-span-4" />
 
         <div class="flex items-center gap-2">
           <button type="submit" :disabled="submitting" class="flex items-center justify-center gap-2 rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a0c0c] disabled:opacity-60">
             <Icon :name="editingId ? 'fe:pencil' : 'fe:plus'" />
-            {{ submitting ? 'Menyimpan...' : editingId ? 'Update' : 'Simpan' }}
+            {{ submitting ? t('dashboard.finance.saving') : editingId ? t('dashboard.finance.update') : t('dashboard.finance.save') }}
           </button>
           <button v-if="editingId" type="button" class="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50" @click="handleCancelEdit">
-            <Icon name="fe:close" /> Batal
+            <Icon name="fe:close" /> {{ t('dashboard.finance.cancel') }}
           </button>
         </div>
       </form>
@@ -182,14 +185,14 @@ function handleExportCsv() {
 
     <div class="rounded-2xl bg-white shadow-md">
       <div class="flex flex-col gap-3 border-b border-gray-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-base font-semibold text-gray-800">Riwayat Transaksi</h2>
+        <h2 class="text-base font-semibold text-gray-800">{{ t('dashboard.finance.history') }}</h2>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div class="relative w-full sm:w-64">
             <Icon name="fe:search" class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-            <input v-model="search" type="text" placeholder="Cari kategori, catatan, atau pencatat..." class="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
+            <input v-model="search" type="text" :placeholder="t('dashboard.finance.searchPlaceholder')" class="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]" />
           </div>
           <button type="button" :disabled="filteredEntries.length === 0" class="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50" @click="handleExportCsv">
-            <Icon name="fe:download" /> Export CSV
+            <Icon name="fe:download" /> {{ t('dashboard.finance.exportCsv') }}
           </button>
         </div>
       </div>
@@ -198,26 +201,26 @@ function handleExportCsv() {
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-gray-100 text-gray-500">
-              <th class="px-6 py-3 font-medium">Tanggal</th>
-              <th class="px-6 py-3 font-medium">Kategori</th>
-              <th class="px-6 py-3 font-medium">Tipe</th>
-              <th class="px-6 py-3 font-medium">Nominal</th>
-              <th class="px-6 py-3 font-medium">Dicatat oleh</th>
+              <th class="px-6 py-3 font-medium">{{ t('dashboard.finance.colDate') }}</th>
+              <th class="px-6 py-3 font-medium">{{ t('dashboard.finance.colCategory') }}</th>
+              <th class="px-6 py-3 font-medium">{{ t('dashboard.finance.colType') }}</th>
+              <th class="px-6 py-3 font-medium">{{ t('dashboard.finance.colAmount') }}</th>
+              <th class="px-6 py-3 font-medium">{{ t('dashboard.finance.colRecordedBy') }}</th>
               <th class="px-6 py-3 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="6" class="px-6 py-8 text-center text-gray-400">Memuat data...</td>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-400">{{ t('dashboard.finance.loadingData') }}</td>
             </tr>
             <tr v-else-if="filteredEntries.length === 0">
               <td colspan="6" class="px-6 py-8 text-center text-gray-400">
-                {{ search ? 'Tidak ada transaksi yang cocok dengan pencarian.' : 'Belum ada transaksi tercatat.' }}
+                {{ search ? t('dashboard.finance.noMatch') : t('dashboard.finance.noData') }}
               </td>
             </tr>
             <tr v-for="entry in paginatedEntries" v-else :key="entry.id" class="border-b border-gray-50">
               <td class="px-6 py-3 text-gray-700">
-                {{ new Date(entry.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+                {{ new Date(entry.date).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' }) }}
               </td>
               <td class="px-6 py-3 text-gray-700">
                 {{ entry.category }}
@@ -225,7 +228,7 @@ function handleExportCsv() {
               </td>
               <td class="px-6 py-3">
                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold" :class="entry.type === 'INCOME' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
-                  {{ entry.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran' }}
+                  {{ entry.type === 'INCOME' ? t('dashboard.finance.typeIncome') : t('dashboard.finance.typeExpense') }}
                 </span>
               </td>
               <td class="px-6 py-3 font-semibold" :class="entry.type === 'INCOME' ? 'text-green-600' : 'text-red-500'">
@@ -234,8 +237,8 @@ function handleExportCsv() {
               <td class="px-6 py-3 text-gray-500">{{ entry.createdBy?.firstName }} {{ entry.createdBy?.lastName }}</td>
               <td class="px-6 py-3 text-right">
                 <div class="flex items-center justify-end gap-3">
-                  <button aria-label="Edit" class="text-gray-400 hover:text-[#920f0f]" @click="handleEdit(entry)"><Icon name="fe:pencil" /></button>
-                  <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(entry.id)"><Icon name="lucide:trash-2" /></button>
+                  <button :aria-label="t('dashboard.finance.editAria')" class="text-gray-400 hover:text-[#920f0f]" @click="handleEdit(entry)"><Icon name="fe:pencil" /></button>
+                  <button :aria-label="t('dashboard.finance.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(entry.id)"><Icon name="lucide:trash-2" /></button>
                 </div>
               </td>
             </tr>
@@ -245,24 +248,23 @@ function handleExportCsv() {
 
       <div v-if="!loading && filteredEntries.length > 0" class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-6 py-4 sm:flex-row">
         <p class="text-xs text-gray-500">
-          Menampilkan {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, filteredEntries.length) }}
-          dari {{ filteredEntries.length }} transaksi
+          {{ t('dashboard.finance.showingRange', { from: (currentPage - 1) * pageSize + 1, to: Math.min(currentPage * pageSize, filteredEntries.length), total: filteredEntries.length }) }}
         </p>
         <div class="flex items-center gap-2">
           <button
             type="button"
             :disabled="currentPage === 1"
-            aria-label="Halaman sebelumnya"
+            :aria-label="t('dashboard.finance.prevPageAria')"
             class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
             @click="page = Math.max(1, currentPage - 1)"
           >
             <Icon name="fe:arrow-left" />
           </button>
-          <span class="text-xs font-medium text-gray-600">Halaman {{ currentPage }} dari {{ totalPages }}</span>
+          <span class="text-xs font-medium text-gray-600">{{ t('dashboard.finance.pageOf', { current: currentPage, total: totalPages }) }}</span>
           <button
             type="button"
             :disabled="currentPage === totalPages"
-            aria-label="Halaman berikutnya"
+            :aria-label="t('dashboard.finance.nextPageAria')"
             class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
             @click="page = Math.min(totalPages, currentPage + 1)"
           >

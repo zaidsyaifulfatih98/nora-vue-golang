@@ -8,6 +8,7 @@ const emit = defineEmits<{ close: [] }>()
 
 const { savePhotoboothResult } = usePhotoboothResultsApi()
 const { uploadVoiceMessage } = useVoiceMessagesApi()
+const { t } = useI18n()
 
 const DEFAULT_PHOTO_COUNT = 3
 const MAX_CANVAS_SIDE = 1600
@@ -72,7 +73,7 @@ async function startCamera() {
       await videoRef.value.play()
     }
   } catch {
-    cameraError.value = 'Tidak bisa mengakses kamera. Pastikan kamu mengizinkan akses kamera pada browser.'
+    cameraError.value = t('tryModal.camera.error')
   }
 }
 
@@ -213,7 +214,7 @@ async function buildResult() {
     resultImage.value = canvas.toDataURL('image/png')
     step.value = 'result'
   } catch {
-    cameraError.value = 'Gagal memuat gambar frame. Silakan coba lagi.'
+    cameraError.value = t('tryModal.camera.frameLoadError')
     step.value = 'camera'
   } finally {
     compositing.value = false
@@ -240,7 +241,7 @@ async function saveResult() {
     savedResult.value = saved
     qrCodeDataUrl.value = await QRCode.toDataURL(saved.downloadUrl, { width: 240, margin: 1 })
   } catch {
-    saveError.value = 'Gagal menyimpan hasil. Silakan coba lagi.'
+    saveError.value = t('tryModal.result.saveError')
   } finally {
     saving.value = false
   }
@@ -293,7 +294,7 @@ async function startVoiceRecording() {
     voiceStep.value = 'recording'
     voiceTimer = setInterval(() => (voiceSeconds.value += 1), 1000)
   } catch {
-    voiceError.value = 'Tidak bisa mengakses mikrofon. Pastikan kamu mengizinkan akses mikrofon pada browser.'
+    voiceError.value = t('tryModal.voice.error')
   }
 }
 
@@ -316,7 +317,7 @@ async function sendVoiceMessage() {
     await uploadVoiceMessage(voiceBlob.value, voiceGuestName.value, savedResult.value?.viewUrl)
     voiceStep.value = 'sent'
   } catch {
-    voiceError.value = 'Gagal mengirim pesan suara. Silakan coba lagi.'
+    voiceError.value = t('tryModal.voice.sendError')
     voiceStep.value = 'recorded'
   }
 }
@@ -362,7 +363,7 @@ onBeforeUnmount(() => {
       class="relative flex h-full w-full flex-col overflow-hidden bg-[#FAF9F6] sm:h-auto sm:max-h-[90vh] sm:w-full sm:max-w-lg sm:rounded-3xl sm:shadow-2xl"
     >
       <button
-        aria-label="Tutup"
+        :aria-label="t('tryModal.closeAria')"
         class="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#1E2537] shadow-sm transition hover:bg-white"
         @click="handleClose"
       >
@@ -372,7 +373,7 @@ onBeforeUnmount(() => {
       <div class="flex-1 overflow-y-auto px-6 pt-6 pb-8">
         <div class="mb-6 flex items-center justify-center gap-2">
           <span
-            v-for="(label, i) in ['Pilih Frame', 'Ambil Foto', 'Hasil', 'Pesan Suara']"
+            v-for="(label, i) in [t('tryModal.stepLabels.frame'), t('tryModal.stepLabels.camera'), t('tryModal.stepLabels.result'), t('tryModal.stepLabels.voice')]"
             :key="label"
             class="flex items-center gap-2 font-dm-sans text-xs font-semibold"
             :class="(['frame', 'camera', 'result', 'voice'][i] === step) ? 'text-[#920f0f]' : 'text-[#B8B2A6]'"
@@ -388,8 +389,8 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-if="step === 'frame'">
-          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">Pilih Frame Favoritmu</h3>
-          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">Frame ini bisa diatur oleh tim kami lewat dashboard.</p>
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">{{ t('tryModal.frame.title') }}</h3>
+          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.frame.subtitle') }}</p>
 
           <div v-if="frames.length > 0" class="mt-6 grid grid-cols-2 gap-4">
             <button
@@ -409,14 +410,14 @@ onBeforeUnmount(() => {
             </button>
           </div>
           <p v-else class="mt-8 text-center font-poppins text-sm text-[#57607A]">
-            Belum ada frame yang tersedia saat ini. Silakan hubungi kami untuk info lebih lanjut.
+            {{ t('tryModal.frame.empty') }}
           </p>
         </div>
 
         <div v-else-if="step === 'camera'">
-          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">Ambil {{ photoCount }} Foto Terbaikmu</h3>
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">{{ t('tryModal.camera.title', { count: photoCount }) }}</h3>
           <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">
-            Foto {{ photos.length }} dari {{ photoCount }}
+            {{ t('tryModal.camera.subtitle', { current: photos.length, total: photoCount }) }}
           </p>
 
           <div class="relative mx-auto mt-4 aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-black">
@@ -449,7 +450,7 @@ onBeforeUnmount(() => {
               class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
               @click="startCamera"
             >
-              Coba Lagi
+              {{ t('tryModal.camera.retry') }}
             </button>
             <template v-else>
               <button
@@ -457,25 +458,25 @@ onBeforeUnmount(() => {
                 class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 @click="startCaptureCountdown"
               >
-                {{ compositing ? 'Memproses...' : capturing ? 'Bersiap...' : `Ambil Foto (${photosLeft} lagi)` }}
+                {{ compositing ? t('tryModal.camera.processing') : capturing ? t('tryModal.camera.preparing') : t('tryModal.camera.takePhoto', { left: photosLeft }) }}
               </button>
               <button
                 v-if="photos.length > 0 && !capturing"
                 class="rounded-full border border-[#920f0f] px-6 py-2.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
                 @click="retakePhotos"
               >
-                Ulangi
+                {{ t('tryModal.camera.retake') }}
               </button>
             </template>
           </div>
         </div>
 
         <div v-else-if="step === 'result'">
-          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">Hasil Digital Photobooth-mu</h3>
-          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">Simpan dan bagikan momenmu.</p>
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">{{ t('tryModal.result.title') }}</h3>
+          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.result.subtitle') }}</p>
 
           <div class="mx-auto mt-6 max-w-[220px] overflow-hidden rounded-2xl shadow-lg ring-1 ring-[#E4E2DC]">
-            <img :src="resultImage" alt="Hasil digital photobooth" class="w-full" />
+            <img :src="resultImage" :alt="t('tryModal.result.alt')" class="w-full" />
           </div>
 
           <div class="mt-6 flex flex-col items-center gap-3">
@@ -485,7 +486,7 @@ onBeforeUnmount(() => {
                 @click="redoPhotos"
               >
                 <Icon name="heroicons:arrow-path" />
-                Ulangi
+                {{ t('tryModal.result.retry') }}
               </button>
               <button
                 :disabled="saving || Boolean(savedResult)"
@@ -493,16 +494,16 @@ onBeforeUnmount(() => {
                 @click="saveResult"
               >
                 <Icon name="heroicons:cloud-arrow-up" />
-                {{ saving ? 'Menyimpan...' : savedResult ? 'Tersimpan' : 'Simpan' }}
+                {{ saving ? t('tryModal.result.saving') : savedResult ? t('tryModal.result.saved') : t('tryModal.result.save') }}
               </button>
             </div>
 
             <p v-if="saveError" class="font-poppins text-xs text-red-600">{{ saveError }}</p>
 
             <div v-if="qrCodeDataUrl && savedResult" class="mt-2 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
-              <img :src="qrCodeDataUrl" alt="QR code download hasil" class="h-40 w-40" />
+              <img :src="qrCodeDataUrl" :alt="t('tryModal.result.downloadAlt')" class="h-40 w-40" />
               <p class="max-w-[220px] text-center font-poppins text-xs text-[#57607A]">
-                Sudah tersimpan. Scan QR ini atau klik button dibawah ini
+                {{ t('tryModal.result.downloadHint') }}
               </p>
               <a
                 :href="savedResult.downloadUrl"
@@ -511,7 +512,7 @@ onBeforeUnmount(() => {
                 class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
               >
                 <Icon name="heroicons:arrow-down-tray" />
-                Download
+                {{ t('tryModal.result.download') }}
               </a>
             </div>
 
@@ -519,16 +520,16 @@ onBeforeUnmount(() => {
               class="mt-2 flex items-center gap-2 rounded-full bg-[#1E2537] px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
               @click="goToVoiceStep"
             >
-              Lanjut
+              {{ t('tryModal.result.continue') }}
               <Icon name="heroicons:arrow-right" />
             </button>
           </div>
         </div>
 
         <div v-else-if="step === 'voice'">
-          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">Kirim Pesan Suara</h3>
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">{{ t('tryModal.voice.title') }}</h3>
           <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">
-            Tinggalkan ucapan untuk pasangan, atau lewati jika tidak ingin.
+            {{ t('tryModal.voice.subtitle') }}
           </p>
 
           <div class="mx-auto mt-6 w-full max-w-xs rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
@@ -538,18 +539,18 @@ onBeforeUnmount(() => {
                 @click="openVoiceForm"
               >
                 <Icon name="heroicons:microphone" />
-                Kirim Pesan Suara
+                {{ t('tryModal.voice.sendCta') }}
               </button>
               <button class="font-poppins text-xs font-semibold text-[#57607A] underline underline-offset-4" @click="skipVoiceMessage">
-                Lewati 
+                {{ t('tryModal.voice.skip') }}
               </button>
             </div>
 
             <div v-else-if="voiceStep === 'form'" class="flex flex-col gap-3">
-              <p class="text-center font-poppins text-sm font-semibold text-[#1E2537]">Rekam Pesan Suara</p>
+              <p class="text-center font-poppins text-sm font-semibold text-[#1E2537]">{{ t('tryModal.voice.formTitle') }}</p>
               <input
                 v-model="voiceGuestName"
-                placeholder="Nama kamu (opsional)"
+                :placeholder="t('tryModal.voice.namePlaceholder')"
                 class="rounded-lg border border-[#E4E2DC] px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none"
               />
               <button
@@ -557,10 +558,10 @@ onBeforeUnmount(() => {
                 @click="startVoiceRecording"
               >
                 <Icon name="heroicons:microphone" />
-                Mulai Rekam
+                {{ t('tryModal.voice.startRecording') }}
               </button>
               <button class="font-poppins text-xs font-semibold text-[#57607A] underline underline-offset-4" @click="skipVoiceMessage">
-                Lewati (Opsional)
+                {{ t('tryModal.voice.skipOptional') }}
               </button>
             </div>
 
@@ -573,7 +574,7 @@ onBeforeUnmount(() => {
                 class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
                 @click="stopVoiceRecording"
               >
-                Berhenti
+                {{ t('tryModal.voice.stopRecording') }}
               </button>
             </div>
 
@@ -584,27 +585,27 @@ onBeforeUnmount(() => {
                   class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
                   @click="sendVoiceMessage"
                 >
-                  Kirim
+                  {{ t('tryModal.voice.send') }}
                 </button>
                 <button
                   class="rounded-full border border-[#920f0f] px-6 py-2.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
                   @click="retakeVoiceRecording"
                 >
-                  Rekam Ulang
+                  {{ t('tryModal.voice.retake') }}
                 </button>
               </div>
             </div>
 
-            <p v-else-if="voiceStep === 'sending'" class="text-center font-poppins text-sm text-[#57607A]">Mengirim...</p>
+            <p v-else-if="voiceStep === 'sending'" class="text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.voice.sending') }}</p>
 
             <div v-else-if="voiceStep === 'sent'" class="flex flex-col items-center gap-2">
               <Icon name="heroicons:check-circle" class="text-3xl text-[#920f0f]" />
-              <p class="text-center font-poppins text-sm text-[#57607A]">Pesan suara terkirim, terima kasih!</p>
+              <p class="text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.voice.sent') }}</p>
             </div>
 
             <div v-else-if="voiceStep === 'skipped'" class="flex flex-col items-center gap-2">
               <Icon name="heroicons:heart" class="text-2xl text-[#920f0f]" />
-              <p class="text-center font-poppins text-sm text-[#57607A]">Terima kasih sudah mencoba Digital Photobooth kami!</p>
+              <p class="text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.voice.skipped') }}</p>
             </div>
 
             <p v-if="voiceError" class="mt-2 text-center font-poppins text-xs text-red-600">{{ voiceError }}</p>
@@ -612,7 +613,7 @@ onBeforeUnmount(() => {
 
           <div class="mt-6 flex justify-center">
             <button class="font-poppins text-sm font-semibold text-[#57607A] underline underline-offset-4" @click="tryAgain">
-              Coba Frame Lain
+              {{ t('tryModal.voice.tryAnotherFrame') }}
             </button>
           </div>
         </div>

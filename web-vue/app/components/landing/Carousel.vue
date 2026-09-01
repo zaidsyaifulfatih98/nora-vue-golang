@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{ items: unknown[] }>()
+const { t } = useI18n()
 const trackRef = ref<HTMLDivElement | null>(null)
 
 function scroll(direction: 1 | -1) {
@@ -17,7 +18,7 @@ const showArrows = computed(() => props.items.length > 1)
   <div class="relative">
     <button
       v-if="showArrows"
-      aria-label="Sebelumnya"
+      :aria-label="t('landing.gallery.prev')"
       class="absolute top-1/2 left-0 z-10 -translate-x-4 -translate-y-1/2 rounded-full bg-white p-3 text-[#1E2537] shadow-md ring-1 ring-[#E4E2DC] transition hover:bg-[#F0EFEA] sm:-translate-x-6"
       @click="scroll(-1)"
     >
@@ -35,7 +36,7 @@ const showArrows = computed(() => props.items.length > 1)
 
     <button
       v-if="showArrows"
-      aria-label="Selanjutnya"
+      :aria-label="t('landing.gallery.next')"
       class="absolute top-1/2 right-0 z-10 -translate-y-1/2 translate-x-4 rounded-full bg-white p-3 text-[#1E2537] shadow-md ring-1 ring-[#E4E2DC] transition hover:bg-[#F0EFEA] sm:translate-x-6"
       @click="scroll(1)"
     >

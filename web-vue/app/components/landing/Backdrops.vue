@@ -2,13 +2,14 @@
 import type { BackdropItem } from '~/composables/api/backdrops'
 
 defineProps<{ backdrops: BackdropItem[] }>()
+const { t } = useI18n()
 </script>
 
 <template>
   <section v-if="backdrops.length > 0" id="backdrop" class="relative bg-[#f7f3eb] py-24">
     <div class="mx-auto max-w-7xl px-6 lg:px-10">
       <div class="mx-auto max-w-2xl text-center">
-        <h2 class="font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">Backdrop Options</h2>
+        <h2 class="font-dm-serif text-3xl font-bold text-[#000000] sm:text-4xl">{{ t('landing.backdrops.title') }}</h2>
       </div>
 
       <div class="mt-16">

@@ -4,6 +4,7 @@ import type { PhotoboothResultItem } from '~/composables/api/photoboothResults'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getPhotoboothResults, deletePhotoboothResult } = usePhotoboothResultsApi()
+const { t, locale } = useI18n()
 
 const results = ref<PhotoboothResultItem[]>([])
 const loading = ref(true)
@@ -21,23 +22,23 @@ async function handleDelete(id: string) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
+  return new Date(iso).toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', { dateStyle: 'medium', timeStyle: 'short' })
 }
 </script>
 
 <template>
   <div class="space-y-6">
     <p class="text-sm text-gray-500">
-      Kumpulan hasil foto yang disimpan tamu lewat fitur "Coba Digital Photobooth" di landing page.
+      {{ t('dashboard.photoboothResults.subtitle') }}
     </p>
 
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-      <p v-if="loading" class="text-sm text-gray-400">Memuat hasil...</p>
-      <p v-else-if="results.length === 0" class="text-sm text-gray-400">Belum ada hasil digital photobooth.</p>
+      <p v-if="loading" class="text-sm text-gray-400">{{ t('dashboard.photoboothResults.loadingResults') }}</p>
+      <p v-else-if="results.length === 0" class="text-sm text-gray-400">{{ t('dashboard.photoboothResults.empty') }}</p>
 
       <div v-for="result in results" :key="result.id" class="group relative overflow-hidden rounded-2xl bg-white shadow-md">
         <div class="aspect-[3/5] w-full overflow-hidden bg-gray-50">
-          <img :src="result.viewUrl" alt="Hasil digital photobooth" class="h-full w-full object-cover" />
+          <img :src="result.viewUrl" :alt="t('dashboard.photoboothResults.resultAlt')" class="h-full w-full object-cover" />
         </div>
         <div class="p-3">
           <p class="text-xs text-gray-400">{{ formatDate(result.createdAt) }}</p>
@@ -49,9 +50,9 @@ function formatDate(iso: string) {
               class="flex items-center gap-1.5 text-xs font-semibold text-[#920f0f] hover:underline"
             >
               <Icon name="lucide:download" />
-              Download
+              {{ t('dashboard.photoboothResults.download') }}
             </a>
-            <button aria-label="Hapus" class="text-gray-400 hover:text-red-500" @click="handleDelete(result.id)">
+            <button :aria-label="t('dashboard.photoboothResults.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(result.id)">
               <Icon name="lucide:trash-2" />
             </button>
           </div>

@@ -7,6 +7,7 @@ const MAX_ZOOM = 4
 
 const props = defineProps<{ file: File }>()
 const emit = defineEmits<{ cancel: []; confirm: [file: File] }>()
+const { t } = useI18n()
 
 const image = ref<HTMLImageElement | null>(null)
 const zoom = ref(1)
@@ -101,9 +102,9 @@ function handleConfirm() {
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
-      <h3 class="text-sm font-semibold text-gray-800">Atur Gambar</h3>
+      <h3 class="text-sm font-semibold text-gray-800">{{ t('dashboard.imageCropModal.title') }}</h3>
       <p class="mt-1 text-xs text-gray-500">
-        Geser gambar untuk mengatur posisi, gunakan slider atau scroll untuk zoom in/out. Area kosong akan diisi putih.
+        {{ t('dashboard.imageCropModal.hint') }}
       </p>
 
       <div
@@ -126,7 +127,7 @@ function handleConfirm() {
       </div>
 
       <div class="mt-4 flex items-center gap-3">
-        <span class="text-xs text-gray-500">Zoom</span>
+        <span class="text-xs text-gray-500">{{ t('dashboard.imageCropModal.zoom') }}</span>
         <input
           type="range"
           :min="MIN_ZOOM"
@@ -144,7 +145,7 @@ function handleConfirm() {
           class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
           @click="emit('cancel')"
         >
-          Batal
+          {{ t('dashboard.imageCropModal.cancel') }}
         </button>
         <button
           type="button"
@@ -152,7 +153,7 @@ function handleConfirm() {
           class="rounded-lg bg-[#920f0f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7a0c0c] disabled:cursor-not-allowed disabled:bg-gray-300"
           @click="handleConfirm"
         >
-          Terapkan
+          {{ t('dashboard.imageCropModal.apply') }}
         </button>
       </div>
     </div>
