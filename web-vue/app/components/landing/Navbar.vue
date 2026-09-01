@@ -5,6 +5,7 @@ const NAV_LINKS = computed(() => [
   { label: t('nav.home'), href: '/#hero' },
   { label: t('nav.digitalPhotobooth'), href: '/digital-photobooth' },
   { label: t('nav.softwarePhotobooth'), href: '/software-photobooth' },
+  { label: t('nav.printPhoto'), href: '/print-photo' },
 ])
 
 const open = ref(false)

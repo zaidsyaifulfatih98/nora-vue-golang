@@ -17,6 +17,7 @@
     "testimonials": "Testimoni",
     "digitalPhotobooth": "Digital Photobooth",
     "softwarePhotobooth": "Software Photobooth",
+    "printPhoto": "Print Foto",
     "login": "Login",
     "openMenu": "Buka menu",
     "closeMenu": "Tutup menu"
@@ -125,6 +126,31 @@
     "title": "Software Photobooth",
     "description": "Halaman ini sedang dalam pengerjaan. Kami sedang menyiapkan sesuatu yang seru — nantikan kabarnya segera!",
     "backCta": "Kembali ke Beranda"
+  },
+  "printPhoto": {
+    "metaTitle": "Print Photo 4R & 2R — Nora Photobooth",
+    "metaDescription": "Jasa cetak foto 4R dan 2R menggunakan printer DNP RX1HS dye-sublimation. Hasil cepat kering, tahan goresan, tahan air, dan bisa cetak tanpa batas.",
+    "badge": "Layanan Cetak Foto",
+    "title": "Jasa Print Photo 4R & 2R",
+    "description": "Cetak foto kenanganmu dengan printer industri DNP RX1HS berteknologi dye-sublimation. Hasil foto langsung kering, tahan goresan, dan tahan cipratan air tanpa mengelupas — bisa cetak tanpa batas dengan pengiriman paket cepat.",
+    "ctaOrder": "Pesan via WhatsApp",
+    "waMessage": "Halo Nora Photobooth, saya ingin bertanya-tanya seputar jasa print photo 4R/2R.",
+    "printerEyebrow": "Teknologi Cetak",
+    "printerTitle": "Printer DNP RX1HS",
+    "printerDescription": "Menggunakan printer industri DNP dengan teknologi dye-sublimation untuk hasil cetak berkualitas foto studio.",
+    "features": {
+      "quickDry": { "title": "Langsung Kering", "description": "Hasil cetak langsung kering begitu keluar dari printer, siap dipegang dan dibagikan tanpa menunggu." },
+      "scratchResistant": { "title": "Tahan Goresan", "description": "Lapisan dye-sublimation membuat hasil cetak tahan terhadap goresan sehari-hari." },
+      "waterResistant": { "title": "Tahan Air", "description": "Tahan cipratan air tanpa mengelupas atau luntur, foto tetap awet lebih lama." },
+      "unlimited": { "title": "Cetak Tanpa Batas", "description": "Cetak sepuasnya sesuai kebutuhan acaramu, tanpa batasan jumlah." },
+      "fastShipping": { "title": "Pengiriman Cepat", "description": "Paket hasil cetak dikirim dengan cepat begitu pesanan selesai diproses." }
+    },
+    "sizesEyebrow": "Pilihan Ukuran",
+    "sizesTitle": "Ukuran 4R dan 2R",
+    "sizes": {
+      "r4": { "label": "4R", "description": "Ukuran standar untuk cetak foto kenangan, pas untuk dipajang atau disimpan di album." },
+      "r2": { "label": "2R", "description": "Ukuran mini yang praktis untuk dompet, kartu ucapan, atau souvenir photobooth." }
+    }
   },
   "tryModal": {
     "closeAria": "Tutup",

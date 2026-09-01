@@ -17,6 +17,7 @@
     "testimonials": "Testimonials",
     "digitalPhotobooth": "Digital Photobooth",
     "softwarePhotobooth": "Software Photobooth",
+    "printPhoto": "Photo Print",
     "login": "Login",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
@@ -125,6 +126,31 @@
     "title": "Software Photobooth",
     "description": "This page is currently under construction. We're working on something exciting — stay tuned for updates soon!",
     "backCta": "Back to Home"
+  },
+  "printPhoto": {
+    "metaTitle": "Photo Print 4R & 2R — Nora Photobooth",
+    "metaDescription": "4R and 2R photo printing service using the DNP RX1HS dye-sublimation printer. Instant-dry, scratch-resistant, water-resistant results with unlimited printing.",
+    "badge": "Photo Print Service",
+    "title": "Photo Print Service 4R & 2R",
+    "description": "Print your treasured memories with the industrial DNP RX1HS dye-sublimation printer. Prints come out dry instantly, resist scratches, and withstand water splashes without peeling — print without limits with fast package delivery.",
+    "ctaOrder": "Order via WhatsApp",
+    "waMessage": "Hi Nora Photobooth, I'd like to ask about the 4R/2R photo print service.",
+    "printerEyebrow": "Print Technology",
+    "printerTitle": "DNP RX1HS Printer",
+    "printerDescription": "Uses an industrial DNP printer with dye-sublimation technology for studio-quality print results.",
+    "features": {
+      "quickDry": { "title": "Instant Dry", "description": "Prints come out dry the moment they leave the printer, ready to hold and share with no waiting." },
+      "scratchResistant": { "title": "Scratch Resistant", "description": "The dye-sublimation coating keeps prints resistant to everyday scratches." },
+      "waterResistant": { "title": "Water Resistant", "description": "Withstands water splashes without peeling or fading, so photos last longer." },
+      "unlimited": { "title": "Unlimited Printing", "description": "Print as many as your event needs, with no quantity limit." },
+      "fastShipping": { "title": "Fast Shipping", "description": "Printed packages are shipped quickly as soon as an order is processed." }
+    },
+    "sizesEyebrow": "Size Options",
+    "sizesTitle": "4R and 2R Sizes",
+    "sizes": {
+      "r4": { "label": "4R", "description": "The standard size for keepsake prints, perfect for displaying or storing in an album." },
+      "r2": { "label": "2R", "description": "A practical mini size for wallets, greeting cards, or photobooth souvenirs." }
+    }
   },
   "tryModal": {
     "closeAria": "Close",
