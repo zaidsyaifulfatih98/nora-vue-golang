@@ -33,14 +33,14 @@ onBeforeUnmount(() => timer && clearInterval(timer))
 </script>
 
 <template>
-  <div class="relative h-[420px] w-full max-w-[400px] overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-[#E4E2DC] sm:h-[480px]">
+  <div class="relative aspect-[2/3] w-full max-w-[400px] overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#E4E2DC]">
     <template v-if="hasPhotos">
       <img
         v-for="(photo, i) in photos"
         :key="photo.id"
         :src="photo.url"
         :alt="photo.caption ?? 'Nora Photobooth'"
-        class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+        class="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
         :class="i === index ? 'opacity-100' : 'opacity-0'"
       />
     </template>

@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import type { GalleryPhotoItem } from '~/composables/api/gallery'
 
