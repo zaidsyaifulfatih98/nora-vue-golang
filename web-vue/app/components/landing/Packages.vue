@@ -1,23 +1,32 @@
 <script setup lang="ts">
 import type { PackageItem } from '~/composables/api/packages'
 
-const { t, tm } = useI18n()
+const { t, tm, rt } = useI18n()
 const { tf, tfList } = useLocalizedField()
+const { trackCtaClick } = useAnalyticsApi()
+
+// tm() returns vue-i18n's raw (possibly pre-compiled) message nodes, not
+// plain strings — each item must go through rt() to resolve to text, or SSR
+// and client hydration can disagree on what to render (a compiled node
+// server-side vs its resolved string client-side, or vice versa).
+function tmList(key: string): string[] {
+  return (tm(key) as unknown[]).map((item) => rt(item as never))
+}
 
 const FALLBACK_PACKAGES = computed<PackageItem[]>(() => [
   {
     id: 'silver', name: 'Silver', price: '2500000', duration: t('landing.packages.silver.duration'), description: '', isPopular: false, isActive: true, order: 1,
-    features: tm('landing.packages.silver.features') as unknown as string[],
+    features: tmList('landing.packages.silver.features'),
     nameEn: null, durationEn: null, descriptionEn: null, featuresEn: null,
   },
   {
     id: 'gold', name: 'Gold', price: '4200000', duration: t('landing.packages.gold.duration'), description: '', isPopular: true, isActive: true, order: 2,
-    features: tm('landing.packages.gold.features') as unknown as string[],
+    features: tmList('landing.packages.gold.features'),
     nameEn: null, durationEn: null, descriptionEn: null, featuresEn: null,
   },
   {
     id: 'platinum', name: 'Platinum', price: '6500000', duration: t('landing.packages.platinum.duration'), description: '', isPopular: false, isActive: true, order: 3,
-    features: tm('landing.packages.platinum.features') as unknown as string[],
+    features: tmList('landing.packages.platinum.features'),
     nameEn: null, durationEn: null, descriptionEn: null, featuresEn: null,
   },
 ])
@@ -81,6 +90,7 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES.value)
           target="_blank"
           rel="noopener"
           class="inline-flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]"
+          @click="trackCtaClick('packages_cta')"
         >
           {{ t('landing.packages.cta') }}
         </a>

@@ -58,5 +58,6 @@ func Migrate(db *gorm.DB) error {
 		&models.GalleryPhoto{},
 		&models.Review{},
 		&models.FinanceEntry{},
+		&models.AnalyticsEvent{},
 	)
 }

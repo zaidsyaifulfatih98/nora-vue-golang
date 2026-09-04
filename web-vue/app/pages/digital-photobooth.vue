@@ -2,6 +2,7 @@
 import type { PhotoboothFrameItem } from '~/composables/api/photoboothFrames'
 
 const { t } = useI18n()
+const { trackCtaClick } = useAnalyticsApi()
 const config = useRuntimeConfig()
 const waHref = computed(
   () => `https://wa.me/${config.public.whatsappNumber}?text=${encodeURIComponent(t('digitalPhotobooth.waMessage'))}`,
@@ -58,7 +59,7 @@ useHead({
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
           <button
             class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#FAF9F6] shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
-            @click="showTryModal = true"
+            @click="showTryModal = true; trackCtaClick('digital_photobooth_try')"
           >
             <Icon name="heroicons:camera" />
             {{ t('digitalPhotobooth.ctaTry') }}
@@ -68,6 +69,7 @@ useHead({
             target="_blank"
             rel="noopener noreferrer"
             class="rounded-full border border-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#920f0f] transition hover:-translate-y-0.5 hover:bg-[#920f0f]/5"
+            @click="trackCtaClick('digital_photobooth_whatsapp')"
           >
             {{ t('digitalPhotobooth.ctaWhatsapp') }}
           </a>

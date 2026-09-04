@@ -5,6 +5,7 @@ const props = defineProps<{ templates: FrameTemplateItem[] }>()
 
 const { t } = useI18n()
 const { tf } = useLocalizedField()
+const { trackCtaClick } = useAnalyticsApi()
 const config = useRuntimeConfig()
 const waHref = computed(
   () =>
@@ -51,6 +52,7 @@ const waHref = computed(
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]"
+          @click="trackCtaClick('frame_templates_request')"
         >
           <Icon name="fa6-brands:whatsapp" class="text-lg" />
           {{ t('landing.frameTemplates.requestCta') }}

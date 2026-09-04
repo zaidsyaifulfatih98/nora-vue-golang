@@ -3,6 +3,7 @@
 import type { GalleryPhotoItem } from '~/composables/api/gallery'
 
 const { t } = useI18n()
+const { trackCtaClick } = useAnalyticsApi()
 const config = useRuntimeConfig()
 
 const photos = await useServerFetch<GalleryPhotoItem[]>('/gallery', 'hero-gallery')
@@ -38,6 +39,7 @@ const waHref = computed(
             target="_blank"
             rel="noopener noreferrer"
             class="rounded-full bg-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#FAF9F6] shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 hover:bg-[#920f0f]"
+            @click="trackCtaClick('hero_booking')"
           >
             {{ t('landing.hero.cta') }}
           </a>

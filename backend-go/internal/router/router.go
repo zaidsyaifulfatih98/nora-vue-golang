@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 	"gorm.io/gorm"
 
+	"nora-photobooth-backend/internal/analytics"
 	"nora-photobooth-backend/internal/auth"
 	"nora-photobooth-backend/internal/backdrops"
 	"nora-photobooth-backend/internal/config"
@@ -150,6 +151,15 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 		backdropGroup.POST("", jwtVerify, adminOnly, backdropHandler.Create)
 		backdropGroup.PATCH("/:id", jwtVerify, adminOnly, backdropHandler.Update)
 		backdropGroup.DELETE("/:id", jwtVerify, adminOnly, backdropHandler.Delete())
+	}
+
+	// Analytics — Track is public (fired anonymously from the site),
+	// Summary is dashboard-only.
+	analyticsHandler := analytics.NewHandler(db)
+	analyticsGroup := api.Group("/analytics")
+	{
+		analyticsGroup.POST("/track", analyticsHandler.Track)
+		analyticsGroup.GET("/summary", jwtVerify, adminOnly, analyticsHandler.Summary)
 	}
 
 	// Finance (Google Sheets backed, whole router requires auth)

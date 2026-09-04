@@ -5,6 +5,7 @@ const { t } = useI18n()
 
 const TITLE_KEYS: Record<string, string> = {
   '/dashboard': 'dashboard.titles.index',
+  '/dashboard/analytics': 'dashboard.titles.analytics',
   '/dashboard/finance': 'dashboard.titles.finance',
   '/dashboard/packages': 'dashboard.titles.packages',
   '/dashboard/features': 'dashboard.titles.features',

@@ -154,7 +154,7 @@
   },
   "tryModal": {
     "closeAria": "Tutup",
-    "stepLabels": { "frame": "Pilih Frame", "camera": "Ambil Foto", "result": "Hasil", "voice": "Pesan Suara" },
+    "stepLabels": { "frame": "Pilih Frame", "camera": "Ambil Foto", "result": "Hasil", "voice": "Pesan Suara", "finish": "Unduh" },
     "frame": {
       "title": "Pilih Frame Favoritmu",
       "subtitle": "Frame ini bisa diatur oleh tim kami lewat dashboard.",
@@ -164,6 +164,7 @@
       "title": "Ambil {count} Foto Terbaikmu",
       "subtitle": "Foto {current} dari {total}",
       "error": "Tidak bisa mengakses kamera. Pastikan kamu mengizinkan akses kamera pada browser.",
+      "unnamedCamera": "Kamera (tanpa nama)",
       "retry": "Coba Lagi",
       "processing": "Memproses...",
       "preparing": "Bersiap...",
@@ -173,7 +174,7 @@
     },
     "result": {
       "title": "Hasil Digital Photobooth-mu",
-      "subtitle": "Simpan dan bagikan momenmu.",
+      "subtitle": "Cek hasilnya, lalu lanjutkan untuk kirim pesan suara.",
       "alt": "Hasil digital photobooth",
       "retry": "Ulangi",
       "saving": "Menyimpan...",
@@ -184,6 +185,10 @@
       "downloadAlt": "QR code download hasil",
       "download": "Download",
       "continue": "Lanjut"
+    },
+    "finish": {
+      "title": "Simpan & Unduh Hasilmu",
+      "subtitle": "Scan QR ini atau klik tombol download untuk simpan ke HP-mu."
     },
     "voice": {
       "title": "Kirim Pesan Suara",
@@ -199,7 +204,6 @@
       "retake": "Rekam Ulang",
       "sending": "Mengirim...",
       "sent": "Pesan suara terkirim, terima kasih!",
-      "skipped": "Terima kasih sudah mencoba Digital Photobooth kami!",
       "error": "Tidak bisa mengakses mikrofon. Pastikan kamu mengizinkan akses mikrofon pada browser.",
       "sendError": "Gagal mengirim pesan suara. Silakan coba lagi.",
       "tryAnotherFrame": "Coba Frame Lain"
@@ -225,6 +229,7 @@
     "translationHint": "Kosongkan jika belum ada terjemahan — tampilan bahasa Inggris akan otomatis memakai teks Indonesia.",
     "titles": {
       "index": "Ringkasan",
+      "analytics": "Analitik",
       "finance": "Keuangan",
       "packages": "Paket & Harga",
       "features": "Fitur Unggulan",
@@ -249,6 +254,28 @@
       "activePackages": "Paket Aktif",
       "galleryPhotos": "Foto Galeri",
       "reviews": "Review"
+    },
+    "analytics": {
+      "subtitle": "Statistik pengunjung dan klik tombol CTA di landing page, dikumpulkan otomatis dari kunjungan situs.",
+      "totalPageViews": "Total Pengunjung",
+      "totalCtaClicks": "Total Klik CTA",
+      "todayPageViews": "Pengunjung Hari Ini",
+      "todayCtaClicks": "Klik CTA Hari Ini",
+      "ctaBreakdownTitle": "Rincian Klik per Tombol",
+      "topPagesTitle": "Halaman Paling Sering Dikunjungi",
+      "loading": "Memuat data analitik...",
+      "emptyCta": "Belum ada klik CTA tercatat.",
+      "emptyPages": "Belum ada kunjungan tercatat.",
+      "ctaLabels": {
+        "hero_booking": "Booking Sekarang (Hero)",
+        "packages_cta": "Pilih Paket Sekarang",
+        "frame_templates_request": "Request Desain Sendiri",
+        "whatsapp_float": "Tombol WhatsApp Mengambang",
+        "digital_photobooth_try": "Coba Digital Photobooth",
+        "digital_photobooth_whatsapp": "Tanya-Tanya via WhatsApp (Digital Photobooth)",
+        "print_photo_order_top": "Pesan via WhatsApp (Print Photo - Atas)",
+        "print_photo_order_bottom": "Pesan via WhatsApp (Print Photo - Bawah)"
+      }
     },
     "finance": {
       "totalIncome": "Total Pemasukan",
@@ -383,7 +410,17 @@
       "empty": "Belum ada hasil digital photobooth.",
       "resultAlt": "Hasil digital photobooth",
       "download": "Download",
-      "deleteAria": "Hapus"
+      "printAria": "Print",
+      "deleteAria": "Hapus",
+      "sectionRegular": "4R",
+      "sectionStrip": "4R x 2 (Strip)",
+      "sectionEmpty": "Belum ada hasil di kategori ini.",
+      "mergeHint": "Pilih 2 foto untuk digabung jadi satu lembar 4x6 sebelum print, supaya printer bisa langsung memotongnya otomatis.",
+      "mergeSelectedCount": "{count} foto dipilih untuk digabung",
+      "mergeClear": "Batal",
+      "mergeAndPrint": "Gabung & Print",
+      "mergingInProgress": "Menggabungkan...",
+      "mergeError": "Gagal menggabungkan foto. Silakan coba lagi."
     },
     "voiceMessages": {
       "subtitle": "Kumpulan pesan suara ucapan dari tamu, dikirim lewat fitur \"Coba Digital Photobooth\" di landing page.",

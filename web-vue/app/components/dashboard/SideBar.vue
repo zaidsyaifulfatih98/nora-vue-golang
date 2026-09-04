@@ -8,6 +8,7 @@ const { t } = useI18n()
 
 const menuMain = computed(() => [
   { label: t('dashboard.titles.index'), href: '/dashboard', icon: 'lucide:layout-dashboard' },
+  { label: t('dashboard.titles.analytics'), href: '/dashboard/analytics', icon: 'lucide:bar-chart-3' },
   { label: t('dashboard.titles.finance'), href: '/dashboard/finance', icon: 'lucide:wallet' },
   { label: t('dashboard.titles.packages'), href: '/dashboard/packages', icon: 'lucide:package' },
   { label: t('dashboard.titles.features'), href: '/dashboard/features', icon: 'lucide:award' },

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n()
+const { trackCtaClick } = useAnalyticsApi()
 const config = useRuntimeConfig()
 
 const waHref = computed(
@@ -64,6 +65,7 @@ useHead({
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3.5 text-sm font-semibold text-[#FAF9F6] shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
+            @click="trackCtaClick('print_photo_order_top')"
           >
             <Icon name="fa6-brands:whatsapp" />
             {{ t('printPhoto.ctaOrder') }}
@@ -118,6 +120,7 @@ useHead({
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
+            @click="trackCtaClick('print_photo_order_bottom')"
           >
             <Icon name="fa6-brands:whatsapp" class="text-lg" />
             {{ t('printPhoto.ctaOrder') }}

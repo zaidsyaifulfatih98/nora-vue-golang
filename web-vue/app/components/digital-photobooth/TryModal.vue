@@ -14,7 +14,7 @@ const DEFAULT_PHOTO_COUNT = 3
 const MAX_CANVAS_SIDE = 1600
 const CAPTURE_DELAY_SECONDS = 3
 
-type Step = 'frame' | 'camera' | 'result' | 'voice'
+type Step = 'frame' | 'camera' | 'result' | 'voice' | 'finish'
 
 const step = ref<Step>('frame')
 const selectedFrame = ref<PhotoboothFrameItem | null>(null)
@@ -22,6 +22,14 @@ const selectedFrame = ref<PhotoboothFrameItem | null>(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
 const stream = ref<MediaStream | null>(null)
 const cameraError = ref('')
+
+// Lets a kiosk operator pick a dedicated camera (e.g. a Sony A6400 exposed
+// as a webcam via Sony's "Imaging Edge Webcam" app) instead of whatever the
+// browser treats as the default. Remembered per-browser so it only needs to
+// be chosen once at setup, not for every guest.
+const CAMERA_STORAGE_KEY = 'photobooth_camera_device_id'
+const videoDevices = ref<MediaDeviceInfo[]>([])
+const selectedDeviceId = ref(localStorage.getItem(CAMERA_STORAGE_KEY) || '')
 const countdown = ref(0)
 const capturing = ref(false)
 const photos = ref<string[]>([])
@@ -34,7 +42,7 @@ const saveError = ref('')
 const savedResult = ref<PhotoboothResultItem | null>(null)
 const qrCodeDataUrl = ref('')
 
-type VoiceStep = 'idle' | 'form' | 'recording' | 'recorded' | 'sending' | 'sent' | 'skipped'
+type VoiceStep = 'idle' | 'form' | 'recording' | 'recorded' | 'sending' | 'sent'
 const voiceStep = ref<VoiceStep>('idle')
 const voiceGuestName = ref('')
 const voiceError = ref('')
@@ -59,12 +67,23 @@ function selectFrame(frame: PhotoboothFrameItem) {
   startCamera()
 }
 
+async function refreshDevices() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    videoDevices.value = devices.filter((d) => d.kind === 'videoinput')
+  } catch {
+    // Ignore — the picker just stays empty/hidden if this isn't supported.
+  }
+}
+
 async function startCamera() {
   cameraError.value = ''
   photos.value = []
   try {
     stream.value = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } },
+      video: selectedDeviceId.value
+        ? { deviceId: { exact: selectedDeviceId.value }, width: { ideal: 1280 }, height: { ideal: 1280 } }
+        : { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } },
       audio: false,
     })
     await nextTick()
@@ -72,9 +91,33 @@ async function startCamera() {
       videoRef.value.srcObject = stream.value
       await videoRef.value.play()
     }
+
+    // Labels are only populated once permission has been granted, so this
+    // is the earliest point the picker can show real device names.
+    await refreshDevices()
+    if (!selectedDeviceId.value) {
+      selectedDeviceId.value = stream.value.getVideoTracks()[0]?.getSettings().deviceId ?? ''
+    }
   } catch {
+    if (selectedDeviceId.value) {
+      // Stored device (e.g. a webcam app that isn't running anymore) is no
+      // longer available — fall back to the default camera instead of
+      // getting stuck on an error the guest can't fix.
+      selectedDeviceId.value = ''
+      localStorage.removeItem(CAMERA_STORAGE_KEY)
+      await startCamera()
+      return
+    }
     cameraError.value = t('tryModal.camera.error')
   }
+}
+
+async function switchCamera(deviceId: string) {
+  if (!deviceId || deviceId === selectedDeviceId.value) return
+  selectedDeviceId.value = deviceId
+  localStorage.setItem(CAMERA_STORAGE_KEY, deviceId)
+  stopCamera()
+  await startCamera()
 }
 
 function stopCamera() {
@@ -213,6 +256,12 @@ async function buildResult() {
     ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height)
     resultImage.value = canvas.toDataURL('image/png')
     step.value = 'result'
+    // Save/QR/download now live on the "finish" step after the voice
+    // message, but the upload still needs to happen as soon as the photo is
+    // ready — sendVoiceMessage() links the voice note to savedResult.viewUrl,
+    // and the guest may reach that step before a click-triggered save would
+    // have finished.
+    saveResult()
   } catch {
     cameraError.value = t('tryModal.camera.frameLoadError')
     step.value = 'camera'
@@ -258,7 +307,7 @@ function openVoiceForm() {
 
 function skipVoiceMessage() {
   stopVoiceStream()
-  voiceStep.value = 'skipped'
+  step.value = 'finish'
 }
 
 function stopVoiceStream() {
@@ -373,14 +422,14 @@ onBeforeUnmount(() => {
       <div class="flex-1 overflow-y-auto px-6 pt-6 pb-8">
         <div class="mb-6 flex items-center justify-center gap-2">
           <span
-            v-for="(label, i) in [t('tryModal.stepLabels.frame'), t('tryModal.stepLabels.camera'), t('tryModal.stepLabels.result'), t('tryModal.stepLabels.voice')]"
+            v-for="(label, i) in [t('tryModal.stepLabels.frame'), t('tryModal.stepLabels.camera'), t('tryModal.stepLabels.result'), t('tryModal.stepLabels.voice'), t('tryModal.stepLabels.finish')]"
             :key="label"
             class="flex items-center gap-2 font-dm-sans text-xs font-semibold"
-            :class="(['frame', 'camera', 'result', 'voice'][i] === step) ? 'text-[#920f0f]' : 'text-[#B8B2A6]'"
+            :class="(['frame', 'camera', 'result', 'voice', 'finish'][i] === step) ? 'text-[#920f0f]' : 'text-[#B8B2A6]'"
           >
             <span
               class="flex h-6 w-6 items-center justify-center rounded-full"
-              :class="(['frame', 'camera', 'result', 'voice'][i] === step) ? 'bg-[#920f0f] text-white' : 'bg-[#E4E2DC] text-[#7A7568]'"
+              :class="(['frame', 'camera', 'result', 'voice', 'finish'][i] === step) ? 'bg-[#920f0f] text-white' : 'bg-[#E4E2DC] text-[#7A7568]'"
             >
               {{ i + 1 }}
             </span>
@@ -419,6 +468,18 @@ onBeforeUnmount(() => {
           <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">
             {{ t('tryModal.camera.subtitle', { current: photos.length, total: photoCount }) }}
           </p>
+
+          <div v-if="videoDevices.length > 1" class="mx-auto mt-3 max-w-sm">
+            <select
+              :value="selectedDeviceId"
+              class="w-full rounded-lg border border-[#E4E2DC] bg-white px-3 py-1.5 text-xs text-[#39445B] focus:border-[#920f0f] focus:outline-none"
+              @change="switchCamera(($event.target as HTMLSelectElement).value)"
+            >
+              <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
+                {{ device.label || t('tryModal.camera.unnamedCamera') }}
+              </option>
+            </select>
+          </div>
 
           <div class="relative mx-auto mt-4 aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-black">
             <video
@@ -489,40 +550,13 @@ onBeforeUnmount(() => {
                 {{ t('tryModal.result.retry') }}
               </button>
               <button
-                :disabled="saving || Boolean(savedResult)"
-                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-                @click="saveResult"
+                class="flex items-center gap-2 rounded-full bg-[#1E2537] px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
+                @click="goToVoiceStep"
               >
-                <Icon name="heroicons:cloud-arrow-up" />
-                {{ saving ? t('tryModal.result.saving') : savedResult ? t('tryModal.result.saved') : t('tryModal.result.save') }}
+                {{ t('tryModal.result.continue') }}
+                <Icon name="heroicons:arrow-right" />
               </button>
             </div>
-
-            <p v-if="saveError" class="font-poppins text-xs text-red-600">{{ saveError }}</p>
-
-            <div v-if="qrCodeDataUrl && savedResult" class="mt-2 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
-              <img :src="qrCodeDataUrl" :alt="t('tryModal.result.downloadAlt')" class="h-40 w-40" />
-              <p class="max-w-[220px] text-center font-poppins text-xs text-[#57607A]">
-                {{ t('tryModal.result.downloadHint') }}
-              </p>
-              <a
-                :href="savedResult.downloadUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
-              >
-                <Icon name="heroicons:arrow-down-tray" />
-                {{ t('tryModal.result.download') }}
-              </a>
-            </div>
-
-            <button
-              class="mt-2 flex items-center gap-2 rounded-full bg-[#1E2537] px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
-              @click="goToVoiceStep"
-            >
-              {{ t('tryModal.result.continue') }}
-              <Icon name="heroicons:arrow-right" />
-            </button>
           </div>
         </div>
 
@@ -603,16 +637,58 @@ onBeforeUnmount(() => {
               <p class="text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.voice.sent') }}</p>
             </div>
 
-            <div v-else-if="voiceStep === 'skipped'" class="flex flex-col items-center gap-2">
-              <Icon name="heroicons:heart" class="text-2xl text-[#920f0f]" />
-              <p class="text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.voice.skipped') }}</p>
-            </div>
-
             <p v-if="voiceError" class="mt-2 text-center font-poppins text-xs text-red-600">{{ voiceError }}</p>
           </div>
 
-          <div class="mt-6 flex justify-center">
-            <button class="font-poppins text-sm font-semibold text-[#57607A] underline underline-offset-4" @click="tryAgain">
+          <div v-if="voiceStep === 'sent'" class="mt-6 flex justify-center">
+            <button
+              class="flex items-center gap-2 rounded-full bg-[#1E2537] px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
+              @click="step = 'finish'"
+            >
+              {{ t('tryModal.result.continue') }}
+              <Icon name="heroicons:arrow-right" />
+            </button>
+          </div>
+        </div>
+
+        <div v-else-if="step === 'finish'">
+          <h3 class="text-center font-dm-serif text-2xl font-bold text-[#000000]">{{ t('tryModal.finish.title') }}</h3>
+          <p class="mt-1 text-center font-poppins text-sm text-[#57607A]">{{ t('tryModal.finish.subtitle') }}</p>
+
+          <div class="mx-auto mt-6 max-w-[220px] overflow-hidden rounded-2xl shadow-lg ring-1 ring-[#E4E2DC]">
+            <img :src="resultImage" :alt="t('tryModal.result.alt')" class="w-full" />
+          </div>
+
+          <div class="mt-6 flex flex-col items-center gap-3">
+            <p v-if="saving" class="font-poppins text-sm text-[#57607A]">{{ t('tryModal.result.saving') }}</p>
+            <button
+              v-else-if="!savedResult"
+              class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1E2537]/25 transition hover:-translate-y-0.5"
+              @click="saveResult"
+            >
+              <Icon name="heroicons:cloud-arrow-up" />
+              {{ t('tryModal.result.save') }}
+            </button>
+
+            <p v-if="saveError" class="font-poppins text-xs text-red-600">{{ saveError }}</p>
+
+            <div v-if="qrCodeDataUrl && savedResult" class="mt-2 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#E4E2DC]">
+              <img :src="qrCodeDataUrl" :alt="t('tryModal.result.downloadAlt')" class="h-40 w-40" />
+              <p class="max-w-[220px] text-center font-poppins text-xs text-[#57607A]">
+                {{ t('tryModal.result.downloadHint') }}
+              </p>
+              <a
+                :href="savedResult.downloadUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+              >
+                <Icon name="heroicons:arrow-down-tray" />
+                {{ t('tryModal.result.download') }}
+              </a>
+            </div>
+
+            <button class="mt-2 font-poppins text-sm font-semibold text-[#57607A] underline underline-offset-4" @click="tryAgain">
               {{ t('tryModal.voice.tryAnotherFrame') }}
             </button>
           </div>

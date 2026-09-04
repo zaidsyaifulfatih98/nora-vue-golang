@@ -154,7 +154,7 @@
   },
   "tryModal": {
     "closeAria": "Close",
-    "stepLabels": { "frame": "Choose Frame", "camera": "Take Photo", "result": "Result", "voice": "Voice Message" },
+    "stepLabels": { "frame": "Choose Frame", "camera": "Take Photo", "result": "Result", "voice": "Voice Message", "finish": "Download" },
     "frame": {
       "title": "Choose Your Favorite Frame",
       "subtitle": "These frames can be managed by our team through the dashboard.",
@@ -164,6 +164,7 @@
       "title": "Take {count} of Your Best Photos",
       "subtitle": "Photo {current} of {total}",
       "error": "Can't access the camera. Please make sure camera access is allowed in your browser.",
+      "unnamedCamera": "Unnamed camera",
       "retry": "Try Again",
       "processing": "Processing...",
       "preparing": "Get ready...",
@@ -173,7 +174,7 @@
     },
     "result": {
       "title": "Your Digital Photobooth Result",
-      "subtitle": "Save and share your moment.",
+      "subtitle": "Check it out, then continue to send a voice message.",
       "alt": "Digital photobooth result",
       "retry": "Retake",
       "saving": "Saving...",
@@ -184,6 +185,10 @@
       "downloadAlt": "QR code to download result",
       "download": "Download",
       "continue": "Continue"
+    },
+    "finish": {
+      "title": "Save & Download Your Result",
+      "subtitle": "Scan this QR code or tap the download button to save it to your phone."
     },
     "voice": {
       "title": "Send a Voice Message",
@@ -199,7 +204,6 @@
       "retake": "Re-record",
       "sending": "Sending...",
       "sent": "Voice message sent, thank you!",
-      "skipped": "Thanks for trying our Digital Photobooth!",
       "error": "Can't access the microphone. Please make sure microphone access is allowed in your browser.",
       "sendError": "Failed to send the voice message. Please try again.",
       "tryAnotherFrame": "Try Another Frame"
@@ -225,6 +229,7 @@
     "translationHint": "Leave blank if not translated yet — the English view will automatically fall back to the Indonesian text.",
     "titles": {
       "index": "Overview",
+      "analytics": "Analytics",
       "finance": "Finance",
       "packages": "Packages & Pricing",
       "features": "Featured Highlights",
@@ -249,6 +254,28 @@
       "activePackages": "Active Packages",
       "galleryPhotos": "Gallery Photos",
       "reviews": "Reviews"
+    },
+    "analytics": {
+      "subtitle": "Visitor and CTA click stats from the landing page, collected automatically from site visits.",
+      "totalPageViews": "Total Visitors",
+      "totalCtaClicks": "Total CTA Clicks",
+      "todayPageViews": "Visitors Today",
+      "todayCtaClicks": "CTA Clicks Today",
+      "ctaBreakdownTitle": "Clicks by Button",
+      "topPagesTitle": "Most Visited Pages",
+      "loading": "Loading analytics...",
+      "emptyCta": "No CTA clicks recorded yet.",
+      "emptyPages": "No visits recorded yet.",
+      "ctaLabels": {
+        "hero_booking": "Book Now (Hero)",
+        "packages_cta": "Choose This Package Now",
+        "frame_templates_request": "Request Your Own Design",
+        "whatsapp_float": "Floating WhatsApp Button",
+        "digital_photobooth_try": "Try Digital Photobooth",
+        "digital_photobooth_whatsapp": "Ask via WhatsApp (Digital Photobooth)",
+        "print_photo_order_top": "Order via WhatsApp (Print Photo - Top)",
+        "print_photo_order_bottom": "Order via WhatsApp (Print Photo - Bottom)"
+      }
     },
     "finance": {
       "totalIncome": "Total Income",
@@ -383,7 +410,17 @@
       "empty": "No digital photobooth results yet.",
       "resultAlt": "Digital photobooth result",
       "download": "Download",
-      "deleteAria": "Delete"
+      "printAria": "Print",
+      "deleteAria": "Delete",
+      "sectionRegular": "4R",
+      "sectionStrip": "4R x 2 (Strip)",
+      "sectionEmpty": "No results in this category yet.",
+      "mergeHint": "Pick 2 photos to merge into a single 4x6 sheet before printing, so the printer can auto-cut it in one go.",
+      "mergeSelectedCount": "{count} photos selected to merge",
+      "mergeClear": "Cancel",
+      "mergeAndPrint": "Merge & Print",
+      "mergingInProgress": "Merging...",
+      "mergeError": "Failed to merge photos. Please try again."
     },
     "voiceMessages": {
       "subtitle": "A collection of voice messages from guests, sent through the \"Try Digital Photobooth\" feature on the landing page.",

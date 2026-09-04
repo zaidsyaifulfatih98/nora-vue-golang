@@ -26,6 +26,18 @@ export default defineNuxtConfig({
     // Moved out of /api/* so the routeRules proxy below (which forwards all
     // /api/** to the Go backend) doesn't swallow Nuxt Icon's own API route.
     localApiEndpoint: '/_nuxt_icon',
+    mode: 'svg',
+    // @nuxt/icon's `provider` option defaults to `undefined`, not `"server"`
+    // as its docs imply — and its runtime plugin only points icon requests
+    // at our local `localApiEndpoint` when `provider` is literally `"server"`.
+    // Left unset, it wires requests straight to the public Iconify CDN
+    // instead, which is why every icon (not just the new flags) was logging
+    // "[Icon] failed to load icon" in dev.
+    provider: 'server',
+    // All icons used on the site come from the 6 locally-installed
+    // collections (serverBundle: 'local' above already embeds them), so
+    // there's never a legitimate reason to reach the public Iconify CDN.
+    fallbackToApi: false,
   },
 
   imports: {
