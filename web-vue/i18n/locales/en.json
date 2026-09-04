@@ -184,6 +184,7 @@
       "downloadHint": "Saved successfully. Scan this QR code or click the button below",
       "downloadAlt": "QR code to download result",
       "download": "Download",
+      "print": "Print",
       "continue": "Continue"
     },
     "finish": {

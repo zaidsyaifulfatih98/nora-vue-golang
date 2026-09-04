@@ -280,6 +280,36 @@ function redoPhotos() {
   startCamera()
 }
 
+function handlePrint(url: string) {
+  const printWindow = window.open('', '_blank', 'width=800,height=1000')
+  if (!printWindow) return
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>
+          @page { margin: 0; }
+          html, body { margin: 0; padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+          img { max-width: 100%; max-height: 100vh; }
+        </style>
+      </head>
+      <body>
+        <img src="${url}" />
+      </body>
+    </html>
+  `)
+  printWindow.document.close()
+
+  const image = printWindow.document.querySelector('img')
+  const triggerPrint = () => {
+    printWindow.focus()
+    printWindow.print()
+  }
+  if (image?.complete) triggerPrint()
+  else image?.addEventListener('load', triggerPrint)
+}
+
 async function saveResult() {
   if (!resultImage.value || saving.value) return
   saving.value = true
@@ -677,15 +707,25 @@ onBeforeUnmount(() => {
               <p class="max-w-[220px] text-center font-poppins text-xs text-[#57607A]">
                 {{ t('tryModal.result.downloadHint') }}
               </p>
-              <a
-                :href="savedResult.downloadUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
-              >
-                <Icon name="heroicons:arrow-down-tray" />
-                {{ t('tryModal.result.download') }}
-              </a>
+              <div class="flex flex-wrap items-center justify-center gap-3">
+                <a
+                  :href="savedResult.downloadUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
+                >
+                  <Icon name="heroicons:arrow-down-tray" />
+                  {{ t('tryModal.result.download') }}
+                </a>
+                <button
+                  type="button"
+                  class="flex items-center gap-2 rounded-full border border-[#920f0f] px-6 py-2.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
+                  @click="handlePrint(resultImage)"
+                >
+                  <Icon name="lucide:printer" />
+                  {{ t('tryModal.result.print') }}
+                </button>
+              </div>
             </div>
 
             <button class="mt-2 font-poppins text-sm font-semibold text-[#57607A] underline underline-offset-4" @click="tryAgain">
