@@ -121,11 +121,60 @@
   },
   "softwarePhotobooth": {
     "metaTitle": "Software Photobooth — Nora Photobooth",
-    "metaDescription": "Nora's Photobooth Software is currently being built. Stay tuned for updates from us.",
-    "badge": "Coming Soon",
-    "title": "Software Photobooth",
-    "description": "This page is currently under construction. We're working on something exciting — stay tuned for updates soon!",
-    "backCta": "Back to Home"
+    "metaDescription": "Nora's desktop photobooth software — pick a frame, take photos, and share the result via share, QR, or print.",
+    "backBtn": "Back",
+    "welcome": {
+      "title": "Software Photobooth",
+      "subtitle": "Touch Start to begin a photo session.",
+      "timerLabel": "Countdown Duration",
+      "timerOptionSeconds": "{seconds}s",
+      "startBtn": "Start",
+      "fullscreenBtn": "Fullscreen",
+      "exitFullscreenBtn": "Exit Fullscreen"
+    },
+    "frame": {
+      "title": "Choose a Frame",
+      "subtitle": "Pick your favorite frame for this photo session.",
+      "empty": "No frames available yet."
+    },
+    "session": {
+      "title": "Take {count} Photos",
+      "subtitle": "Photo {current} of {total}",
+      "takePhotoBtn": "Take Photo ({left} left)",
+      "retakeBtn": "Retake All",
+      "retryCamera": "Try Again",
+      "cameraError": "Can't access the camera. Make sure it's allowed and connected.",
+      "frameLoadError": "Failed to load the frame image. Please try again.",
+      "processing": "Processing...",
+      "preparing": "Get ready...",
+      "unnamedCamera": "Unnamed camera",
+      "cameraSettings": "Camera Settings",
+      "brightness": "Brightness",
+      "contrast": "Contrast",
+      "filter": "Filter",
+      "resetFilters": "Reset to Default",
+      "filters": {
+        "none": "Normal",
+        "bw": "Black & White",
+        "sepia": "Sepia",
+        "vintage": "Vintage",
+        "cool": "Cool",
+        "warm": "Warm"
+      }
+    },
+    "result": {
+      "title": "Your Photo Result",
+      "subtitle": "Share, scan the QR code, or print the result.",
+      "alt": "Software photobooth result",
+      "saving": "Saving...",
+      "saveError": "Failed to save the result. Please try again.",
+      "shareBtn": "Share",
+      "shareCopied": "Link copied!",
+      "qrBtn": "QR Code",
+      "qrOverlayTitle": "Scan to Download",
+      "printBtn": "Print",
+      "newSessionBtn": "New Session"
+    }
   },
   "printPhoto": {
     "metaTitle": "Photo Print 4R & 2R — Nora Photobooth",
@@ -168,6 +217,19 @@
       "retry": "Try Again",
       "processing": "Processing...",
       "preparing": "Get ready...",
+      "cameraSettings": "Camera Settings",
+      "brightness": "Brightness",
+      "contrast": "Contrast",
+      "filter": "Filter",
+      "resetFilters": "Reset",
+      "filters": {
+        "none": "Normal",
+        "bw": "Black & White",
+        "sepia": "Sepia",
+        "vintage": "Vintage",
+        "cool": "Cool",
+        "warm": "Warm"
+      },
       "takePhoto": "Take Photo ({left} left)",
       "retake": "Retake",
       "frameLoadError": "Failed to load the frame image. Please try again."

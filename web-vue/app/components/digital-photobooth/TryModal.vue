@@ -30,6 +30,60 @@ const cameraError = ref('')
 const CAMERA_STORAGE_KEY = 'photobooth_camera_device_id'
 const videoDevices = ref<MediaDeviceInfo[]>([])
 const selectedDeviceId = ref(localStorage.getItem(CAMERA_STORAGE_KEY) || '')
+
+// Same brightness/contrast/filter controls as the desktop software
+// photobooth, and shared via the same storage key so a kiosk only needs to
+// be calibrated once regardless of which flow guests use.
+const CAMERA_ADJUST_STORAGE_KEY = 'photobooth_camera_adjustments'
+type FilterPreset = 'none' | 'bw' | 'sepia' | 'vintage' | 'cool' | 'warm'
+const FILTER_PRESETS: Record<FilterPreset, string> = {
+  none: '',
+  bw: 'grayscale(1)',
+  sepia: 'sepia(0.7)',
+  vintage: 'sepia(0.3) saturate(1.4) hue-rotate(-10deg)',
+  cool: 'hue-rotate(15deg) saturate(1.1)',
+  warm: 'hue-rotate(-15deg) saturate(1.2)',
+}
+const FILTER_PRESET_KEYS = Object.keys(FILTER_PRESETS) as FilterPreset[]
+
+function loadStoredCameraAdjustments() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CAMERA_ADJUST_STORAGE_KEY) || 'null')
+    return {
+      brightness: saved?.brightness ?? 100,
+      contrast: saved?.contrast ?? 100,
+      filterPreset: FILTER_PRESET_KEYS.includes(saved?.filterPreset) ? saved.filterPreset : 'none',
+    }
+  } catch {
+    return { brightness: 100, contrast: 100, filterPreset: 'none' as FilterPreset }
+  }
+}
+const storedAdjustments = loadStoredCameraAdjustments()
+const brightness = ref(storedAdjustments.brightness)
+const contrast = ref(storedAdjustments.contrast)
+const filterPreset = ref<FilterPreset>(storedAdjustments.filterPreset)
+const showCameraSettings = ref(false)
+
+// Combined into one CSS filter() string used both for the live <video> style
+// and (via canvas ctx.filter) baked into the captured photo — CSS filters on
+// a <video> element don't carry over to drawImage() on their own.
+const cameraFilterCss = computed(() =>
+  `brightness(${brightness.value}%) contrast(${contrast.value}%) ${FILTER_PRESETS[filterPreset.value]}`.trim(),
+)
+
+watch([brightness, contrast, filterPreset], () => {
+  localStorage.setItem(
+    CAMERA_ADJUST_STORAGE_KEY,
+    JSON.stringify({ brightness: brightness.value, contrast: contrast.value, filterPreset: filterPreset.value }),
+  )
+})
+
+function resetCameraAdjustments() {
+  brightness.value = 100
+  contrast.value = 100
+  filterPreset.value = 'none'
+}
+
 const countdown = ref(0)
 const capturing = ref(false)
 const photos = ref<string[]>([])
@@ -148,6 +202,7 @@ async function captureSequence() {
     if (ctx) {
       ctx.translate(canvas.width, 0)
       ctx.scale(-1, 1)
+      ctx.filter = cameraFilterCss.value
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       photos.value.push(canvas.toDataURL('image/jpeg', 0.92))
     }
@@ -516,9 +571,73 @@ onBeforeUnmount(() => {
               v-show="isCameraReady"
               ref="videoRef"
               class="h-full w-full -scale-x-100 object-cover"
+              :style="{ filter: cameraFilterCss }"
               muted
               playsinline
             />
+
+            <button
+              v-if="isCameraReady"
+              type="button"
+              :aria-label="t('tryModal.camera.cameraSettings')"
+              class="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70"
+              @click="showCameraSettings = !showCameraSettings"
+            >
+              <Icon name="heroicons:adjustments-horizontal" class="text-sm" />
+            </button>
+
+            <div
+              v-if="showCameraSettings"
+              class="absolute top-11 right-2 z-10 w-56 rounded-xl bg-white p-3 text-left shadow-xl ring-1 ring-[#E4E2DC]"
+            >
+              <div class="flex items-center justify-between">
+                <h4 class="font-poppins text-xs font-semibold text-[#1E2537]">{{ t('tryModal.camera.cameraSettings') }}</h4>
+                <button type="button" :aria-label="t('tryModal.closeAria')" class="text-gray-400 hover:text-gray-600" @click="showCameraSettings = false">
+                  <Icon name="heroicons:x-mark" class="text-sm" />
+                </button>
+              </div>
+
+              <div class="mt-2 flex flex-col gap-1">
+                <label class="flex items-center justify-between font-poppins text-[11px] font-medium text-gray-600">
+                  <span>{{ t('tryModal.camera.brightness') }}</span>
+                  <span>{{ brightness }}%</span>
+                </label>
+                <input v-model.number="brightness" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
+              </div>
+
+              <div class="mt-2 flex flex-col gap-1">
+                <label class="flex items-center justify-between font-poppins text-[11px] font-medium text-gray-600">
+                  <span>{{ t('tryModal.camera.contrast') }}</span>
+                  <span>{{ contrast }}%</span>
+                </label>
+                <input v-model.number="contrast" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
+              </div>
+
+              <div class="mt-2">
+                <p class="font-poppins text-[11px] font-medium text-gray-600">{{ t('tryModal.camera.filter') }}</p>
+                <div class="mt-1.5 grid grid-cols-3 gap-1.5">
+                  <button
+                    v-for="preset in FILTER_PRESET_KEYS"
+                    :key="preset"
+                    type="button"
+                    class="rounded-lg px-1.5 py-1 font-poppins text-[10px] font-semibold transition"
+                    :class="filterPreset === preset ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                    @click="filterPreset = preset"
+                  >
+                    {{ t(`tryModal.camera.filters.${preset}`) }}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="mt-2 w-full rounded-lg border border-gray-200 py-1 font-poppins text-[10px] font-medium text-gray-500 transition hover:bg-gray-50"
+                @click="resetCameraAdjustments"
+              >
+                {{ t('tryModal.camera.resetFilters') }}
+              </button>
+            </div>
+
             <div v-if="!isCameraReady && !cameraError" class="flex h-full w-full items-center justify-center text-white/70">
               <Icon name="heroicons:video-camera" class="text-4xl animate-pulse" />
             </div>

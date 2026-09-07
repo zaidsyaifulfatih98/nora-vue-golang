@@ -121,11 +121,60 @@
   },
   "softwarePhotobooth": {
     "metaTitle": "Software Photobooth — Nora Photobooth",
-    "metaDescription": "Software Photobooth Nora sedang dalam pengerjaan. Nantikan kabar selanjutnya dari kami.",
-    "badge": "Segera Hadir",
-    "title": "Software Photobooth",
-    "description": "Halaman ini sedang dalam pengerjaan. Kami sedang menyiapkan sesuatu yang seru — nantikan kabarnya segera!",
-    "backCta": "Kembali ke Beranda"
+    "metaDescription": "Software photobooth desktop Nora — pilih frame, ambil foto, dan bagikan hasilnya lewat share, QR, atau print.",
+    "backBtn": "Kembali",
+    "welcome": {
+      "title": "Software Photobooth",
+      "subtitle": "Sentuh Mulai untuk memulai sesi foto.",
+      "timerLabel": "Durasi Hitung Mundur",
+      "timerOptionSeconds": "{seconds} detik",
+      "startBtn": "Mulai",
+      "fullscreenBtn": "Layar Penuh",
+      "exitFullscreenBtn": "Keluar Layar Penuh"
+    },
+    "frame": {
+      "title": "Pilih Frame",
+      "subtitle": "Pilih frame favoritmu untuk sesi foto ini.",
+      "empty": "Belum ada frame yang tersedia."
+    },
+    "session": {
+      "title": "Ambil {count} Foto",
+      "subtitle": "Foto {current} dari {total}",
+      "takePhotoBtn": "Ambil Foto ({left} lagi)",
+      "retakeBtn": "Ulangi Semua",
+      "retryCamera": "Coba Lagi",
+      "cameraError": "Tidak bisa mengakses kamera. Pastikan kamera diizinkan dan tersambung.",
+      "frameLoadError": "Gagal memuat gambar frame. Silakan coba lagi.",
+      "processing": "Memproses...",
+      "preparing": "Bersiap...",
+      "unnamedCamera": "Kamera (tanpa nama)",
+      "cameraSettings": "Pengaturan Kamera",
+      "brightness": "Kecerahan",
+      "contrast": "Kontras",
+      "filter": "Filter",
+      "resetFilters": "Reset ke Default",
+      "filters": {
+        "none": "Normal",
+        "bw": "Hitam Putih",
+        "sepia": "Sepia",
+        "vintage": "Vintage",
+        "cool": "Dingin",
+        "warm": "Hangat"
+      }
+    },
+    "result": {
+      "title": "Hasil Fotomu",
+      "subtitle": "Bagikan, scan QR, atau cetak hasilnya.",
+      "alt": "Hasil software photobooth",
+      "saving": "Menyimpan...",
+      "saveError": "Gagal menyimpan hasil. Silakan coba lagi.",
+      "shareBtn": "Bagikan",
+      "shareCopied": "Link disalin!",
+      "qrBtn": "QR Code",
+      "qrOverlayTitle": "Scan untuk Download",
+      "printBtn": "Print",
+      "newSessionBtn": "Sesi Baru"
+    }
   },
   "printPhoto": {
     "metaTitle": "Print Photo 4R & 2R — Nora Photobooth",
@@ -168,6 +217,19 @@
       "retry": "Coba Lagi",
       "processing": "Memproses...",
       "preparing": "Bersiap...",
+      "cameraSettings": "Pengaturan Kamera",
+      "brightness": "Kecerahan",
+      "contrast": "Kontras",
+      "filter": "Filter",
+      "resetFilters": "Reset",
+      "filters": {
+        "none": "Normal",
+        "bw": "Hitam Putih",
+        "sepia": "Sepia",
+        "vintage": "Vintage",
+        "cool": "Dingin",
+        "warm": "Hangat"
+      },
       "takePhoto": "Ambil Foto ({left} lagi)",
       "retake": "Ulangi",
       "frameLoadError": "Gagal memuat gambar frame. Silakan coba lagi."
