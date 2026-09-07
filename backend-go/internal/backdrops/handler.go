@@ -23,8 +23,12 @@ func NewHandler(db *gorm.DB, uploader *upload.Uploader) *Handler {
 	return &Handler{repo: crud.NewRepository[models.Backdrop](db, "Backdrop", "is_active"), uploader: uploader}
 }
 
-func (h *Handler) List() gin.HandlerFunc   { return crud.ListHandler(h.repo) }
-func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
+func (h *Handler) List() gin.HandlerFunc { return crud.ListHandler(h.repo) }
+func (h *Handler) Delete() gin.HandlerFunc {
+	return crud.DeleteHandlerWithCleanup(h.repo, func(item *models.Backdrop) error {
+		return h.uploader.DeleteImage(item.ImageURL)
+	})
+}
 
 func (h *Handler) Create(c *gin.Context) {
 	name := c.PostForm("name")
@@ -120,11 +124,22 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 	}
 
+	var oldImageURL string
+	if newImageURL, replacingImage := updates["image_url"]; replacingImage {
+		if existing, err := h.repo.FindByID(c.Param("id")); err == nil && existing.ImageURL != newImageURL {
+			oldImageURL = existing.ImageURL
+		}
+	}
+
 	item, err := h.repo.Update(c.Param("id"), updates)
 	if err != nil {
 		_ = c.Error(err)
 		c.Abort()
 		return
+	}
+
+	if oldImageURL != "" {
+		_ = h.uploader.DeleteImage(oldImageURL)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Backdrop updated", "data": item})

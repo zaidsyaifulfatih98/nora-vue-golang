@@ -69,8 +69,16 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Voice messages fetched", "data": items})
 }
 
-// Delete is admin-only.
+// Delete is admin-only. Cloudinary cleanup is best-effort — an unreachable
+// Cloudinary shouldn't block the delete the admin actually asked for. Only
+// the recording itself is removed; PhotoURL (if set) points at a separate
+// PhotoboothResult that manages its own Cloudinary asset lifecycle.
 func (h *Handler) Delete(c *gin.Context) {
+	var item models.VoiceMessage
+	if err := h.db.First(&item, "id = ?", c.Param("id")).Error; err == nil {
+		_ = h.uploader.DeleteAudio(item.AudioURL)
+	}
+
 	if err := h.db.Delete(&models.VoiceMessage{}, "id = ?", c.Param("id")).Error; err != nil {
 		_ = c.Error(err)
 		c.Abort()

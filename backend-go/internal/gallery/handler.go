@@ -23,8 +23,12 @@ func NewHandler(db *gorm.DB, uploader *upload.Uploader) *Handler {
 	return &Handler{repo: crud.NewRepository[models.GalleryPhoto](db, "GalleryPhoto", "is_active"), uploader: uploader}
 }
 
-func (h *Handler) List() gin.HandlerFunc   { return crud.ListHandler(h.repo) }
-func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
+func (h *Handler) List() gin.HandlerFunc { return crud.ListHandler(h.repo) }
+func (h *Handler) Delete() gin.HandlerFunc {
+	return crud.DeleteHandlerWithCleanup(h.repo, func(item *models.GalleryPhoto) error {
+		return h.uploader.DeleteImage(item.URL)
+	})
+}
 
 func (h *Handler) Create(c *gin.Context) {
 	file, err := middleware.ExtractImage(c)
@@ -113,11 +117,22 @@ func (h *Handler) Update(c *gin.Context) {
 		}
 	}
 
+	var oldImageURL string
+	if newURL, replacingImage := updates["url"]; replacingImage {
+		if existing, err := h.repo.FindByID(c.Param("id")); err == nil && existing.URL != newURL {
+			oldImageURL = existing.URL
+		}
+	}
+
 	item, err := h.repo.Update(c.Param("id"), updates)
 	if err != nil {
 		_ = c.Error(err)
 		c.Abort()
 		return
+	}
+
+	if oldImageURL != "" {
+		_ = h.uploader.DeleteImage(oldImageURL)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Gallery photo updated", "data": item})

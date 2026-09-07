@@ -102,8 +102,14 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Photobooth results fetched", "data": data})
 }
 
-// Delete is admin-only.
+// Delete is admin-only. Cloudinary cleanup is best-effort — an unreachable
+// Cloudinary shouldn't block the delete the admin actually asked for.
 func (h *Handler) Delete(c *gin.Context) {
+	var item models.PhotoboothResult
+	if err := h.db.First(&item, "id = ?", c.Param("id")).Error; err == nil {
+		_ = h.uploader.DeleteImage(item.ImageURL)
+	}
+
 	if err := h.db.Delete(&models.PhotoboothResult{}, "id = ?", c.Param("id")).Error; err != nil {
 		_ = c.Error(err)
 		c.Abort()

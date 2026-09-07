@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"mime/multipart"
+	"regexp"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -11,6 +12,22 @@ import (
 
 	"nora-photobooth-backend/internal/apperror"
 )
+
+// cloudinaryPublicIDPattern pulls the public_id (including any folder
+// prefix, e.g. "uploads/abcd1234") out of a Cloudinary secure_url. Every
+// asset here is uploaded without a custom public_id, so Cloudinary always
+// shapes the URL as .../upload/[v<version>/]<public_id>.<ext> — matching
+// this lets existing records that only ever stored the URL (not the
+// public_id separately) still be deleted from Cloudinary itself.
+var cloudinaryPublicIDPattern = regexp.MustCompile(`/upload/(?:v\d+/)?(.+)\.[a-zA-Z0-9]+$`)
+
+func ExtractPublicID(secureURL string) (string, error) {
+	matches := cloudinaryPublicIDPattern.FindStringSubmatch(secureURL)
+	if len(matches) != 2 {
+		return "", errors.New("not a recognizable Cloudinary upload URL: " + secureURL)
+	}
+	return matches[1], nil
+}
 
 type Uploader struct {
 	cld *cloudinary.Cloudinary
@@ -52,6 +69,40 @@ func (u *Uploader) UploadImage(file multipart.File) (string, error) {
 	}
 
 	return result.SecureURL, nil
+}
+
+// DeleteImage removes a previously-uploaded image from Cloudinary, deriving
+// its public_id from the stored secure_url. Best-effort by design: callers
+// should log/ignore a failure here rather than block the user-facing delete
+// on Cloudinary being reachable — an orphaned Cloudinary asset is a much
+// smaller problem than a delete button that stops working.
+func (u *Uploader) DeleteImage(secureURL string) error {
+	publicID, err := ExtractPublicID(secureURL)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	_, err = u.cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: publicID})
+	return err
+}
+
+// DeleteAudio removes a previously-uploaded voice message recording.
+// ResourceType "video" must match what UploadAudio used, or Cloudinary
+// won't find the asset to destroy.
+func (u *Uploader) DeleteAudio(secureURL string) error {
+	publicID, err := ExtractPublicID(secureURL)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	_, err = u.cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: publicID, ResourceType: "video"})
+	return err
 }
 
 // UploadAudio uploads a voice message recording. ResourceType "video" is
