@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ] # Sesuaikan dengan branch utama Anda (misal: main atau master)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to VPS via SSH
+      env:
+        HOST: ${{ secrets.SSH_HOST }}
+        USER: ${{ secrets.SSH_USER }}
+      run: |
+        ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          cd /var/www/backend-anda
+          git pull origin main
+          npm install
+          # Jika pakai PM2 untuk Node.js:
+          pm2 restart all
+          # Atau jika pakai Docker:
+          # docker compose up -d --build
+        EOF
