@@ -6,20 +6,56 @@ const router = useRouter()
 const sidebarOpen = useDashboardSidebar()
 const { t } = useI18n()
 
-const menuMain = computed(() => [
-  { label: t('dashboard.titles.index'), href: '/dashboard', icon: 'lucide:layout-dashboard' },
-  { label: t('dashboard.titles.analytics'), href: '/dashboard/analytics', icon: 'lucide:bar-chart-3' },
-  { label: t('dashboard.titles.finance'), href: '/dashboard/finance', icon: 'lucide:wallet' },
-  { label: t('dashboard.titles.packages'), href: '/dashboard/packages', icon: 'lucide:package' },
-  { label: t('dashboard.titles.features'), href: '/dashboard/features', icon: 'lucide:award' },
-  { label: t('dashboard.titles.frameTemplates'), href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
-  { label: t('dashboard.titles.photoboothFrames'), href: '/dashboard/photobooth-frames', icon: 'lucide:scan-face' },
-  { label: t('dashboard.titles.photoboothResults'), href: '/dashboard/photobooth-results', icon: 'lucide:images' },
-  { label: t('dashboard.titles.voiceMessages'), href: '/dashboard/voice-messages', icon: 'lucide:mic' },
-  { label: t('dashboard.titles.backdrops'), href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
-  { label: t('dashboard.titles.gallery'), href: '/dashboard/gallery', icon: 'lucide:image' },
-  { label: t('dashboard.titles.reviews'), href: '/dashboard/reviews', icon: 'lucide:star' },
-])
+// A DIGITAL_PHOTOBOOTH customer manages their own frame/results/voice
+// messages; a SOFTWARE_PHOTOBOOTH customer only frame/results (their kiosk
+// has no voice-message step) — the rest of the admin menu (finance,
+// packages, main-site content, etc.) isn't relevant or accessible to either.
+const DIGITAL_CUSTOMER_HREFS = ['/dashboard/photobooth-frames', '/dashboard/photobooth-results', '/dashboard/voice-messages']
+const SOFTWARE_CUSTOMER_HREFS = ['/dashboard/photobooth-frames', '/dashboard/photobooth-results']
+
+const menuMain = computed(() => {
+  const isSoftwareCustomer = authStore.user.role === 'SOFTWARE_PHOTOBOOTH'
+
+  const items = [
+    { label: t('dashboard.titles.index'), href: '/dashboard', icon: 'lucide:layout-dashboard' },
+    { label: t('dashboard.titles.analytics'), href: '/dashboard/analytics', icon: 'lucide:bar-chart-3' },
+    { label: t('dashboard.titles.finance'), href: '/dashboard/finance', icon: 'lucide:wallet' },
+    { label: t('dashboard.titles.packages'), href: '/dashboard/packages', icon: 'lucide:package' },
+    { label: t('dashboard.titles.features'), href: '/dashboard/features', icon: 'lucide:award' },
+    { label: t('dashboard.titles.frameTemplates'), href: '/dashboard/frame-templates', icon: 'lucide:layout-template' },
+    {
+      label: isSoftwareCustomer ? t('dashboard.titles.softwarePhotoboothFrames') : t('dashboard.titles.photoboothFrames'),
+      href: '/dashboard/photobooth-frames',
+      icon: 'lucide:scan-face',
+    },
+    {
+      label: isSoftwareCustomer ? t('dashboard.titles.softwarePhotoboothResults') : t('dashboard.titles.photoboothResults'),
+      href: '/dashboard/photobooth-results',
+      icon: 'lucide:images',
+    },
+    { label: t('dashboard.titles.voiceMessages'), href: '/dashboard/voice-messages', icon: 'lucide:mic' },
+    { label: t('dashboard.titles.backdrops'), href: '/dashboard/backdrops', icon: 'lucide:layout-grid' },
+    { label: t('dashboard.titles.gallery'), href: '/dashboard/gallery', icon: 'lucide:image' },
+    { label: t('dashboard.titles.reviews'), href: '/dashboard/reviews', icon: 'lucide:star' },
+  ]
+
+  if (authStore.user.role === 'DIGITAL_PHOTOBOOTH') {
+    return items.filter((item) => DIGITAL_CUSTOMER_HREFS.includes(item.href))
+  }
+
+  if (isSoftwareCustomer) {
+    return items.filter((item) => SOFTWARE_CUSTOMER_HREFS.includes(item.href))
+  }
+
+  if (authStore.user.role === 'SUPER_ADMIN') {
+    items.push(
+      { label: t('dashboard.titles.customers'), href: '/dashboard/customers', icon: 'lucide:users' },
+      { label: t('dashboard.titles.softwareCustomers'), href: '/dashboard/software-customers', icon: 'lucide:monitor-smartphone' },
+    )
+  }
+
+  return items
+})
 
 function isActive(href: string) {
   return href === '/dashboard' ? route.path === '/dashboard' : route.path.startsWith(href)

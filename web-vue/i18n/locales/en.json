@@ -117,6 +117,12 @@
       "sendVoiceTitle": "Send a Voice Message",
       "optional": "(Optional)",
       "sendVoiceButton": "Send Voice Message"
+    },
+    "customerPage": {
+      "titleFor": "Try Digital Photobooth — {name}",
+      "descriptionFor": "Pick {name}'s frame, take some photos, save the result, and send a voice message right from your phone.",
+      "notFoundTitle": "Page Not Found",
+      "notFoundDescription": "This link doesn't seem to be valid anymore. Contact the event organizer for the correct link."
     }
   },
   "softwarePhotobooth": {
@@ -124,7 +130,7 @@
     "metaDescription": "Nora's desktop photobooth software — pick a frame, take photos, and share the result via share, QR, or print.",
     "backBtn": "Back",
     "welcome": {
-      "title": "Software Photobooth",
+      "title": "Lets Go",
       "subtitle": "Touch Start to begin a photo session.",
       "timerLabel": "Countdown Duration",
       "timerOptionSeconds": "{seconds}s",
@@ -142,6 +148,7 @@
       "subtitle": "Photo {current} of {total}",
       "takePhotoBtn": "Take Photo ({left} left)",
       "retakeBtn": "Retake All",
+      "continueBtn": "Continue",
       "retryCamera": "Try Again",
       "cameraError": "Can't access the camera. Make sure it's allowed and connected.",
       "frameLoadError": "Failed to load the frame image. Please try again.",
@@ -149,6 +156,7 @@
       "preparing": "Get ready...",
       "unnamedCamera": "Unnamed camera",
       "cameraSettings": "Camera Settings",
+      "cameraDevice": "Choose Camera",
       "brightness": "Brightness",
       "contrast": "Contrast",
       "filter": "Filter",
@@ -174,6 +182,10 @@
       "qrOverlayTitle": "Scan to Download",
       "printBtn": "Print",
       "newSessionBtn": "New Session"
+    },
+    "customerPage": {
+      "notFoundTitle": "Page Not Found",
+      "notFoundDescription": "This link doesn't seem to be valid anymore. Contact the event organizer for the correct link."
     }
   },
   "printPhoto": {
@@ -299,10 +311,14 @@
       "frameTemplates": "Frame Templates",
       "photoboothFrames": "Digital Photobooth Frames",
       "photoboothResults": "Digital Photobooth Results",
+      "softwarePhotoboothFrames": "Photobooth Frames",
+      "softwarePhotoboothResults": "Session Results",
       "voiceMessages": "Voice Messages",
       "backdrops": "Backdrops",
       "gallery": "Gallery",
       "reviews": "Reviews",
+      "customers": "Digital Photobooth Customers",
+      "softwareCustomers": "Software Photobooth Customers",
       "default": "Dashboard"
     },
     "sidebar": {
@@ -465,7 +481,10 @@
       "empty": "No digital photobooth frames yet.",
       "active": "Active",
       "editAria": "Edit",
-      "deleteAria": "Delete"
+      "deleteAria": "Delete",
+      "assignCustomer": "Assign to customer (optional)",
+      "assignCustomerNone": "Main site (no customer)",
+      "myFramesHint": "Upload a transparent PNG, then set the number, size, and position of the photo boxes exactly over the transparent cutouts in the image below. The number of boxes determines how many photos the guest will take."
     },
     "photoboothResults": {
       "subtitle": "A collection of photo results saved by guests through the \"Try Digital Photobooth\" feature on the landing page.",
@@ -492,6 +511,31 @@
       "resultAlt": "Digital photobooth result",
       "guestFallback": "Guest",
       "deleteAria": "Delete"
+    },
+    "customers": {
+      "subtitle": "Manage digital photobooth customer accounts. Each customer gets their own dashboard and try-it link, separate from the main site.",
+      "newCustomer": "Add Customer",
+      "firstNamePlaceholder": "First Name",
+      "lastNamePlaceholder": "Last Name",
+      "emailPlaceholder": "Email",
+      "passwordPlaceholder": "Password",
+      "slugPlaceholder": "URL slug (e.g. budi-wedding)",
+      "slugHint": "Lowercase letters, numbers, and hyphens only — used in the customer's public link.",
+      "saving": "Saving...",
+      "addCustomer": "Add Customer",
+      "loadingCustomers": "Loading customers...",
+      "empty": "No digital photobooth customers yet.",
+      "publicLink": "Digital photobooth try-it link",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link copied!"
+    },
+    "softwareCustomers": {
+      "subtitle": "Manage software photobooth customer accounts. Each customer gets their own dashboard and kiosk link, separate from the main site.",
+      "newCustomer": "Add Customer",
+      "saving": "Saving...",
+      "addCustomer": "Add Customer",
+      "loadingCustomers": "Loading customers...",
+      "empty": "No software photobooth customers yet."
     },
     "backdrops": {
       "editBackdrop": "Edit Backdrop",

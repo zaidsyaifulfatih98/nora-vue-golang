@@ -117,6 +117,12 @@
       "sendVoiceTitle": "Kirim Pesan Suara",
       "optional": "(Opsional)",
       "sendVoiceButton": "Kirim Pesan Suara"
+    },
+    "customerPage": {
+      "titleFor": "Coba Digital Photobooth — {name}",
+      "descriptionFor": "Pilih frame {name}, ambil foto, simpan hasilnya, dan kirim pesan suara langsung dari ponselmu.",
+      "notFoundTitle": "Halaman Tidak Ditemukan",
+      "notFoundDescription": "Link ini sepertinya sudah tidak berlaku. Hubungi penyelenggara acara untuk link yang benar."
     }
   },
   "softwarePhotobooth": {
@@ -124,9 +130,9 @@
     "metaDescription": "Software photobooth desktop Nora — pilih frame, ambil foto, dan bagikan hasilnya lewat share, QR, atau print.",
     "backBtn": "Kembali",
     "welcome": {
-      "title": "Software Photobooth",
-      "subtitle": "Sentuh Mulai untuk memulai sesi foto.",
-      "timerLabel": "Durasi Hitung Mundur",
+      "title": "Cheers :-)",
+      "subtitle": "Klik Mulai untuk memulai foto.",
+      "timerLabel": "Durasi",
       "timerOptionSeconds": "{seconds} detik",
       "startBtn": "Mulai",
       "fullscreenBtn": "Layar Penuh",
@@ -142,6 +148,7 @@
       "subtitle": "Foto {current} dari {total}",
       "takePhotoBtn": "Ambil Foto ({left} lagi)",
       "retakeBtn": "Ulangi Semua",
+      "continueBtn": "Lanjutkan",
       "retryCamera": "Coba Lagi",
       "cameraError": "Tidak bisa mengakses kamera. Pastikan kamera diizinkan dan tersambung.",
       "frameLoadError": "Gagal memuat gambar frame. Silakan coba lagi.",
@@ -149,6 +156,7 @@
       "preparing": "Bersiap...",
       "unnamedCamera": "Kamera (tanpa nama)",
       "cameraSettings": "Pengaturan Kamera",
+      "cameraDevice": "Pilih Kamera",
       "brightness": "Kecerahan",
       "contrast": "Kontras",
       "filter": "Filter",
@@ -174,6 +182,10 @@
       "qrOverlayTitle": "Scan untuk Download",
       "printBtn": "Print",
       "newSessionBtn": "Sesi Baru"
+    },
+    "customerPage": {
+      "notFoundTitle": "Halaman Tidak Ditemukan",
+      "notFoundDescription": "Link ini sepertinya sudah tidak berlaku. Hubungi penyelenggara acara untuk link yang benar."
     }
   },
   "printPhoto": {
@@ -299,10 +311,14 @@
       "frameTemplates": "Template Frame",
       "photoboothFrames": "Frame Digital Photobooth",
       "photoboothResults": "Hasil Digital Photobooth",
+      "softwarePhotoboothFrames": "Frame Photobooth",
+      "softwarePhotoboothResults": "Hasil Sesi Foto",
       "voiceMessages": "Pesan Suara",
       "backdrops": "Backdrop",
       "gallery": "Galeri",
       "reviews": "Review",
+      "customers": "Pelanggan Digital Photobooth",
+      "softwareCustomers": "Pelanggan Software Photobooth",
       "default": "Dashboard"
     },
     "sidebar": {
@@ -465,7 +481,10 @@
       "empty": "Belum ada frame digital photobooth.",
       "active": "Aktif",
       "editAria": "Edit",
-      "deleteAria": "Hapus"
+      "deleteAria": "Hapus",
+      "assignCustomer": "Untuk pelanggan (opsional)",
+      "assignCustomerNone": "Halaman utama (tanpa pelanggan)",
+      "myFramesHint": "Unggah PNG transparan, lalu atur jumlah, ukuran, dan posisi kotak foto tepat di atas lubang transparan pada gambar di bawah ini. Jumlah kotak menentukan berapa kali tamu akan mengambil foto."
     },
     "photoboothResults": {
       "subtitle": "Kumpulan hasil foto yang disimpan tamu lewat fitur \"Coba Digital Photobooth\" di landing page.",
@@ -492,6 +511,31 @@
       "resultAlt": "Hasil digital photobooth",
       "guestFallback": "Tamu",
       "deleteAria": "Hapus"
+    },
+    "customers": {
+      "subtitle": "Kelola akun pelanggan digital photobooth. Setiap pelanggan punya dashboard dan link coba digital photobooth sendiri, terpisah dari halaman utama.",
+      "newCustomer": "Tambah Pelanggan",
+      "firstNamePlaceholder": "Nama Depan",
+      "lastNamePlaceholder": "Nama Belakang",
+      "emailPlaceholder": "Email",
+      "passwordPlaceholder": "Password",
+      "slugPlaceholder": "Slug URL (contoh: budi-wedding)",
+      "slugHint": "Huruf kecil, angka, dan strip saja — dipakai di link publik pelanggan.",
+      "saving": "Menyimpan...",
+      "addCustomer": "Tambah Pelanggan",
+      "loadingCustomers": "Memuat pelanggan...",
+      "empty": "Belum ada pelanggan digital photobooth.",
+      "publicLink": "Link coba digital photobooth",
+      "copyLink": "Salin Link",
+      "linkCopied": "Link disalin!"
+    },
+    "softwareCustomers": {
+      "subtitle": "Kelola akun pelanggan software photobooth. Setiap pelanggan punya dashboard dan link kiosk sendiri, terpisah dari halaman utama.",
+      "newCustomer": "Tambah Pelanggan",
+      "saving": "Menyimpan...",
+      "addCustomer": "Tambah Pelanggan",
+      "loadingCustomers": "Memuat pelanggan...",
+      "empty": "Belum ada pelanggan software photobooth."
     },
     "backdrops": {
       "editBackdrop": "Edit Backdrop",

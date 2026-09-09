@@ -8,9 +8,10 @@ export interface PhotoboothResultItem {
 export function usePhotoboothResultsApi() {
   const axios = useAxios()
 
-  const savePhotoboothResult = (file: Blob, name: string) => {
+  const savePhotoboothResult = (file: Blob, name: string, ownerSlug?: string) => {
     const formData = new FormData()
     formData.append('image', file, name)
+    if (ownerSlug) formData.append('ownerSlug', ownerSlug)
     return axios
       .post('/photobooth-results', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then((r) => r.data.data as PhotoboothResultItem)

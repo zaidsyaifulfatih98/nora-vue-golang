@@ -38,7 +38,10 @@ func downloadURL(imageURL string) string {
 }
 
 // Create is public — a guest saves their finished result from the digital
-// photobooth result screen, no auth required.
+// photobooth result screen, no auth required. An optional ownerSlug (present
+// when the guest used a customer's sub-URL) tags the result to that
+// customer; it's always resolved server-side through the slug, never taken
+// as a raw id, so a guest can't tag a result to an arbitrary account.
 func (h *Handler) Create(c *gin.Context) {
 	file, err := middleware.ExtractImage(c)
 	if err != nil {
@@ -60,7 +63,15 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	item := models.PhotoboothResult{ImageURL: imageURL}
+	var ownerID *string
+	if slug := c.PostForm("ownerSlug"); slug != "" {
+		var owner models.User
+		if err := h.db.Where("slug = ? AND role IN ?", slug, []models.Role{models.RoleDigitalPhotobooth, models.RoleSoftwarePhotobooth}).First(&owner).Error; err == nil {
+			ownerID = &owner.ID
+		}
+	}
+
+	item := models.PhotoboothResult{ImageURL: imageURL, OwnerID: ownerID}
 	if err := h.db.Create(&item).Error; err != nil {
 		_ = c.Error(err)
 		c.Abort()
@@ -79,11 +90,21 @@ func (h *Handler) Create(c *gin.Context) {
 	})
 }
 
-// List is admin-only — the dashboard's collection of saved digital
-// photobooth results.
+// List is admin/customer — the dashboard's collection of saved digital
+// photobooth results. A customer (DIGITAL_PHOTOBOOTH or SOFTWARE_PHOTOBOOTH)
+// only sees their own (owner_id = their id); admin/superadmin only see the
+// main site's (owner_id IS NULL), unchanged from before customer accounts
+// existed.
 func (h *Handler) List(c *gin.Context) {
+	q := h.db.Order("created_at desc")
+	if models.Role(c.GetString("userRole")).IsCustomer() {
+		q = q.Where("owner_id = ?", c.GetString("userID"))
+	} else {
+		q = q.Where("owner_id IS NULL")
+	}
+
 	var items []models.PhotoboothResult
-	if err := h.db.Order("created_at desc").Find(&items).Error; err != nil {
+	if err := q.Find(&items).Error; err != nil {
 		_ = c.Error(err)
 		c.Abort()
 		return

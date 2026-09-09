@@ -66,6 +66,9 @@ type PhotoboothFrame struct {
 	Slots    JSONText `gorm:"type:text;not null;default:'[]'" json:"slots"`
 	Order    int      `gorm:"default:0" json:"order"`
 	IsActive bool     `gorm:"default:true" json:"isActive"`
+	// OwnerID is nil for the main site's frames (today's behavior). When set,
+	// it scopes the frame to a DIGITAL_PHOTOBOOTH customer account.
+	OwnerID *string `gorm:"index" json:"ownerId,omitempty"`
 }
 
 func (PhotoboothFrame) TableName() string { return "photobooth_frames" }

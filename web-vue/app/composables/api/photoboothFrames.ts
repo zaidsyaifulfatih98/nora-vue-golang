@@ -12,6 +12,12 @@ export interface PhotoboothFrameItem {
   slots: FrameSlot[]
   order: number
   isActive: boolean
+  ownerId?: string
+}
+
+export interface PhotoboothFramesBySlug {
+  owner: { firstName: string; lastName: string }
+  frames: PhotoboothFrameItem[]
 }
 
 export function usePhotoboothFramesApi() {
@@ -20,11 +26,18 @@ export function usePhotoboothFramesApi() {
   const getPhotoboothFrames = (all = false) =>
     axios.get(`/photobooth-frames${all ? '?all=true' : ''}`).then((r) => r.data.data as PhotoboothFrameItem[])
 
-  const uploadPhotoboothFrame = (file: File, name: string, slots: FrameSlot[]) => {
+  // A DIGITAL_PHOTOBOOTH customer's own frames, for their dashboard.
+  const getMyPhotoboothFrames = () => axios.get('/photobooth-frames/mine').then((r) => r.data.data as PhotoboothFrameItem[])
+
+  const getPhotoboothFramesBySlug = (slug: string) =>
+    axios.get(`/photobooth-frames/by-slug/${slug}`).then((r) => r.data.data as PhotoboothFramesBySlug)
+
+  const uploadPhotoboothFrame = (file: File, name: string, slots: FrameSlot[], ownerId?: string) => {
     const formData = new FormData()
     formData.append('image', file)
     formData.append('name', name)
     formData.append('slots', JSON.stringify(slots))
+    if (ownerId) formData.append('ownerId', ownerId)
     return axios
       .post('/photobooth-frames', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then((r) => r.data.data as PhotoboothFrameItem)
@@ -53,5 +66,12 @@ export function usePhotoboothFramesApi() {
 
   const deletePhotoboothFrame = (id: string) => axios.delete(`/photobooth-frames/${id}`)
 
-  return { getPhotoboothFrames, uploadPhotoboothFrame, updatePhotoboothFrame, deletePhotoboothFrame }
+  return {
+    getPhotoboothFrames,
+    getMyPhotoboothFrames,
+    getPhotoboothFramesBySlug,
+    uploadPhotoboothFrame,
+    updatePhotoboothFrame,
+    deletePhotoboothFrame,
+  }
 }

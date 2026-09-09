@@ -7,6 +7,10 @@ package models
 type PhotoboothResult struct {
 	BaseModel
 	ImageURL string `gorm:"not null" json:"imageUrl"`
+	// OwnerID is nil for results saved from the main site (today's
+	// behavior). When set, it scopes the result to a DIGITAL_PHOTOBOOTH
+	// customer account whose sub-URL the guest used.
+	OwnerID *string `gorm:"index" json:"ownerId,omitempty"`
 }
 
 func (PhotoboothResult) TableName() string { return "photobooth_results" }

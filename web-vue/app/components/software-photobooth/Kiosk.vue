@@ -3,6 +3,8 @@ import QRCode from 'qrcode'
 import type { PhotoboothFrameItem } from '~/composables/api/photoboothFrames'
 import type { PhotoboothResultItem } from '~/composables/api/photoboothResults'
 
+const props = defineProps<{ frames: PhotoboothFrameItem[]; ownerSlug?: string }>()
+
 const { t } = useI18n()
 const { savePhotoboothResult } = usePhotoboothResultsApi()
 
@@ -48,8 +50,7 @@ useHead({
   meta: [{ name: 'description', content: computed(() => t('softwarePhotobooth.metaDescription')) }],
 })
 
-const framesData = await useServerFetch<PhotoboothFrameItem[]>('/photobooth-frames', 'software-photobooth-frames')
-const frames = computed(() => framesData.value ?? [])
+const frames = computed(() => props.frames)
 
 type Step = 'welcome' | 'frame' | 'session' | 'result'
 const step = ref<Step>('welcome')
@@ -140,6 +141,7 @@ const DEFAULT_PHOTO_COUNT = 3
 const photoCount = computed(() => selectedFrame.value?.slots?.length || DEFAULT_PHOTO_COUNT)
 const isCameraReady = computed(() => Boolean(stream.value) && !cameraError.value)
 const photosLeft = computed(() => photoCount.value - photos.value.length)
+const allPhotosTaken = computed(() => photos.value.length >= photoCount.value && photos.value.length > 0)
 
 function selectFrame(frame: PhotoboothFrameItem) {
   selectedFrame.value = frame
@@ -231,8 +233,10 @@ async function captureSequence() {
   capturing.value = false
 
   if (photos.value.length >= photoCount.value) {
+    // Stop the camera once every shot is in, but let the operator confirm
+    // with "Lanjutkan" (or retake) instead of compositing immediately —
+    // gives a last look before committing to the frame.
     stopCamera()
-    await buildResult()
   }
 }
 
@@ -333,7 +337,7 @@ async function saveResult() {
   saveError.value = ''
   try {
     const blob = await (await fetch(resultImage.value)).blob()
-    const saved = await savePhotoboothResult(blob, `nora-software-photobooth-${Date.now()}.png`)
+    const saved = await savePhotoboothResult(blob, `nora-software-photobooth-${Date.now()}.png`, props.ownerSlug)
     savedResult.value = saved
     qrCodeDataUrl.value = await QRCode.toDataURL(saved.downloadUrl, { width: 320, margin: 1 })
   } catch {
@@ -421,28 +425,106 @@ onBeforeUnmount(() => {
       {{ t('softwarePhotobooth.backBtn') }}
     </button>
 
-    <div v-if="step === 'welcome'" class="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
-      <span class="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full shadow-lg">
-        <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
-      </span>
-      <h1 class="mt-6 font-dm-serif text-4xl font-bold text-[#000000] sm:text-5xl">{{ t('softwarePhotobooth.welcome.title') }}</h1>
-      <p class="mt-3 max-w-md font-poppins text-base text-[#57607A]">{{ t('softwarePhotobooth.welcome.subtitle') }}</p>
+    <button
+      v-if="step === 'welcome' || step === 'session'"
+      type="button"
+      :aria-label="t('softwarePhotobooth.session.cameraSettings')"
+      class="fixed top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#39445B] shadow-sm ring-1 ring-[#E4E2DC] transition hover:bg-[#f7f3eb]"
+      @click="showCameraSettings = !showCameraSettings"
+    >
+      <Icon name="heroicons:adjustments-horizontal" />
+    </button>
 
-      <div class="mt-8 flex flex-col items-center gap-2">
-        <span class="font-dm-sans text-xs font-semibold tracking-wide text-[#920f0f] uppercase">{{ t('softwarePhotobooth.welcome.timerLabel') }}</span>
-        <div class="flex gap-2">
+    <div
+      v-if="showCameraSettings"
+      class="fixed top-16 right-4 z-30 w-72 rounded-2xl bg-white p-4 text-left shadow-xl ring-1 ring-[#E4E2DC]"
+    >
+      <div class="flex items-center justify-between">
+        <h4 class="font-poppins text-sm font-semibold text-[#1E2537]">{{ t('softwarePhotobooth.session.cameraSettings') }}</h4>
+        <button type="button" :aria-label="t('tryModal.closeAria')" class="text-gray-400 hover:text-gray-600" @click="showCameraSettings = false">
+          <Icon name="heroicons:x-mark" />
+        </button>
+      </div>
+
+      <div class="mt-3">
+        <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.welcome.timerLabel') }}</p>
+        <div class="mt-2 grid grid-cols-3 gap-2">
           <button
             v-for="opt in TIMER_OPTIONS"
             :key="opt"
             type="button"
-            class="rounded-full px-4 py-2 text-sm font-semibold transition"
-            :class="countdownSeconds === opt ? 'bg-[#920f0f] text-white shadow' : 'bg-white text-[#39445B] ring-1 ring-[#E4E2DC] hover:bg-[#f7f3eb]'"
+            class="rounded-lg px-2 py-1.5 font-poppins text-xs font-semibold transition"
+            :class="countdownSeconds === opt ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
             @click="countdownSeconds = opt"
           >
             {{ t('softwarePhotobooth.welcome.timerOptionSeconds', { seconds: opt }) }}
           </button>
         </div>
       </div>
+
+      <div v-if="videoDevices.length > 1" class="mt-3">
+        <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.session.cameraDevice') }}</p>
+        <div class="mt-2 flex flex-col gap-1.5">
+          <button
+            v-for="device in videoDevices"
+            :key="device.deviceId"
+            type="button"
+            class="w-full rounded-lg px-2 py-1.5 text-left font-poppins text-xs font-semibold transition"
+            :class="selectedDeviceId === device.deviceId ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            @click="switchCamera(device.deviceId)"
+          >
+            {{ device.label || t('softwarePhotobooth.session.unnamedCamera') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-col gap-1">
+        <label class="flex items-center justify-between font-poppins text-xs font-medium text-gray-600">
+          <span>{{ t('softwarePhotobooth.session.brightness') }}</span>
+          <span>{{ brightness }}%</span>
+        </label>
+        <input v-model.number="brightness" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
+      </div>
+
+      <div class="mt-3 flex flex-col gap-1">
+        <label class="flex items-center justify-between font-poppins text-xs font-medium text-gray-600">
+          <span>{{ t('softwarePhotobooth.session.contrast') }}</span>
+          <span>{{ contrast }}%</span>
+        </label>
+        <input v-model.number="contrast" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
+      </div>
+
+      <div class="mt-3">
+        <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.session.filter') }}</p>
+        <div class="mt-2 grid grid-cols-3 gap-2">
+          <button
+            v-for="preset in FILTER_PRESET_KEYS"
+            :key="preset"
+            type="button"
+            class="rounded-lg px-2 py-1.5 font-poppins text-xs font-semibold transition"
+            :class="filterPreset === preset ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            @click="filterPreset = preset"
+          >
+            {{ t(`softwarePhotobooth.session.filters.${preset}`) }}
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="mt-3 w-full rounded-lg border border-gray-200 py-1.5 font-poppins text-xs font-medium text-gray-500 transition hover:bg-gray-50"
+        @click="resetCameraAdjustments"
+      >
+        {{ t('softwarePhotobooth.session.resetFilters') }}
+      </button>
+    </div>
+
+    <div v-if="step === 'welcome'" class="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
+      <span class="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full shadow-lg">
+        <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
+      </span>
+      <h1 class="mt-6 font-dm-serif text-4xl font-bold text-[#000000] sm:text-5xl">{{ t('softwarePhotobooth.welcome.title') }}</h1>
+      <p class="mt-3 max-w-md font-poppins text-base text-[#57607A]">{{ t('softwarePhotobooth.welcome.subtitle') }}</p>
 
       <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
         <button
@@ -482,109 +564,32 @@ onBeforeUnmount(() => {
       <p v-else class="mt-10 font-poppins text-sm text-[#57607A]">{{ t('softwarePhotobooth.frame.empty') }}</p>
     </div>
 
-    <div v-else-if="step === 'session'" class="flex flex-1 flex-col items-center px-6 py-8">
-      <h2 class="font-dm-serif text-2xl font-bold text-[#000000] sm:text-3xl">{{ t('softwarePhotobooth.session.title', { count: photoCount }) }}</h2>
-      <p class="mt-1 font-poppins text-sm text-[#57607A]">{{ t('softwarePhotobooth.session.subtitle', { current: photos.length, total: photoCount }) }}</p>
+    <div v-else-if="step === 'session'" class="absolute inset-0 z-0 bg-black">
+      <video
+        v-show="isCameraReady"
+        ref="videoRef"
+        class="h-full w-full -scale-x-100 object-cover"
+        :style="{ filter: cameraFilterCss }"
+        muted
+        playsinline
+      />
 
-      <div v-if="videoDevices.length > 1" class="mt-3 w-full max-w-xs">
-        <select
-          :value="selectedDeviceId"
-          class="w-full rounded-lg border border-[#E4E2DC] bg-white px-3 py-1.5 text-xs text-[#39445B] focus:border-[#920f0f] focus:outline-none"
-          @change="switchCamera(($event.target as HTMLSelectElement).value)"
-        >
-          <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
-            {{ device.label || t('softwarePhotobooth.session.unnamedCamera') }}
-          </option>
-        </select>
+      <div v-if="!isCameraReady && !cameraError" class="flex h-full w-full items-center justify-center text-white/70">
+        <Icon name="heroicons:video-camera" class="animate-pulse text-5xl" />
+      </div>
+      <div v-if="cameraError" class="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <Icon name="heroicons:exclamation-triangle" class="text-4xl text-white" />
+        <p class="font-poppins text-sm text-white">{{ cameraError }}</p>
+        <button class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition" @click="startCamera">
+          {{ t('softwarePhotobooth.session.retryCamera') }}
+        </button>
+      </div>
+      <div v-if="countdown > 0" class="absolute inset-0 flex items-center justify-center bg-black/40">
+        <span class="font-dm-serif text-9xl font-bold text-white">{{ countdown }}</span>
       </div>
 
-      <div class="relative mt-6 aspect-video w-full max-w-6xl overflow-hidden rounded-3xl bg-black shadow-xl">
-        <video
-          v-show="isCameraReady"
-          ref="videoRef"
-          class="h-full w-full -scale-x-100 object-cover"
-          :style="{ filter: cameraFilterCss }"
-          muted
-          playsinline
-        />
-
-        <button
-          v-if="isCameraReady"
-          type="button"
-          :aria-label="t('softwarePhotobooth.session.cameraSettings')"
-          class="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70"
-          @click="showCameraSettings = !showCameraSettings"
-        >
-          <Icon name="heroicons:adjustments-horizontal" />
-        </button>
-
-        <div
-          v-if="showCameraSettings"
-          class="absolute top-16 right-4 z-20 w-72 rounded-2xl bg-white p-4 text-left shadow-xl ring-1 ring-[#E4E2DC]"
-        >
-          <div class="flex items-center justify-between">
-            <h4 class="font-poppins text-sm font-semibold text-[#1E2537]">{{ t('softwarePhotobooth.session.cameraSettings') }}</h4>
-            <button type="button" :aria-label="t('tryModal.closeAria')" class="text-gray-400 hover:text-gray-600" @click="showCameraSettings = false">
-              <Icon name="heroicons:x-mark" />
-            </button>
-          </div>
-
-          <div class="mt-3 flex flex-col gap-1">
-            <label class="flex items-center justify-between font-poppins text-xs font-medium text-gray-600">
-              <span>{{ t('softwarePhotobooth.session.brightness') }}</span>
-              <span>{{ brightness }}%</span>
-            </label>
-            <input v-model.number="brightness" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
-          </div>
-
-          <div class="mt-3 flex flex-col gap-1">
-            <label class="flex items-center justify-between font-poppins text-xs font-medium text-gray-600">
-              <span>{{ t('softwarePhotobooth.session.contrast') }}</span>
-              <span>{{ contrast }}%</span>
-            </label>
-            <input v-model.number="contrast" type="range" min="50" max="150" class="w-full accent-[#920f0f]" />
-          </div>
-
-          <div class="mt-3">
-            <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.session.filter') }}</p>
-            <div class="mt-2 grid grid-cols-3 gap-2">
-              <button
-                v-for="preset in FILTER_PRESET_KEYS"
-                :key="preset"
-                type="button"
-                class="rounded-lg px-2 py-1.5 font-poppins text-xs font-semibold transition"
-                :class="filterPreset === preset ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-                @click="filterPreset = preset"
-              >
-                {{ t(`softwarePhotobooth.session.filters.${preset}`) }}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            class="mt-3 w-full rounded-lg border border-gray-200 py-1.5 font-poppins text-xs font-medium text-gray-500 transition hover:bg-gray-50"
-            @click="resetCameraAdjustments"
-          >
-            {{ t('softwarePhotobooth.session.resetFilters') }}
-          </button>
-        </div>
-
-        <div v-if="!isCameraReady && !cameraError" class="flex h-full w-full items-center justify-center text-white/70">
-          <Icon name="heroicons:video-camera" class="animate-pulse text-5xl" />
-        </div>
-        <div v-if="cameraError" class="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-          <Icon name="heroicons:exclamation-triangle" class="text-4xl text-white" />
-          <p class="font-poppins text-sm text-white">{{ cameraError }}</p>
-          <button class="rounded-full bg-[#920f0f] px-6 py-2.5 text-sm font-semibold text-white shadow transition" @click="startCamera">
-            {{ t('softwarePhotobooth.session.retryCamera') }}
-          </button>
-        </div>
-        <div v-if="countdown > 0" class="absolute inset-0 flex items-center justify-center bg-black/40">
-          <span class="font-dm-serif text-9xl font-bold text-white">{{ countdown }}</span>
-        </div>
-
-        <div class="absolute inset-x-0 bottom-0 flex justify-center gap-3 bg-gradient-to-t from-black/70 to-transparent px-4 pt-10 pb-4">
+      <div class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-4 bg-gradient-to-t from-black/70 to-transparent px-4 pt-10 pb-6">
+        <div class="flex justify-center gap-3">
           <div
             v-for="i in photoCount"
             :key="i"
@@ -598,24 +603,40 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <button
-          v-if="!cameraError"
-          :disabled="!isCameraReady || capturing || photosLeft <= 0 || compositing"
-          class="absolute right-4 bottom-4 z-10 rounded-full bg-[#920f0f] px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-          @click="startCaptureCountdown"
-        >
-          {{ compositing ? t('softwarePhotobooth.session.processing') : capturing ? t('softwarePhotobooth.session.preparing') : t('softwarePhotobooth.session.takePhotoBtn', { left: photosLeft }) }}
-        </button>
+        <p v-if="compositing" class="font-poppins text-sm text-white">{{ t('softwarePhotobooth.session.processing') }}</p>
+
+        <div v-else-if="!cameraError && allPhotosTaken" class="flex items-center justify-center gap-3">
+          <button
+            class="rounded-full border border-white/60 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
+            @click="retakeAllPhotos"
+          >
+            {{ t('softwarePhotobooth.session.retakeBtn') }}
+          </button>
+          <button
+            class="rounded-full bg-[#920f0f] px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
+            @click="buildResult"
+          >
+            {{ t('softwarePhotobooth.session.continueBtn') }}
+          </button>
+        </div>
+
+        <div v-else-if="!cameraError && photos.length > 0 && !capturing" class="flex items-center justify-center">
+          <button
+            class="rounded-full border border-white/60 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
+            @click="retakeAllPhotos"
+          >
+            {{ t('softwarePhotobooth.session.retakeBtn') }}
+          </button>
+        </div>
       </div>
 
-      <div v-if="!cameraError && photos.length > 0 && !capturing" class="mt-6 flex items-center justify-center">
-        <button
-          class="rounded-full border border-[#920f0f] px-6 py-3.5 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
-          @click="retakeAllPhotos"
-        >
-          {{ t('softwarePhotobooth.session.retakeBtn') }}
-        </button>
-      </div>
+      <button
+        v-if="!cameraError && !allPhotosTaken"
+        :aria-label="t('softwarePhotobooth.session.takePhotoBtn', { left: photosLeft })"
+        :disabled="!isCameraReady || capturing || photosLeft <= 0"
+        class="absolute top-1/2 right-6 z-10 h-20 w-20 shrink-0 -translate-y-1/2 rounded-full bg-white shadow-lg ring-4 ring-white/30 transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+        @click="startCaptureCountdown"
+      />
     </div>
 
     <div v-else-if="step === 'result'" class="flex flex-1 flex-col items-center px-6 py-10">

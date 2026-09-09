@@ -5,6 +5,8 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getPhotoboothResults, deletePhotoboothResult } = usePhotoboothResultsApi()
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
+const isCustomer = computed(() => ['DIGITAL_PHOTOBOOTH', 'SOFTWARE_PHOTOBOOTH'].includes(authStore.user.role))
 
 const results = ref<PhotoboothResultItem[]>([])
 const loading = ref(true)
@@ -189,7 +191,12 @@ function formatDate(iso: string) {
                   >
                     <Icon name="lucide:printer" />
                   </button>
-                  <button :aria-label="t('dashboard.photoboothResults.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(result.id)">
+                  <button
+                    v-if="!isCustomer"
+                    :aria-label="t('dashboard.photoboothResults.deleteAria')"
+                    class="text-gray-400 hover:text-red-500"
+                    @click="handleDelete(result.id)"
+                  >
                     <Icon name="lucide:trash-2" />
                   </button>
                 </div>
@@ -238,7 +245,12 @@ function formatDate(iso: string) {
                   >
                     <Icon name="lucide:printer" />
                   </button>
-                  <button :aria-label="t('dashboard.photoboothResults.deleteAria')" class="text-gray-400 hover:text-red-500" @click="handleDelete(result.id)">
+                  <button
+                    v-if="!isCustomer"
+                    :aria-label="t('dashboard.photoboothResults.deleteAria')"
+                    class="text-gray-400 hover:text-red-500"
+                    @click="handleDelete(result.id)"
+                  >
                     <Icon name="lucide:trash-2" />
                   </button>
                 </div>

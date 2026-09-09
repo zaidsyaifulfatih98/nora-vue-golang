@@ -11,12 +11,13 @@ export function useVoiceMessagesApi() {
 
   const getVoiceMessages = () => axios.get('/voice-messages').then((r) => r.data.data as VoiceMessageItem[])
 
-  const uploadVoiceMessage = (file: Blob, guestName: string, photoUrl?: string) => {
+  const uploadVoiceMessage = (file: Blob, guestName: string, photoUrl?: string, ownerSlug?: string) => {
     const extension = file.type.includes('mp4') ? 'mp4' : file.type.includes('ogg') ? 'ogg' : 'webm'
     const formData = new FormData()
     formData.append('audio', file, `voice-message.${extension}`)
     if (guestName) formData.append('guestName', guestName)
     if (photoUrl) formData.append('photoUrl', photoUrl)
+    if (ownerSlug) formData.append('ownerSlug', ownerSlug)
     return axios
       .post('/voice-messages', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then((r) => r.data.data as VoiceMessageItem)

@@ -1,10 +1,28 @@
 <script setup lang="ts">
 import type { FrameSlot, PhotoboothFrameItem } from '~/composables/api/photoboothFrames'
+import type { CustomerItem } from '~/composables/api/auth'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const { getPhotoboothFrames, uploadPhotoboothFrame, updatePhotoboothFrame, deletePhotoboothFrame } = usePhotoboothFramesApi()
+const { getPhotoboothFrames, getMyPhotoboothFrames, uploadPhotoboothFrame, updatePhotoboothFrame, deletePhotoboothFrame } =
+  usePhotoboothFramesApi()
+const { getCustomers } = useAuthApi()
 const { t } = useI18n()
+const authStore = useAuthStore()
+
+// A customer (DIGITAL_PHOTOBOOTH or SOFTWARE_PHOTOBOOTH) manages their own
+// frames (scoped server-side to their account) — only the "assign to
+// customer" picker below is admin-only, since a customer's uploads are
+// always their own.
+const isCustomer = computed(() => ['DIGITAL_PHOTOBOOTH', 'SOFTWARE_PHOTOBOOTH'].includes(authStore.user.role))
+
+const customers = ref<CustomerItem[]>([])
+const ownerId = ref('')
+if (!isCustomer.value) {
+  Promise.all([getCustomers('DIGITAL_PHOTOBOOTH'), getCustomers('SOFTWARE_PHOTOBOOTH')]).then(([digital, software]) => {
+    customers.value = [...digital, ...software]
+  })
+}
 
 function defaultSlots(): FrameSlot[] {
   const margin = 0.045
@@ -29,7 +47,7 @@ const previewUrl = computed(() => filePreviewUrl.value || editingImageUrl.value)
 
 async function loadFrames() {
   loading.value = true
-  frames.value = await getPhotoboothFrames(true)
+  frames.value = isCustomer.value ? await getMyPhotoboothFrames() : await getPhotoboothFrames(true)
   loading.value = false
 }
 onMounted(loadFrames)
@@ -42,6 +60,7 @@ function resetForm() {
   filePreviewUrl.value = ''
   editingImageUrl.value = ''
   slots.value = []
+  ownerId.value = ''
   if (fileInput.value) fileInput.value.value = ''
 }
 
@@ -74,7 +93,7 @@ async function handleSubmit() {
     if (editingId.value) {
       await updatePhotoboothFrame(editingId.value, { name: name.value, slots: slots.value }, file.value ?? undefined)
     } else if (file.value) {
-      await uploadPhotoboothFrame(file.value, name.value, slots.value)
+      await uploadPhotoboothFrame(file.value, name.value, slots.value, ownerId.value || undefined)
     }
     resetForm()
     await loadFrames()
@@ -104,7 +123,7 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
             {{ editingId ? t('dashboard.photoboothFrames.editFrame') : t('dashboard.photoboothFrames.newFrame') }}
           </h2>
           <p class="mt-1 text-xs text-gray-500">
-            {{ t('dashboard.photoboothFrames.helpText') }}
+            {{ isCustomer ? t('dashboard.photoboothFrames.myFramesHint') : t('dashboard.photoboothFrames.helpText') }}
           </p>
         </div>
         <button v-if="editingId" class="shrink-0 text-gray-400 hover:text-gray-600" @click="resetForm"><Icon name="fe:close" /></button>
@@ -116,6 +135,17 @@ async function handleToggleActive(frame: PhotoboothFrameItem) {
           :placeholder="t('dashboard.photoboothFrames.namePlaceholder')"
           class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
         />
+
+        <select
+          v-if="!isCustomer && !editingId"
+          v-model="ownerId"
+          class="w-fit rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
+        >
+          <option value="">{{ t('dashboard.photoboothFrames.assignCustomerNone') }}</option>
+          <option v-for="customer in customers" :key="customer.id" :value="customer.id">
+            {{ customer.firstName }} {{ customer.lastName }}
+          </option>
+        </select>
 
         <div class="flex w-fit items-center gap-2">
           <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">

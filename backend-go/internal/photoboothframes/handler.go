@@ -2,6 +2,7 @@ package photoboothframes
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -37,11 +38,111 @@ func NewHandler(db *gorm.DB, uploader *upload.Uploader) *Handler {
 	return &Handler{repo: crud.NewRepository[models.PhotoboothFrame](db, "PhotoboothFrame", "is_active"), uploader: uploader}
 }
 
-func (h *Handler) List() gin.HandlerFunc { return crud.ListHandler(h.repo) }
-func (h *Handler) Delete() gin.HandlerFunc {
-	return crud.DeleteHandlerWithCleanup(h.repo, func(item *models.PhotoboothFrame) error {
-		return h.uploader.DeleteImage(item.ImageURL)
+// List is the public, unauthenticated main-site listing — unchanged from
+// before this package supported customer-owned frames: it only ever returns
+// frames with no owner (owner_id IS NULL).
+func (h *Handler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		all := c.Query("all") == "true"
+		var items []models.PhotoboothFrame
+		q := h.repo.DB.Where("owner_id IS NULL").Order("\"order\" asc")
+		if !all {
+			q = q.Where("is_active = ?", true)
+		}
+		if err := q.Find(&items).Error; err != nil {
+			_ = c.Error(err)
+			c.Abort()
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "PhotoboothFrame fetched", "data": items})
+	}
+}
+
+// Mine returns the caller's own frames — a DIGITAL_PHOTOBOOTH customer's
+// dashboard listing (or the full admin listing when an admin/superadmin
+// happens to call it, though the dashboard doesn't use this route for them).
+func (h *Handler) Mine(c *gin.Context) {
+	userID := c.GetString("userID")
+	var items []models.PhotoboothFrame
+	if err := h.repo.DB.Where("owner_id = ?", userID).Order("\"order\" asc").Find(&items).Error; err != nil {
+		_ = c.Error(err)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "PhotoboothFrame fetched", "data": items})
+}
+
+// ByOwnerSlug is public — it resolves a customer's slug (DIGITAL_PHOTOBOOTH
+// or SOFTWARE_PHOTOBOOTH) to their active frames, powering that customer's
+// guest try-it / kiosk sub-page.
+func (h *Handler) ByOwnerSlug(c *gin.Context) {
+	slug := c.Param("slug")
+
+	var owner models.User
+	err := h.repo.DB.Where("slug = ? AND role IN ?", slug, []models.Role{models.RoleDigitalPhotobooth, models.RoleSoftwarePhotobooth}).First(&owner).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		_ = c.Error(apperror.New("Halaman tidak ditemukan", 404))
+		c.Abort()
+		return
+	}
+	if err != nil {
+		_ = c.Error(err)
+		c.Abort()
+		return
+	}
+
+	var frames []models.PhotoboothFrame
+	if err := h.repo.DB.Where("owner_id = ? AND is_active = ?", owner.ID, true).Order("\"order\" asc").Find(&frames).Error; err != nil {
+		_ = c.Error(err)
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "PhotoboothFrame fetched",
+		"data": gin.H{
+			"owner":  gin.H{"firstName": owner.FirstName, "lastName": owner.LastName},
+			"frames": frames,
+		},
 	})
+}
+
+// ownsFrame reports whether the caller may modify the given frame: an
+// admin/superadmin may modify any frame, a customer (DIGITAL_PHOTOBOOTH or
+// SOFTWARE_PHOTOBOOTH) only their own (owner_id = their id). Writes a 403
+// and returns false if not.
+func (h *Handler) ownsFrame(c *gin.Context, item *models.PhotoboothFrame) bool {
+	if !models.Role(c.GetString("userRole")).IsCustomer() {
+		return true
+	}
+	if item.OwnerID != nil && *item.OwnerID == c.GetString("userID") {
+		return true
+	}
+	_ = c.Error(apperror.New("Forbidden, insufficient role", 403))
+	c.Abort()
+	return false
+}
+
+func (h *Handler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		item, err := h.repo.FindByID(c.Param("id"))
+		if err != nil {
+			_ = c.Error(err)
+			c.Abort()
+			return
+		}
+		if !h.ownsFrame(c, item) {
+			return
+		}
+		_ = h.uploader.DeleteImage(item.ImageURL)
+		if err := h.repo.SoftDelete(item.ID); err != nil {
+			_ = c.Error(err)
+			c.Abort()
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "PhotoboothFrame deleted", "data": gin.H{}})
+	}
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -79,7 +180,29 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	item := models.PhotoboothFrame{Name: name, ImageURL: imageURL, Slots: slots, IsActive: true}
+	var ownerID *string
+	if models.Role(c.GetString("userRole")).IsCustomer() {
+		// A customer's own upload is always scoped to themselves — never
+		// trust a client-supplied ownerId here.
+		userID := c.GetString("userID")
+		ownerID = &userID
+	} else if raw := c.PostForm("ownerId"); raw != "" {
+		var owner models.User
+		err := h.repo.DB.Where("id = ? AND role IN ?", raw, []models.Role{models.RoleDigitalPhotobooth, models.RoleSoftwarePhotobooth}).First(&owner).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			_ = c.Error(apperror.New("Pelanggan tidak ditemukan", 400))
+			c.Abort()
+			return
+		}
+		if err != nil {
+			_ = c.Error(err)
+			c.Abort()
+			return
+		}
+		ownerID = &owner.ID
+	}
+
+	item := models.PhotoboothFrame{Name: name, ImageURL: imageURL, Slots: slots, IsActive: true, OwnerID: ownerID}
 	if err := h.repo.Create(&item); err != nil {
 		_ = c.Error(err)
 		c.Abort()
@@ -97,6 +220,16 @@ type jsonUpdateRequest struct {
 }
 
 func (h *Handler) Update(c *gin.Context) {
+	existing, err := h.repo.FindByID(c.Param("id"))
+	if err != nil {
+		_ = c.Error(err)
+		c.Abort()
+		return
+	}
+	if !h.ownsFrame(c, existing) {
+		return
+	}
+
 	updates := map[string]any{}
 
 	if middleware.IsMultipart(c) {

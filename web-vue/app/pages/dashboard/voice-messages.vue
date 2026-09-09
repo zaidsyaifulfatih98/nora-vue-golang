@@ -5,6 +5,8 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { getVoiceMessages, deleteVoiceMessage } = useVoiceMessagesApi()
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
+const isCustomer = computed(() => ['DIGITAL_PHOTOBOOTH', 'SOFTWARE_PHOTOBOOTH'].includes(authStore.user.role))
 
 const messages = ref<VoiceMessageItem[]>([])
 const loading = ref(true)
@@ -56,6 +58,7 @@ function formatDate(iso: string) {
         </div>
 
         <button
+          v-if="!isCustomer"
           :aria-label="t('dashboard.voiceMessages.deleteAria')"
           class="shrink-0 self-start text-gray-400 hover:text-red-500 sm:self-center"
           @click="handleDelete(message.id)"

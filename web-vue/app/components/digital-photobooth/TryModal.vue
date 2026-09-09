@@ -3,7 +3,7 @@ import QRCode from 'qrcode'
 import type { PhotoboothFrameItem } from '~/composables/api/photoboothFrames'
 import type { PhotoboothResultItem } from '~/composables/api/photoboothResults'
 
-const props = defineProps<{ frames: PhotoboothFrameItem[] }>()
+const props = defineProps<{ frames: PhotoboothFrameItem[]; ownerSlug?: string }>()
 const emit = defineEmits<{ close: [] }>()
 
 const { savePhotoboothResult } = usePhotoboothResultsApi()
@@ -371,7 +371,7 @@ async function saveResult() {
   saveError.value = ''
   try {
     const blob = await (await fetch(resultImage.value)).blob()
-    const saved = await savePhotoboothResult(blob, `nora-digital-photobooth-${Date.now()}.png`)
+    const saved = await savePhotoboothResult(blob, `nora-digital-photobooth-${Date.now()}.png`, props.ownerSlug)
     savedResult.value = saved
     qrCodeDataUrl.value = await QRCode.toDataURL(saved.downloadUrl, { width: 240, margin: 1 })
   } catch {
@@ -448,7 +448,7 @@ async function sendVoiceMessage() {
   voiceStep.value = 'sending'
   voiceError.value = ''
   try {
-    await uploadVoiceMessage(voiceBlob.value, voiceGuestName.value, savedResult.value?.viewUrl)
+    await uploadVoiceMessage(voiceBlob.value, voiceGuestName.value, savedResult.value?.viewUrl, props.ownerSlug)
     voiceStep.value = 'sent'
   } catch {
     voiceError.value = t('tryModal.voice.sendError')

@@ -41,6 +41,9 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 	jwtVerify := appmw.JWTVerify(cfg.JWTSecret)
 	adminOnly := appmw.RoleVerify(string(models.RoleSuperAdmin), string(models.RoleAdmin))
 	superAdminOnly := appmw.RoleVerify(string(models.RoleSuperAdmin))
+	customerOrAdmin := appmw.RoleVerify(
+		string(models.RoleSuperAdmin), string(models.RoleAdmin), string(models.RoleDigitalPhotobooth), string(models.RoleSoftwarePhotobooth),
+	)
 
 	api := r.Group("/api")
 
@@ -53,6 +56,9 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 		authGroup.POST("/logout", authHandler.Logout)
 		authGroup.GET("/me", jwtVerify, authHandler.Me)
 		authGroup.POST("/register", jwtVerify, superAdminOnly, authHandler.Register)
+		authGroup.GET("/customers", jwtVerify, superAdminOnly, authHandler.ListCustomers)
+		authGroup.PATCH("/customers/:id", jwtVerify, superAdminOnly, authHandler.UpdateCustomer)
+		authGroup.DELETE("/customers/:id", jwtVerify, superAdminOnly, authHandler.DeleteCustomer)
 	}
 
 	// Packages
@@ -116,9 +122,11 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 	photoboothFrameGroup := api.Group("/photobooth-frames")
 	{
 		photoboothFrameGroup.GET("", photoboothFrameHandler.List())
-		photoboothFrameGroup.POST("", jwtVerify, adminOnly, photoboothFrameHandler.Create)
-		photoboothFrameGroup.PATCH("/:id", jwtVerify, adminOnly, photoboothFrameHandler.Update)
-		photoboothFrameGroup.DELETE("/:id", jwtVerify, adminOnly, photoboothFrameHandler.Delete())
+		photoboothFrameGroup.GET("/mine", jwtVerify, customerOrAdmin, photoboothFrameHandler.Mine)
+		photoboothFrameGroup.GET("/by-slug/:slug", photoboothFrameHandler.ByOwnerSlug)
+		photoboothFrameGroup.POST("", jwtVerify, customerOrAdmin, photoboothFrameHandler.Create)
+		photoboothFrameGroup.PATCH("/:id", jwtVerify, customerOrAdmin, photoboothFrameHandler.Update)
+		photoboothFrameGroup.DELETE("/:id", jwtVerify, customerOrAdmin, photoboothFrameHandler.Delete())
 	}
 
 	// Photobooth results — saves a guest's finished digital photobooth image
@@ -128,7 +136,7 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 	photoboothResultGroup := api.Group("/photobooth-results")
 	{
 		photoboothResultGroup.POST("", photoboothResultHandler.Create)
-		photoboothResultGroup.GET("", jwtVerify, adminOnly, photoboothResultHandler.List)
+		photoboothResultGroup.GET("", jwtVerify, customerOrAdmin, photoboothResultHandler.List)
 		photoboothResultGroup.DELETE("/:id", jwtVerify, adminOnly, photoboothResultHandler.Delete)
 	}
 
@@ -139,7 +147,7 @@ func New(cfg *config.Config, db *gorm.DB, sheetsSvc *sheets.Service) (*gin.Engin
 	voiceMessageGroup := api.Group("/voice-messages")
 	{
 		voiceMessageGroup.POST("", voiceMessageHandler.Create)
-		voiceMessageGroup.GET("", jwtVerify, adminOnly, voiceMessageHandler.List)
+		voiceMessageGroup.GET("", jwtVerify, customerOrAdmin, voiceMessageHandler.List)
 		voiceMessageGroup.DELETE("/:id", jwtVerify, adminOnly, voiceMessageHandler.Delete)
 	}
 
