@@ -230,6 +230,7 @@
       "processing": "Processing...",
       "preparing": "Get ready...",
       "cameraSettings": "Camera Settings",
+      "cameraDevice": "Choose Camera",
       "brightness": "Brightness",
       "contrast": "Contrast",
       "filter": "Filter",
