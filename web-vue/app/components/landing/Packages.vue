@@ -55,21 +55,22 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES.value)
         </p>
       </div>
 
-      <div class="mt-16 grid gap-8 lg:grid-cols-3">
+      <div class="mt-16 grid items-stretch gap-8 lg:grid-cols-3">
         <div
           v-for="pkg in packages"
           :key="pkg.id"
-          class="relative flex flex-col rounded-3xl p-8 transition hover:-translate-y-1"
+          class="relative flex h-full flex-col rounded-3xl p-8 transition hover:-translate-y-1"
           :class="pkg.isPopular ? 'bg-[#f7f3eb] text-black shadow-2xl shadow-[#1E2537]/30 lg:scale-105' : 'bg-white text-[#1E2537] shadow-sm ring-1 ring-[#E4E2DC]'"
         >
           <span v-if="pkg.isPopular" class="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#920f0f] px-4 py-1 text-xs font-bold tracking-wide text-white shadow-lg">
             {{ t('landing.packages.mostPopular') }}
           </span>
 
-          <h3 class="font-poppins text-2xl font-bold">{{ tf(pkg.name, pkg.nameEn) }}</h3>
-          <p class="mt-1 font-poppins text-sm" :class="pkg.isPopular ? 'text-black' : 'text-[#6C7686]'">{{ tf(pkg.duration, pkg.durationEn) }}</p>
-
-          <p class="mt-6 font-poppins text-3xl font-bold">{{ formatRupiah(pkg.price) }}</p>
+          <h3 class="flex font-poppins text-2xl font-bold justify-center">{{ tf(pkg.name, pkg.nameEn) }}</h3>
+          <span class="mt-6 inline-flex w-fit items-center rounded-md bg-[#920f0f] px-3 py-1 text-xs font-bold tracking-wide text-white shadow-sm">
+            {{ t('landing.packages.startFrom') }}
+          </span>
+          <p class="mt-2 font-poppins text-3xl font-bold">{{ formatRupiah(pkg.price) }}</p>
 
           <p v-if="pkg.description" class="mt-2 font-poppins text-sm" :class="pkg.isPopular ? 'text-black' : 'text-[#57607A]'">
             {{ tf(pkg.description, pkg.descriptionEn) }}

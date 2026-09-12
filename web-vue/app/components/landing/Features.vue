@@ -19,12 +19,12 @@ const hasFeatures = computed(() => Boolean(features.value && features.value.leng
       </div>
 
       <div v-if="hasFeatures" class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="feature in features" :key="feature.id" class="group rounded-2xl transition duration-300 hover:-translate-y-1">
-          <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E4E2DC]/70 transition duration-300 group-hover:shadow-xl">
+        <div v-for="feature in features" :key="feature.id" class="group flex h-full rounded-2xl transition duration-300 hover:-translate-y-1">
+          <div class="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E4E2DC]/70 transition duration-300 group-hover:shadow-xl">
             <div class="aspect-[4/3] w-full overflow-hidden">
               <img :src="feature.imageUrl" :alt="tf(feature.title, feature.titleEn)" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
             </div>
-            <div class="p-7">
+            <div class="flex flex-1 flex-col p-7">
               <h3 class="font-poppins text-lg font-bold text-[#1E2537]">{{ tf(feature.title, feature.titleEn) }}</h3>
               <p class="mt-2 font-poppins text-sm leading-relaxed text-[#57607A]">{{ tf(feature.description, feature.descriptionEn) }}</p>
             </div>

@@ -20,8 +20,8 @@ const EXPLORE_LINKS = computed(() => [
             <span class="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full shadow-md">
               <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
             </span>
-            <span class="font-aloja text-2xl tracking-wide text-[#FAF9F6]">
-              Nora <span class="text-[#FAF9F6]">Photobooth</span>
+            <span class="text-2xl tracking-wide text-[#FAF9F6]">
+              <span class="font-marykate text-3xl">NORA</span> <span class="font-quicksand text-[#FAF9F6] font-bold text-xl">PHOTOBOOTH</span>
             </span>
           </div>
           <p class="mt-4 font-poppins text-sm leading-relaxed">

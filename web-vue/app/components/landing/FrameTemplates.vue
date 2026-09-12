@@ -26,9 +26,9 @@ const waHref = computed(
       <div class="mt-16">
         <Carousel :items="templates">
           <template #default="{ item: tpl }">
-            <div class="group rounded-2xl transition duration-300 hover:-translate-y-1">
-              <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E4E2DC]/70 transition duration-300">
-                <div class="aspect-[4/3] w-full overflow-hidden bg-white">
+            <div class="group flex h-full rounded-2xl transition duration-300 hover:-translate-y-1">
+              <div class="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E4E2DC]/70 transition duration-300">
+                <div class="aspect-[4/3] w-full shrink-0 overflow-hidden bg-white">
                   <img
                     :src="tpl.imageUrl"
                     :alt="tf(tpl.name, tpl.nameEn)"
@@ -36,7 +36,7 @@ const waHref = computed(
                     :class="tpl.fit === 'CONTAIN' ? 'object-contain' : 'object-cover'"
                   />
                 </div>
-                <div class="p-6">
+                <div class="flex flex-1 flex-col p-6">
                   <h3 class="font-poppins text-lg font-bold text-[#1E2537]">{{ tf(tpl.name, tpl.nameEn) }}</h3>
                   <p class="mt-1.5 font-poppins text-sm text-[#57607A]">{{ tf(tpl.description, tpl.descriptionEn) }}</p>
                 </div>
