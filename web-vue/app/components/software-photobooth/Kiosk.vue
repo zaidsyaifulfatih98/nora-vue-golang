@@ -12,6 +12,15 @@ const MAX_CANVAS_SIDE = 2000
 const TIMER_OPTIONS = [3, 5, 10]
 const CAMERA_STORAGE_KEY = 'photobooth_camera_device_id'
 const CAMERA_ADJUST_STORAGE_KEY = 'photobooth_camera_adjustments'
+// After "Sesi Baru" we hard-reload the page (see newSession()) instead of
+// just resetting JS state — on iPadOS Safari, a USB video-capture device can
+// silently vanish from enumerateDevices() after a getUserMedia stream has
+// already been started/stopped once in the same tab. A real navigation
+// reload tears down and recreates the whole media/device context, which is
+// the only reliable way to get the USB camera back for the next guest. This
+// flag survives the reload (sessionStorage, not JS state) so we can skip
+// straight back to frame selection instead of showing the welcome screen.
+const SKIP_WELCOME_KEY = 'photobooth_skip_welcome'
 
 type FilterPreset = 'none' | 'bw' | 'sepia' | 'vintage' | 'cool' | 'warm'
 // Brightness/contrast are always applied via CSS filter() functions;
@@ -35,8 +44,18 @@ const showCameraSettings = ref(false)
 // Combined into one CSS filter() string used both for the live <video> style
 // and (via canvas ctx.filter) baked into the captured photo — CSS filters on
 // a <video> element don't carry over to drawImage() on their own.
+//
+// Returns the literal string 'none' when nothing is actually adjusted —
+// `brightness(100%) contrast(100%)` is mathematically a no-op but WebKit
+// still routes it through the filter-compositing pipeline every frame,
+// which is a real source of choppy playback for a high-bitrate USB capture
+// feed (e.g. an A6400 through a capture card) on an iPad. 'none' lets the
+// browser skip that pipeline entirely.
+const hasCameraAdjustments = computed(() => brightness.value !== 100 || contrast.value !== 100 || filterPreset.value !== 'none')
 const cameraFilterCss = computed(() =>
-  `brightness(${brightness.value}%) contrast(${contrast.value}%) ${FILTER_PRESETS[filterPreset.value]}`.trim(),
+  hasCameraAdjustments.value
+    ? `brightness(${brightness.value}%) contrast(${contrast.value}%) ${FILTER_PRESETS[filterPreset.value]}`.trim()
+    : 'none',
 )
 
 function resetCameraAdjustments() {
@@ -44,6 +63,19 @@ function resetCameraAdjustments() {
   contrast.value = 100
   filterPreset.value = 'none'
 }
+
+// Many generic HDMI/UVC capture-card dongles used with mirrorless cameras
+// like the A6400 can't sustain a clean 1080p feed over an iPad's USB stack —
+// the browser ends up dropping frames trying to keep up, which shows as
+// stutter. 720p is the safer default; operators with a dongle that can
+// actually keep up can switch to 1080p from the camera settings panel.
+const RESOLUTION_PRESETS = {
+  hd720: { width: 1280, height: 720, labelKey: 'softwarePhotobooth.session.resolutionHd' },
+  fhd1080: { width: 1920, height: 1080, labelKey: 'softwarePhotobooth.session.resolutionFhd' },
+} as const
+type ResolutionPreset = keyof typeof RESOLUTION_PRESETS
+const RESOLUTION_PRESET_KEYS = Object.keys(RESOLUTION_PRESETS) as ResolutionPreset[]
+const resolutionPreset = ref<ResolutionPreset>('hd720')
 
 useHead({
   title: computed(() => t('softwarePhotobooth.metaTitle')),
@@ -77,24 +109,49 @@ onMounted(() => {
   })
 
   try {
+    if (sessionStorage.getItem(SKIP_WELCOME_KEY)) {
+      sessionStorage.removeItem(SKIP_WELCOME_KEY)
+      step.value = 'frame'
+    }
+  } catch {
+    // sessionStorage unavailable — guest just sees the welcome screen again.
+  }
+
+  try {
     const saved = JSON.parse(localStorage.getItem(CAMERA_ADJUST_STORAGE_KEY) || 'null')
     if (saved) {
       brightness.value = saved.brightness ?? 100
       contrast.value = saved.contrast ?? 100
       filterPreset.value = FILTER_PRESET_KEYS.includes(saved.filterPreset) ? saved.filterPreset : 'none'
+      resolutionPreset.value = saved.resolutionPreset in RESOLUTION_PRESETS ? saved.resolutionPreset : 'hd720'
     }
   } catch {
     // Corrupt/missing stored value — just keep the defaults.
   }
 })
 
-// Kiosk operators calibrate this once for their venue's lighting, so it's
-// worth remembering across sessions rather than resetting for every guest.
-watch([brightness, contrast, filterPreset], () => {
+// Kiosk operators calibrate this once for their venue's lighting/camera
+// rig, so it's worth remembering across sessions rather than resetting for
+// every guest.
+watch([brightness, contrast, filterPreset, resolutionPreset], () => {
   localStorage.setItem(
     CAMERA_ADJUST_STORAGE_KEY,
-    JSON.stringify({ brightness: brightness.value, contrast: contrast.value, filterPreset: filterPreset.value }),
+    JSON.stringify({
+      brightness: brightness.value,
+      contrast: contrast.value,
+      filterPreset: filterPreset.value,
+      resolutionPreset: resolutionPreset.value,
+    }),
   )
+})
+
+// Resolution only takes effect on the next getUserMedia call, so restart the
+// stream immediately if the operator changes it mid-session.
+watch(resolutionPreset, () => {
+  if (stream.value) {
+    stopCamera()
+    startCamera()
+  }
 })
 
 function startSession() {
@@ -162,10 +219,21 @@ async function startCamera() {
   cameraError.value = ''
   photos.value = []
   try {
+    // ideal (not exact) width/height/frameRate so the browser can still fall
+    // back to whatever the capture card actually supports instead of
+    // failing outright — but steering it toward a mode the USB link can
+    // sustain smoothly is what actually fixes the stutter.
+    const { width, height } = RESOLUTION_PRESETS[resolutionPreset.value]
+    const videoConstraints: MediaTrackConstraints = {
+      width: { ideal: width },
+      height: { ideal: height },
+      frameRate: { ideal: 30, max: 30 },
+    }
+    if (selectedDeviceId.value) videoConstraints.deviceId = { exact: selectedDeviceId.value }
+    else videoConstraints.facingMode = 'user'
+
     stream.value = await navigator.mediaDevices.getUserMedia({
-      video: selectedDeviceId.value
-        ? { deviceId: { exact: selectedDeviceId.value }, width: { ideal: 1920 }, height: { ideal: 1080 } }
-        : { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } },
+      video: videoConstraints,
       audio: false,
     })
     await nextTick()
@@ -322,7 +390,9 @@ async function buildResult() {
     ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height)
     resultImage.value = canvas.toDataURL('image/png')
     step.value = 'result'
-    saveResult()
+    // Composited result is only kept in-memory here — the guest has to
+    // confirm it with "Simpan" before it's uploaded, so a bad take can be
+    // discarded via "Ulangi Foto" instead of always saving automatically.
   } catch {
     cameraError.value = t('softwarePhotobooth.session.frameLoadError')
     step.value = 'session'
@@ -397,15 +467,32 @@ function handlePrint(url: string) {
   else image?.addEventListener('load', triggerPrint)
 }
 
-function newSession() {
+function retakeFromResult() {
   resultImage.value = ''
   photos.value = []
   savedResult.value = null
   qrCodeDataUrl.value = ''
   saveError.value = ''
   showQrOverlay.value = false
-  selectedFrame.value = null
-  step.value = 'frame'
+  step.value = 'session'
+  startCamera()
+}
+
+function newSession() {
+  stopCamera()
+  try {
+    // Forget the pinned camera so the next session's startCamera() doesn't
+    // retry a deviceId the browser may have dropped, and mark the reload to
+    // skip straight back to frame selection instead of the welcome screen.
+    localStorage.removeItem(CAMERA_STORAGE_KEY)
+    sessionStorage.setItem(SKIP_WELCOME_KEY, '1')
+  } catch {
+    // Storage unavailable — reload still happens, just without the shortcut.
+  }
+  // Hard reload instead of resetting JS state in place: this is the only
+  // reliable way on iPadOS Safari to get a USB video-capture device back
+  // after it has silently dropped out of enumerateDevices() mid-session.
+  window.location.reload()
 }
 
 onBeforeUnmount(() => {
@@ -458,6 +545,23 @@ onBeforeUnmount(() => {
             @click="countdownSeconds = opt"
           >
             {{ t('softwarePhotobooth.welcome.timerOptionSeconds', { seconds: opt }) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.session.resolution') }}</p>
+        <p class="mt-0.5 font-poppins text-[11px] text-gray-400">{{ t('softwarePhotobooth.session.resolutionHint') }}</p>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <button
+            v-for="key in RESOLUTION_PRESET_KEYS"
+            :key="key"
+            type="button"
+            class="rounded-lg px-2 py-1.5 font-poppins text-xs font-semibold transition"
+            :class="resolutionPreset === key ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            @click="resolutionPreset = key"
+          >
+            {{ t(RESOLUTION_PRESETS[key].labelKey) }}
           </button>
         </div>
       </div>
@@ -650,7 +754,25 @@ onBeforeUnmount(() => {
       <p v-if="saving" class="mt-4 font-poppins text-sm text-[#57607A]">{{ t('softwarePhotobooth.result.saving') }}</p>
       <p v-if="saveError" class="mt-4 font-poppins text-xs text-red-600">{{ saveError }}</p>
 
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <div v-if="!savedResult" class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <button
+          class="flex items-center gap-2 rounded-full border border-[#920f0f] px-6 py-3 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
+          @click="retakeFromResult"
+        >
+          <Icon name="heroicons:arrow-path" />
+          {{ t('softwarePhotobooth.result.retakeBtn') }}
+        </button>
+        <button
+          :disabled="saving"
+          class="flex items-center gap-2 rounded-full bg-[#920f0f] px-8 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+          @click="saveResult"
+        >
+          <Icon name="heroicons:check" />
+          {{ t('softwarePhotobooth.result.saveBtn') }}
+        </button>
+      </div>
+
+      <div v-else class="mt-6 flex flex-wrap items-center justify-center gap-3">
         <button
           class="flex items-center gap-2 rounded-full bg-[#1E2537] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5"
           @click="shareResult"
@@ -659,8 +781,7 @@ onBeforeUnmount(() => {
           {{ shareCopied ? t('softwarePhotobooth.result.shareCopied') : t('softwarePhotobooth.result.shareBtn') }}
         </button>
         <button
-          :disabled="!savedResult"
-          class="flex items-center gap-2 rounded-full border border-[#920f0f] px-6 py-3 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex items-center gap-2 rounded-full border border-[#920f0f] px-6 py-3 text-sm font-semibold text-[#920f0f] transition hover:bg-[#920f0f]/5"
           @click="showQrOverlay = true"
         >
           <Icon name="heroicons:qr-code" />
