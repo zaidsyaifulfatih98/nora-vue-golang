@@ -158,7 +158,7 @@
       "unnamedCamera": "Kamera (tanpa nama)",
       "cameraSettings": "Pengaturan Kamera",
       "resolution": "Resolusi Kamera",
-      "resolutionHint": "Video patah-patah (misal kamera via USB capture card)? Coba \"1080p Halus\" dulu agar tetap jernih — kalau masih patah, turunkan ke 720p.",
+      "resolutionHint": "",
       "resolutionHd": "720p (Paling Stabil)",
       "resolutionFhdSmooth": "1080p Halus (20fps, tetap jernih)",
       "resolutionFhd": "1080p (Kualitas Tinggi, 30fps)",
