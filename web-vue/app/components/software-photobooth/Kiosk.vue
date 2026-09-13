@@ -65,13 +65,20 @@ function resetCameraAdjustments() {
 }
 
 // Many generic HDMI/UVC capture-card dongles used with mirrorless cameras
-// like the A6400 can't sustain a clean 1080p feed over an iPad's USB stack —
-// the browser ends up dropping frames trying to keep up, which shows as
-// stutter. 720p is the safer default; operators with a dongle that can
-// actually keep up can switch to 1080p from the camera settings panel.
+// like the A6400 can't sustain a clean 1080p/30fps feed over an iPad's USB
+// stack — the bandwidth (resolution × frameRate) is more than the link can
+// carry, so the browser drops frames and playback stutters.
+//
+// 720p is the safest/smoothest default. But dropping resolution isn't the
+// only lever: bandwidth also scales with frameRate, so "1080p Halus" keeps
+// the full 1080p pixel detail (sharp) while cutting frameRate to 20fps —
+// often enough headroom to stop the stutter without softening the image the
+// way downscaling to 720p does. "1080p Kualitas Tinggi" is the uncompromised
+// full-quality mode for dongles/links that can actually sustain it.
 const RESOLUTION_PRESETS = {
-  hd720: { width: 1280, height: 720, labelKey: 'softwarePhotobooth.session.resolutionHd' },
-  fhd1080: { width: 1920, height: 1080, labelKey: 'softwarePhotobooth.session.resolutionFhd' },
+  hd720: { width: 1280, height: 720, frameRate: 30, labelKey: 'softwarePhotobooth.session.resolutionHd' },
+  fhd1080Smooth: { width: 1920, height: 1080, frameRate: 20, labelKey: 'softwarePhotobooth.session.resolutionFhdSmooth' },
+  fhd1080: { width: 1920, height: 1080, frameRate: 30, labelKey: 'softwarePhotobooth.session.resolutionFhd' },
 } as const
 type ResolutionPreset = keyof typeof RESOLUTION_PRESETS
 const RESOLUTION_PRESET_KEYS = Object.keys(RESOLUTION_PRESETS) as ResolutionPreset[]
@@ -223,11 +230,11 @@ async function startCamera() {
     // back to whatever the capture card actually supports instead of
     // failing outright — but steering it toward a mode the USB link can
     // sustain smoothly is what actually fixes the stutter.
-    const { width, height } = RESOLUTION_PRESETS[resolutionPreset.value]
+    const { width, height, frameRate } = RESOLUTION_PRESETS[resolutionPreset.value]
     const videoConstraints: MediaTrackConstraints = {
       width: { ideal: width },
       height: { ideal: height },
-      frameRate: { ideal: 30, max: 30 },
+      frameRate: { ideal: frameRate, max: frameRate },
     }
     if (selectedDeviceId.value) videoConstraints.deviceId = { exact: selectedDeviceId.value }
     else videoConstraints.facingMode = 'user'
@@ -552,12 +559,12 @@ onBeforeUnmount(() => {
       <div class="mt-3">
         <p class="font-poppins text-xs font-medium text-gray-600">{{ t('softwarePhotobooth.session.resolution') }}</p>
         <p class="mt-0.5 font-poppins text-[11px] text-gray-400">{{ t('softwarePhotobooth.session.resolutionHint') }}</p>
-        <div class="mt-2 grid grid-cols-2 gap-2">
+        <div class="mt-2 flex flex-col gap-1.5">
           <button
             v-for="key in RESOLUTION_PRESET_KEYS"
             :key="key"
             type="button"
-            class="rounded-lg px-2 py-1.5 font-poppins text-xs font-semibold transition"
+            class="w-full rounded-lg px-2 py-1.5 text-left font-poppins text-xs font-semibold transition"
             :class="resolutionPreset === key ? 'bg-[#920f0f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
             @click="resolutionPreset = key"
           >
