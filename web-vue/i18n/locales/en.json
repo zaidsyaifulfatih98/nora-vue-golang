@@ -152,6 +152,7 @@
       "continueBtn": "Continue",
       "retryCamera": "Try Again",
       "cameraError": "Can't access the camera. Make sure it's allowed and connected.",
+      "cameraConnecting": "Preparing the camera...",
       "frameLoadError": "Failed to load the frame image. Please try again.",
       "processing": "Processing...",
       "preparing": "Get ready...",

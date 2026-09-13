@@ -152,6 +152,7 @@
       "continueBtn": "Lanjutkan",
       "retryCamera": "Coba Lagi",
       "cameraError": "Tidak bisa mengakses kamera. Pastikan kamera diizinkan dan tersambung.",
+      "cameraConnecting": "Menyiapkan kamera...",
       "frameLoadError": "Gagal memuat gambar frame. Silakan coba lagi.",
       "processing": "Memproses...",
       "preparing": "Bersiap...",

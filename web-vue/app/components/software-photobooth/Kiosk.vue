@@ -183,6 +183,14 @@ const selectedFrame = ref<PhotoboothFrameItem | null>(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
 const stream = ref<MediaStream | null>(null)
 const cameraError = ref('')
+// True while startCamera() is silently retrying after a "device busy"
+// error — iPadOS can briefly hold the OS-level lock on a USB capture card
+// for a second or two after the previous getUserMedia stream was stopped
+// (including across a full page reload). Surfacing this as a soft
+// "connecting" state instead of an immediate hard error means the guest
+// doesn't see a scary failure for what's normally a 1-3s transient wait.
+const cameraConnecting = ref(false)
+const CAMERA_LOCK_RETRY_DELAYS_MS = [600, 1000, 1500, 2000, 3000]
 const videoDevices = ref<MediaDeviceInfo[]>([])
 // Read on the client only — localStorage doesn't exist during SSR, and this
 // whole page is desktop-kiosk-only anyway (no need for the value up front).
@@ -222,9 +230,21 @@ async function refreshDevices() {
   }
 }
 
-async function startCamera() {
-  cameraError.value = ''
-  photos.value = []
+// "Device busy" errors (the camera resource is still held by whatever just
+// released it — typically the previous session's stream, sometimes across a
+// full page reload) are transient on iPadOS: the OS-level lock on a USB
+// capture card usually clears itself within a couple of seconds. Retrying
+// silently is the fix; surfacing it as a hard error immediately is not.
+function isDeviceBusyError(err: unknown) {
+  const name = err instanceof DOMException ? err.name : ''
+  return name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError'
+}
+
+async function startCamera(retryAttempt = 0) {
+  if (retryAttempt === 0) {
+    cameraError.value = ''
+    photos.value = []
+  }
   try {
     // ideal (not exact) width/height/frameRate so the browser can still fall
     // back to whatever the capture card actually supports instead of
@@ -243,6 +263,7 @@ async function startCamera() {
       video: videoConstraints,
       audio: false,
     })
+    cameraConnecting.value = false
     await nextTick()
     if (videoRef.value) {
       videoRef.value.srcObject = stream.value
@@ -252,7 +273,14 @@ async function startCamera() {
     if (!selectedDeviceId.value) {
       selectedDeviceId.value = stream.value.getVideoTracks()[0]?.getSettings().deviceId ?? ''
     }
-  } catch {
+  } catch (err) {
+    if (isDeviceBusyError(err) && retryAttempt < CAMERA_LOCK_RETRY_DELAYS_MS.length) {
+      cameraConnecting.value = true
+      await sleep(CAMERA_LOCK_RETRY_DELAYS_MS[retryAttempt])
+      await startCamera(retryAttempt + 1)
+      return
+    }
+    cameraConnecting.value = false
     if (selectedDeviceId.value) {
       selectedDeviceId.value = ''
       localStorage.removeItem(CAMERA_STORAGE_KEY)
@@ -485,7 +513,7 @@ function retakeFromResult() {
   startCamera()
 }
 
-function newSession() {
+async function newSession() {
   stopCamera()
   try {
     // Forget the pinned camera so the next session's startCamera() doesn't
@@ -496,6 +524,13 @@ function newSession() {
   } catch {
     // Storage unavailable — reload still happens, just without the shortcut.
   }
+  // A short pause before navigating: track.stop() above signals the OS to
+  // release the USB capture device, but that release isn't guaranteed to be
+  // synchronous — reloading immediately can race it and leave the device
+  // looking "busy" to the very next getUserMedia call. Giving it a moment
+  // first, on top of startCamera()'s own busy-device retry loop, is what
+  // actually makes session 2+ reliable on iPadOS.
+  await sleep(500)
   // Hard reload instead of resetting JS state in place: this is the only
   // reliable way on iPadOS Safari to get a USB video-capture device back
   // after it has silently dropped out of enumerateDevices() mid-session.
@@ -685,8 +720,9 @@ onBeforeUnmount(() => {
         playsinline
       />
 
-      <div v-if="!isCameraReady && !cameraError" class="flex h-full w-full items-center justify-center text-white/70">
+      <div v-if="!isCameraReady && !cameraError" class="flex h-full w-full flex-col items-center justify-center gap-3 text-white/70">
         <Icon name="heroicons:video-camera" class="animate-pulse text-5xl" />
+        <p v-if="cameraConnecting" class="font-poppins text-sm text-white/70">{{ t('softwarePhotobooth.session.cameraConnecting') }}</p>
       </div>
       <div v-if="cameraError" class="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
         <Icon name="heroicons:exclamation-triangle" class="text-4xl text-white" />
