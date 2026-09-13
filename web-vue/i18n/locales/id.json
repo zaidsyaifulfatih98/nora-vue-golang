@@ -168,6 +168,8 @@
       "contrast": "Kontras",
       "filter": "Filter",
       "resetFilters": "Reset ke Default",
+      "turnOffCamera": "Matikan Kamera",
+      "turnOnCamera": "Nyalakan Kamera",
       "filters": {
         "none": "Normal",
         "bw": "Hitam Putih",

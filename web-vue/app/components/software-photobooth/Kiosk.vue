@@ -12,15 +12,6 @@ const MAX_CANVAS_SIDE = 2000
 const TIMER_OPTIONS = [3, 5, 10]
 const CAMERA_STORAGE_KEY = 'photobooth_camera_device_id'
 const CAMERA_ADJUST_STORAGE_KEY = 'photobooth_camera_adjustments'
-// After "Sesi Baru" we hard-reload the page (see newSession()) instead of
-// just resetting JS state — on iPadOS Safari, a USB video-capture device can
-// silently vanish from enumerateDevices() after a getUserMedia stream has
-// already been started/stopped once in the same tab. A real navigation
-// reload tears down and recreates the whole media/device context, which is
-// the only reliable way to get the USB camera back for the next guest. This
-// flag survives the reload (sessionStorage, not JS state) so we can skip
-// straight back to frame selection instead of showing the welcome screen.
-const SKIP_WELCOME_KEY = 'photobooth_skip_welcome'
 
 type FilterPreset = 'none' | 'bw' | 'sepia' | 'vintage' | 'cool' | 'warm'
 // Brightness/contrast are always applied via CSS filter() functions;
@@ -116,15 +107,6 @@ onMounted(() => {
   })
 
   try {
-    if (sessionStorage.getItem(SKIP_WELCOME_KEY)) {
-      sessionStorage.removeItem(SKIP_WELCOME_KEY)
-      step.value = 'frame'
-    }
-  } catch {
-    // sessionStorage unavailable — guest just sees the welcome screen again.
-  }
-
-  try {
     const saved = JSON.parse(localStorage.getItem(CAMERA_ADJUST_STORAGE_KEY) || 'null')
     if (saved) {
       brightness.value = saved.brightness ?? 100
@@ -169,7 +151,12 @@ function goBack() {
   if (step.value === 'frame') {
     step.value = 'welcome'
   } else if (step.value === 'session') {
-    stopCamera()
+    // Deliberately not stopping the camera here — the stream is kept alive
+    // across the whole guest loop (see startCamera()'s live-stream reuse)
+    // and only ever torn down for an explicit device/resolution change or
+    // "Matikan Kamera". Stopping and restarting it on every back/retake is
+    // exactly what was causing the USB capture card to hit a resource lock
+    // on iPadOS between sessions.
     photos.value = []
     selectedFrame.value = null
     step.value = 'frame'
@@ -240,11 +227,33 @@ function isDeviceBusyError(err: unknown) {
   return name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError'
 }
 
+function isStreamLive() {
+  return stream.value?.getVideoTracks().some((track) => track.readyState === 'live') ?? false
+}
+
 async function startCamera(retryAttempt = 0) {
   if (retryAttempt === 0) {
     cameraError.value = ''
     photos.value = []
   }
+
+  // Reuse the already-running stream instead of calling getUserMedia()
+  // again — this is the actual fix for the iPadOS resource-lock: a fresh
+  // getUserMedia() request now only ever happens once (first frame pick, or
+  // right after an explicit device/resolution change), instead of once per
+  // guest session. The <video> element itself gets torn down and remounted
+  // between steps, so it needs its srcObject rebound each time we return —
+  // but the underlying MediaStream/tracks stay alive and untouched.
+  if (isStreamLive()) {
+    cameraConnecting.value = false
+    await nextTick()
+    if (videoRef.value && videoRef.value.srcObject !== stream.value) {
+      videoRef.value.srcObject = stream.value
+      await videoRef.value.play()
+    }
+    return
+  }
+
   try {
     // ideal (not exact) width/height/frameRate so the browser can still fall
     // back to whatever the capture card actually supports instead of
@@ -304,6 +313,19 @@ function stopCamera() {
   stream.value = null
 }
 
+// Manual escape hatch for the operator — releases the USB capture device on
+// demand (e.g. before unplugging it, or to force a clean reconnect) without
+// having to leave the kiosk page. isCameraOn also just reflects whether the
+// stream is currently live, for the settings-panel button label.
+const isCameraOn = computed(() => isStreamLive())
+async function toggleCameraPower() {
+  if (isCameraOn.value) {
+    stopCamera()
+  } else {
+    await startCamera()
+  }
+}
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -334,13 +356,10 @@ async function captureSequence() {
   }
 
   capturing.value = false
-
-  if (photos.value.length >= photoCount.value) {
-    // Stop the camera once every shot is in, but let the operator confirm
-    // with "Lanjutkan" (or retake) instead of compositing immediately —
-    // gives a last look before committing to the frame.
-    stopCamera()
-  }
+  // The stream is intentionally left running here (not stopped) even though
+  // every shot is in — the operator still confirms with "Lanjutkan" (or
+  // retake) before compositing, but the camera itself stays live in the
+  // background so the next guest's session doesn't have to re-acquire it.
 }
 
 async function startCaptureCountdown() {
@@ -513,28 +532,19 @@ function retakeFromResult() {
   startCamera()
 }
 
-async function newSession() {
-  stopCamera()
-  try {
-    // Forget the pinned camera so the next session's startCamera() doesn't
-    // retry a deviceId the browser may have dropped, and mark the reload to
-    // skip straight back to frame selection instead of the welcome screen.
-    localStorage.removeItem(CAMERA_STORAGE_KEY)
-    sessionStorage.setItem(SKIP_WELCOME_KEY, '1')
-  } catch {
-    // Storage unavailable — reload still happens, just without the shortcut.
-  }
-  // A short pause before navigating: track.stop() above signals the OS to
-  // release the USB capture device, but that release isn't guaranteed to be
-  // synchronous — reloading immediately can race it and leave the device
-  // looking "busy" to the very next getUserMedia call. Giving it a moment
-  // first, on top of startCamera()'s own busy-device retry loop, is what
-  // actually makes session 2+ reliable on iPadOS.
-  await sleep(500)
-  // Hard reload instead of resetting JS state in place: this is the only
-  // reliable way on iPadOS Safari to get a USB video-capture device back
-  // after it has silently dropped out of enumerateDevices() mid-session.
-  window.location.reload()
+function newSession() {
+  // No reload and no stopCamera() here — the stream keeps running
+  // continuously in the background (see startCamera()'s live-stream reuse),
+  // so there's nothing to re-acquire for the next guest and therefore no
+  // resource lock to hit. This is just an in-place state reset.
+  resultImage.value = ''
+  photos.value = []
+  savedResult.value = null
+  qrCodeDataUrl.value = ''
+  saveError.value = ''
+  showQrOverlay.value = false
+  selectedFrame.value = null
+  step.value = 'frame'
 }
 
 onBeforeUnmount(() => {
@@ -662,6 +672,15 @@ onBeforeUnmount(() => {
         @click="resetCameraAdjustments"
       >
         {{ t('softwarePhotobooth.session.resetFilters') }}
+      </button>
+
+      <button
+        type="button"
+        class="mt-3 w-full rounded-lg py-1.5 font-poppins text-xs font-semibold transition"
+        :class="isCameraOn ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-[#920f0f] text-white hover:opacity-90'"
+        @click="toggleCameraPower"
+      >
+        {{ isCameraOn ? t('softwarePhotobooth.session.turnOffCamera') : t('softwarePhotobooth.session.turnOnCamera') }}
       </button>
     </div>
 

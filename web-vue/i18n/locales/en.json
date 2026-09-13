@@ -168,6 +168,8 @@
       "contrast": "Contrast",
       "filter": "Filter",
       "resetFilters": "Reset to Default",
+      "turnOffCamera": "Turn Off Camera",
+      "turnOnCamera": "Turn On Camera",
       "filters": {
         "none": "Normal",
         "bw": "Black & White",
