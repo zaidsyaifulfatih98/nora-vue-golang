@@ -55,10 +55,9 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES.value)
         </p>
       </div>
 
-      <div class="mt-16 grid items-stretch gap-8 lg:grid-cols-3">
+      <Carousel :items="packages" grid-from="lg" class="mt-16" track-class="pt-6 pb-4 lg:gap-8 lg:pt-0 lg:pb-0">
+        <template #default="{ item: pkg }">
         <div
-          v-for="pkg in packages"
-          :key="pkg.id"
           class="relative flex h-full flex-col rounded-3xl p-8 transition hover:-translate-y-1"
           :class="pkg.isPopular ? 'bg-[#f7f3eb] text-black shadow-2xl shadow-[#1E2537]/30 lg:scale-105' : 'bg-white text-[#1E2537] shadow-sm ring-1 ring-[#E4E2DC]'"
         >
@@ -83,7 +82,8 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES.value)
             </li>
           </ul>
         </div>
-      </div>
+        </template>
+      </Carousel>
 
       <div class="mt-12 flex justify-center">
         <a

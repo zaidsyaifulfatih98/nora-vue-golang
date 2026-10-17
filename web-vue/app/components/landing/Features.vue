@@ -18,8 +18,9 @@ const hasFeatures = computed(() => Boolean(features.value && features.value.leng
         </p>
       </div>
 
-      <div v-if="hasFeatures" class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="feature in features" :key="feature.id" class="group flex h-full rounded-2xl transition duration-300 hover:-translate-y-1">
+      <Carousel v-if="hasFeatures" :items="features ?? []" grid-from="sm" class="mt-16" track-class="sm:gap-6">
+        <template #default="{ item: feature }">
+        <div class="group flex h-full rounded-2xl transition duration-300 hover:-translate-y-1">
           <div class="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E4E2DC]/70 transition duration-300 group-hover:shadow-xl">
             <div class="aspect-[4/3] w-full overflow-hidden">
               <img :src="feature.imageUrl" :alt="tf(feature.title, feature.titleEn)" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -30,7 +31,8 @@ const hasFeatures = computed(() => Boolean(features.value && features.value.leng
             </div>
           </div>
         </div>
-      </div>
+        </template>
+      </Carousel>
       <p v-else class="mt-16 text-center font-poppins text-sm text-[#57607A]">{{ t('landing.features.empty') }}</p>
     </div>
   </section>

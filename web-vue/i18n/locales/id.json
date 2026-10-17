@@ -37,7 +37,7 @@
       "empty": "Fitur unggulan akan segera hadir."
     },
     "frameTemplates": {
-      "title": "Template Menarik dan Bisa di Kustom",
+      "title": "Template Menarik dan Bisa di Custom",
       "description": "Pilih dari tampilan elegan, siap untuk acara. Kami menyesuaikan teks dan warna agar sesuai dengan tema acara.",
       "requestCta": "Request Desain Sendiri",
       "requestMessage": "Halo, saya ingin request desain frame photobooth sendiri."
@@ -67,7 +67,7 @@
       }
     },
     "gallery": {
-      "eyebrow": "Galeri Momen",
+      "eyebrow": "Gallery",
       "title": "Sekilas Keseruan di Setiap Bidikan",
       "description": "Cuplikan suasana photobooth dari berbagai resepsi yang pernah kami temani.",
       "prev": "Sebelumnya",
@@ -168,8 +168,6 @@
       "contrast": "Kontras",
       "filter": "Filter",
       "resetFilters": "Reset ke Default",
-      "turnOffCamera": "Matikan Kamera",
-      "turnOnCamera": "Nyalakan Kamera",
       "filters": {
         "none": "Normal",
         "bw": "Hitam Putih",

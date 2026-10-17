@@ -313,19 +313,6 @@ function stopCamera() {
   stream.value = null
 }
 
-// Manual escape hatch for the operator — releases the USB capture device on
-// demand (e.g. before unplugging it, or to force a clean reconnect) without
-// having to leave the kiosk page. isCameraOn also just reflects whether the
-// stream is currently live, for the settings-panel button label.
-const isCameraOn = computed(() => isStreamLive())
-async function toggleCameraPower() {
-  if (isCameraOn.value) {
-    stopCamera()
-  } else {
-    await startCamera()
-  }
-}
-
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -672,15 +659,6 @@ onBeforeUnmount(() => {
         @click="resetCameraAdjustments"
       >
         {{ t('softwarePhotobooth.session.resetFilters') }}
-      </button>
-
-      <button
-        type="button"
-        class="mt-3 w-full rounded-lg py-1.5 font-poppins text-xs font-semibold transition"
-        :class="isCameraOn ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-[#920f0f] text-white hover:opacity-90'"
-        @click="toggleCameraPower"
-      >
-        {{ isCameraOn ? t('softwarePhotobooth.session.turnOffCamera') : t('softwarePhotobooth.session.turnOnCamera') }}
       </button>
     </div>
 
