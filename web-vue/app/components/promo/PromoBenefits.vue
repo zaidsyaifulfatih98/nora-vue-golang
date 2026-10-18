@@ -8,17 +8,17 @@ const HEADING_LINE_2 = 'di Nora Photobooth' // baris ini diberi garis highlight
 
 const BENEFITS = [
   {
-    image: '/promo/benefit-1.png',
+    image: '/promo/benefit-1.jpeg',
     title: 'Staf Profesional',
     description: 'Staf kami siap menyambutmu dengan **hangat**, membantu merapikan gayamu, dan memastikan setiap tawa tulus terbingkai sempurna dalam **kenangan**.',
   },
   {
-    image: '/promo/benefit-2.png',
+    image: '/promo/benefit-2.jpeg',
     title: 'Teknologi Terbaru & Premium',
     description: 'Nikmati pengalaman photobooth **berstandar tinggi**: kamera **Sony A6400**, **layar iPad** yang responsif, serta cetakan instan tahan lama dari **Printer DNP**.',
   },
   {
-    image: '/promo/benefit-3.png',
+    image: '/promo/benefit-3.jpeg',
     title: 'Properti & Aksesoris yang Seru',
     description: 'Ikin fotomu makin hidup dan ekspresif! Beragam **props unik, lucu, dan elegan** yang bisa disesuaikan dengan tema acara.',
   },
