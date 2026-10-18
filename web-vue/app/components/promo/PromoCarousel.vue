@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 // Carousel generik untuk halaman promo. Kalau `gridFrom` diisi, carousel hanya
 // aktif di bawah breakpoint itu dan berubah jadi grid di atasnya.
 const props = defineProps<{
-  items: unknown[]
+  items: T[]
   gridFrom?: 'sm' | 'lg'
   trackClass?: string
 }>()
@@ -16,6 +16,8 @@ function scroll(direction: 1 | -1) {
   const amount = (card?.offsetWidth ?? track.clientWidth) + 24
   track.scrollBy({ left: direction * amount, behavior: 'smooth' })
 }
+
+defineSlots<{ default(props: { item: T }): unknown }>()
 
 const showArrows = computed(() => props.items.length > 1)
 

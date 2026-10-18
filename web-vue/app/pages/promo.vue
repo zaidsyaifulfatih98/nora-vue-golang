@@ -11,7 +11,8 @@ useHead({
     <PromoHero class="order-1" />
     <!-- Di mobile galeri tampil tepat di bawah hero; di desktop tetap setelah paket. -->
     <PromoGallery class="order-2 md:order-7" />
-    <PromoFeatures class="order-3" />
+    <!-- <PromoFeatures class="order-3" /> -->
+    <PromoBenefits class="order-3" />
     <PromoFrameTemplates class="order-4" />
     <PromoBackdrops class="order-5" />
     <PromoPackages class="order-6" />
