@@ -24,13 +24,13 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
     class="fixed top-0 z-50 w-full transition-all duration-300"
     :class="scrolled ? 'bg-[#FFFFFF]/90 shadow-sm backdrop-blur-md' : 'bg-transparent'"
   >
-    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-      <a href="#hero" class="flex items-center gap-2">
-        <span class="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full shadow-md">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-4 min-[420px]:px-6 lg:px-10">
+      <a href="#hero" class="flex min-w-0 items-center gap-1.5 min-[420px]:gap-2">
+        <span class="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full shadow-md min-[420px]:h-9 min-[420px]:w-9">
           <img src="/nora_logo.jpg" alt="Nora Photobooth" class="h-full w-full scale-75 object-contain" />
         </span>
-        <span class="text-2xl tracking-wide text-[#1E2537]">
-          <span class="font-marykate text-3xl">NORA</span> <span class="font-quicksand text-[#000000] font-bold text-xl">PHOTOBOOTH</span>
+        <span class="whitespace-nowrap tracking-wide text-[#1E2537]">
+          <span class="font-marykate text-xl min-[340px]:text-2xl min-[420px]:text-3xl">NORA</span> <span class="font-quicksand text-[#000000] font-bold text-xs min-[340px]:text-base min-[420px]:text-xl">PHOTOBOOTH</span>
         </span>
       </a>
 
@@ -53,7 +53,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         </NuxtLink>
       </div>
 
-      <div class="flex items-center gap-3 lg:hidden">
+      <div class="flex shrink-0 items-center gap-2 min-[420px]:gap-3 lg:hidden">
         <LanguageSwitcher />
         <button :aria-label="t('nav.openMenu')" class="text-2xl text-[#1E2537]" @click="open = !open">
           <Icon :name="open ? 'heroicons:x-mark' : 'heroicons:bars-3'" />

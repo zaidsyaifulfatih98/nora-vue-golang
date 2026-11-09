@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 const props = defineProps<{
-  items: unknown[]
+  items: T[]
   /** Kalau diisi, carousel hanya aktif di bawah breakpoint ini dan berubah jadi grid di atasnya. */
   gridFrom?: 'sm' | 'lg'
   trackClass?: string

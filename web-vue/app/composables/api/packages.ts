@@ -2,6 +2,7 @@ export interface PackageItem {
   id: string
   name: string
   price: string
+  discountPrice?: string | null
   duration: string
   description: string
   features: string[]
@@ -17,6 +18,7 @@ export interface PackageItem {
 export interface PackagePayload {
   name: string
   price: number
+  discountPrice?: number
   duration: string
   description: string
   features: string[]

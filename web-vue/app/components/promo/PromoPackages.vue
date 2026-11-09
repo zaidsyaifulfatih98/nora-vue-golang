@@ -26,7 +26,15 @@ function formatRupiah(value: string) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value))
 }
 
-const fetched = await useServerFetch<PackageItem[]>('/packages', 'landing-packages')
+function hasDiscount(pkg: PackageItem) {
+  return !!pkg.discountPrice && Number(pkg.discountPrice) > 0 && Number(pkg.discountPrice) < Number(pkg.price)
+}
+
+function discountPercent(pkg: PackageItem) {
+  return Math.round((1 - Number(pkg.discountPrice) / Number(pkg.price)) * 100)
+}
+
+const fetched =await useServerFetch<PackageItem[]>('/packages', 'landing-packages')
 const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES)
 </script>
 
@@ -51,10 +59,20 @@ const packages = computed(() => fetched.value ?? FALLBACK_PACKAGES)
             </span>
 
             <h3 class="flex justify-center font-poppins text-2xl font-bold">{{ pkg.name }}</h3>
-            <span class="mt-6 inline-flex w-fit items-center rounded-md bg-[#920f0f] px-3 py-1 text-xs font-bold tracking-wide text-white shadow-sm">
-              {{ START_FROM }}
-            </span>
-            <p class="mt-2 font-poppins text-3xl font-bold">{{ formatRupiah(pkg.price) }}</p>
+            <div class="mt-6 flex items-center justify-between">
+              <span class="inline-flex items-center rounded-md bg-[#920f0f] px-3 py-1 text-xs font-bold tracking-wide text-white shadow-sm">
+                {{ START_FROM }}
+              </span>
+              <span v-if="hasDiscount(pkg)" class="inline-flex items-center rounded-md bg-green-600 px-3 py-1 text-xs font-bold text-white">
+                Hemat {{ discountPercent(pkg) }}%
+              </span>
+            </div>
+
+            <div v-if="hasDiscount(pkg)" class="mt-2">
+              <p class="mt-1 font-poppins text-xl font-bold text-gray-500 line-through decoration-2">{{ formatRupiah(pkg.price) }}</p>
+              <p class="font-poppins text-3xl font-bold text-black">{{ formatRupiah(pkg.discountPrice!) }}</p>
+            </div>
+            <p v-else class="mt-2 font-poppins text-3xl font-bold">{{ formatRupiah(pkg.price) }}</p>
 
             <p v-if="pkg.description" class="mt-2 font-poppins text-sm" :class="pkg.isPopular ? 'text-black' : 'text-[#57607A]'">
               {{ pkg.description }}

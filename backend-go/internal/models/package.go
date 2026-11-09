@@ -9,8 +9,9 @@ type Package struct {
 	BaseModel
 	Name          string          `gorm:"size:50;not null" json:"name"`
 	Price         decimal.Decimal `gorm:"type:decimal;not null" json:"price"`
+	DiscountPrice *decimal.Decimal `gorm:"type:decimal" json:"discountPrice"`
 	Duration      string          `gorm:"size:100;not null" json:"duration"`
-	Description   string          `gorm:"type:text;not null" json:"description"`
+	Description  string          `gorm:"type:text;not null" json:"description"`
 	Features      pq.StringArray  `gorm:"type:text[]" json:"features"`
 	NameEn        *string         `gorm:"size:50" json:"nameEn"`
 	DurationEn    *string         `gorm:"size:100" json:"durationEn"`

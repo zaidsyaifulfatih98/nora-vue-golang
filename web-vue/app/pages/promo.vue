@@ -15,7 +15,11 @@ useHead({
     <PromoBenefits class="order-3" />
     <PromoFrameTemplates class="order-4" />
     <PromoBackdrops class="order-5" />
+    <PromoDiscount class="order-6" />
     <PromoPackages class="order-6" />
+    <!-- Pilih salah satu promo: hapus/komentari yang tidak dipakai. -->
+    
+    <!-- <PromoBonus class="order-6" /> -->
     <PromoTestimonials class="order-8" />
     <PromoFooter class="order-9" />
     <PromoWhatsappCta />

@@ -27,6 +27,7 @@ func (h *Handler) Delete() gin.HandlerFunc { return crud.DeleteHandler(h.repo) }
 type createRequest struct {
 	Name          string   `json:"name" binding:"required,max=50"`
 	Price         float64  `json:"price" binding:"required,min=0"`
+	DiscountPrice *float64 `json:"discountPrice"`
 	Duration      string   `json:"duration" binding:"required"`
 	Description   string   `json:"description" binding:"required"`
 	Features      []string `json:"features"`
@@ -37,6 +38,15 @@ type createRequest struct {
 	IsPopular     bool     `json:"isPopular"`
 	IsActive      *bool    `json:"isActive"`
 	Order         int      `json:"order"`
+}
+
+// discountDecimal returns nil unless the discount is a positive amount below the base price.
+func discountDecimal(discount *float64, price float64) *decimal.Decimal {
+	if discount == nil || *discount <= 0 || *discount >= price {
+		return nil
+	}
+	d := decimal.NewFromFloat(*discount)
+	return &d
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -55,6 +65,7 @@ func (h *Handler) Create(c *gin.Context) {
 	item := models.Package{
 		Name:          req.Name,
 		Price:         decimal.NewFromFloat(req.Price),
+		DiscountPrice: discountDecimal(req.DiscountPrice, req.Price),
 		Duration:      req.Duration,
 		Description:   req.Description,
 		Features:      req.Features,
@@ -79,6 +90,7 @@ func (h *Handler) Create(c *gin.Context) {
 type updateRequest struct {
 	Name          *string   `json:"name"`
 	Price         *float64  `json:"price"`
+	DiscountPrice *float64  `json:"discountPrice"`
 	Duration      *string   `json:"duration"`
 	Description   *string   `json:"description"`
 	Features      *[]string `json:"features"`
@@ -105,6 +117,14 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 	if req.Price != nil {
 		updates["price"] = decimal.NewFromFloat(*req.Price)
+	}
+	if req.DiscountPrice != nil {
+		// 0 (or empty in the dashboard form) clears the discount.
+		if *req.DiscountPrice > 0 {
+			updates["discount_price"] = decimal.NewFromFloat(*req.DiscountPrice)
+		} else {
+			updates["discount_price"] = nil
+		}
 	}
 	if req.Duration != nil {
 		updates["duration"] = *req.Duration

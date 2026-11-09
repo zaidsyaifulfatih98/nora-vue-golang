@@ -15,6 +15,7 @@ const submitting = ref(false)
 const emptyForm = {
   name: '',
   price: '',
+  discountPrice: '',
   duration: '',
   description: '',
   features: '',
@@ -52,6 +53,7 @@ function openEditForm(pkg: PackageItem) {
   Object.assign(form, {
     name: pkg.name,
     price: pkg.price,
+    discountPrice: pkg.discountPrice ?? '',
     duration: pkg.duration,
     description: pkg.description,
     features: pkg.features.join('\n'),
@@ -71,6 +73,7 @@ async function handleSubmit() {
     const payload = {
       name: form.name,
       price: Number(form.price),
+      discountPrice: form.discountPrice ? Number(form.discountPrice) : 0,
       duration: form.duration,
       description: form.description,
       features: form.features.split('\n').map((f) => f.trim()).filter(Boolean),
@@ -144,6 +147,17 @@ async function handleToggleActive(pkg: PackageItem) {
             required
             type="number"
             min="0"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-gray-700">Harga Setelah Diskon (opsional)</label>
+          <input
+            v-model="form.discountPrice"
+            type="number"
+            min="0"
+            placeholder="Kosongkan jika tidak ada diskon"
             class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#920f0f] focus:outline-none focus:ring-1 focus:ring-[#920f0f]"
           />
         </div>
@@ -236,7 +250,11 @@ async function handleToggleActive(pkg: PackageItem) {
           </span>
         </div>
 
-        <p class="mt-3 text-xl font-bold text-gray-900">{{ formatRupiah(pkg.price) }}</p>
+        <template v-if="pkg.discountPrice">
+          <p class="mt-3 text-sm font-bold text-red-600 line-through">{{ formatRupiah(pkg.price) }}</p>
+          <p class="text-xl font-bold text-green-600">{{ formatRupiah(pkg.discountPrice) }}</p>
+        </template>
+        <p v-else class="mt-3 text-xl font-bold text-gray-900">{{ formatRupiah(pkg.price) }}</p>
         <p class="mt-2 text-sm text-gray-500">{{ pkg.description }}</p>
 
         <ul class="mt-3 flex-1 space-y-1 text-sm text-gray-600">
